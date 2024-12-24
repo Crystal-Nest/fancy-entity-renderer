@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "${mod_id}",
+  "version": "${mod_version}",
+  "name": "${mod_title}",
+  "description": "${description}",
+  "authors": [
+    "${mod_authors}"
+  ],
+  "contact": {
+    "homepage": "https://modrinth.com/mod/${mod_id_kebab}",
+    "issues": "https://github.com/${github_user}/${mod_id_kebab}/issues",
+    "sources": "https://github.com/${github_user}/${mod_id_kebab}/tree/${minecraft_version}"
+  },
+  "license": "${license}",
+  "icon": "${mod_id_kebab}.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "${group}.${mod_id}.ModLoader"
+    ]
+  },
+  "mixins": [
+    "${mod_id}.mixins.json",
+    "${mod_id}.fabric.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${fabric_loader_version}",
+    "fabric-api": "*",
+    "minecraft": "~${minecraft_version}",
+    "java": ">=${java_version}",
+    "cobweb": "^${cobweb_version}",
+    "forgeconfigapiport": "~${fcap_version}"
+  }
+}
