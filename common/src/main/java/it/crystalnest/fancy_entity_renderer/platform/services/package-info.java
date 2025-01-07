@@ -1,4 +1,4 @@
 @ApiStatus.Internal
-package it.crystalnest.cobweb_mod_template.platform;
+package it.crystalnest.fancy_entity_renderer.platform.services;
 
 import org.jetbrains.annotations.ApiStatus;

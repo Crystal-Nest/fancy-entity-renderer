@@ -1,14 +1,14 @@
-![Cobweb Mod Template banner](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/cobweb-mod-template/banner.png "Cobweb Mod Template banner")
+![Fancy Entity Renderer banner](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/fancy-entity-renderer/banner.png "Fancy Entity Renderer banner")
 
 ---
 
-![Minecraft](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/minecraft/minecraft.svg "Minecraft")[![1.21.4](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/minecraft/1-21-4.svg "1.21.4")](https://modrinth.com/mod/cobweb-mod-template/versions?g=1.21.4)![Separator](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/separator.svg)[![1.21.3](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/minecraft/1-21-3.svg "1.21.3")](https://modrinth.com/mod/cobweb-mod-template/versions?g=1.21.3)![Separator](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/separator.svg)[![1.21.1](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/minecraft/1-21-1.svg "1.21.1")](https://modrinth.com/mod/cobweb-mod-template/versions?g=1.21.1)![Separator](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/separator.svg)[![1.21](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/minecraft/1-21.svg "1.21")](https://modrinth.com/mod/cobweb-mod-template/versions?g=1.21)![Separator](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/separator.svg)[![1.20.4](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/minecraft/1-20-4.svg "1.20.4")](https://modrinth.com/mod/cobweb-mod-template/versions?g=1.20.4)![Separator](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/separator.svg)[![1.20.2](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/minecraft/1-20-2.svg "1.20.2")](https://modrinth.com/mod/cobweb-mod-template/versions?g=1.20.2)![Separator](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/separator.svg)[![1.20.1](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/minecraft/1-20-1.svg "1.20.1")](https://modrinth.com/mod/cobweb-mod-template/versions?g=1.20.1)![Separator](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/separator.svg)[![1.19.4](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/minecraft/1-19-4.svg "1.19.4")](https://modrinth.com/mod/cobweb-mod-template/versions?g=1.19.4)![Separator](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/separator.svg)[![1.19.2](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/minecraft/1-19-2.svg "1.19.2")](https://modrinth.com/mod/cobweb-mod-template/versions?g=1.19.2)
+![Minecraft](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/minecraft/minecraft.svg "Minecraft")[![1.21.4](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/minecraft/1-21-4.svg "1.21.4")](https://modrinth.com/mod/fancy-entity-renderer/versions?g=1.21.4)
 
-![Loader](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/loader/loader.svg "Loader")[![NeoForge](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/loader/neoforge.svg "NeoForge")](https://modrinth.com/mod/cobweb-mod-template/versions?l=neoforge)![Separator](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/separator.svg)[![Fabric](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/loader/fabric.svg "Fabric")](https://modrinth.com/mod/cobweb-mod-template/versions?l=fabric)
+![Loader](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/loader/loader.svg "Loader")[![NeoForge](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/loader/neoforge.svg "NeoForge")](https://modrinth.com/mod/fancy-entity-renderer/versions?l=neoforge)![Separator](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/separator.svg)[![Fabric](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/loader/fabric.svg "Fabric")](https://modrinth.com/mod/fancy-entity-renderer/versions?l=fabric)
 
 ![Overlay](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/side/client-server.svg)
 
-![Issues](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/github/issues.svg "Issues")[![GitHub](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/github/github.svg "GitHub")](https://github.com/crystal-nest/cobweb-mod-template/issues)
+![Issues](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/github/issues.svg "Issues")[![GitHub](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/github/github.svg "GitHub")](https://github.com/crystal-nest/fancy-entity-renderer/issues)
 
 ---
 
@@ -43,8 +43,8 @@ To remove support for the ones you don't need just remove the section and proper
 
 ## **License and right of use**
 
-Feel free to use this mod template for any mod, just be sure to give credit and possibly link [here](https://github.com/crystal-nest/cobweb-mod-template#readme).  
-This project is published under the [GNU General Public License v3.0](https://github.com/crystal-nest/cobweb-mod-template/blob/master/LICENSE).
+Feel free to use this mod template for any mod, just be sure to give credit and possibly link [here](https://github.com/crystal-nest/fancy-entity-renderer#readme).  
+This project is published under the [GNU General Public License v3.0](https://github.com/crystal-nest/fancy-entity-renderer/blob/master/LICENSE).
 
 ## **Support us**
 

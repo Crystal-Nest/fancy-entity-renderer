@@ -1,4 +1,4 @@
-package it.crystalnest.cobweb_mod_template;
+package it.crystalnest.fancy_entity_renderer;
 
 import net.fabricmc.api.ModInitializer;
 import org.jetbrains.annotations.ApiStatus;

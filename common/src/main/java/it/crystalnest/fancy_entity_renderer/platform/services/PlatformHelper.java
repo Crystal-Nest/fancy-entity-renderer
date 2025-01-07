@@ -1,4 +1,4 @@
-package it.crystalnest.cobweb_mod_template.platform.services;
+package it.crystalnest.fancy_entity_renderer.platform.services;
 
 import it.crystalnest.cobweb.platform.model.Environment;
 import it.crystalnest.cobweb.platform.model.Platform;

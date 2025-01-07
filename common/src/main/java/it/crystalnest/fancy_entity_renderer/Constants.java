@@ -1,4 +1,4 @@
-package it.crystalnest.cobweb_mod_template;
+package it.crystalnest.fancy_entity_renderer;
 
 import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
@@ -12,7 +12,7 @@ public final class Constants {
   /**
    * Mod ID.
    */
-  public static final String MOD_ID = "cobweb_mod_template";
+  public static final String MOD_ID = "fancy_entity_renderer";
 
   /**
    * Mod logger.

@@ -1,7 +1,7 @@
-package it.crystalnest.cobweb_mod_template.platform;
+package it.crystalnest.fancy_entity_renderer.platform;
 
-import it.crystalnest.cobweb_mod_template.Constants;
-import it.crystalnest.cobweb_mod_template.platform.services.PlatformHelper;
+import it.crystalnest.fancy_entity_renderer.Constants;
+import it.crystalnest.fancy_entity_renderer.platform.services.PlatformHelper;
 
 import java.util.ServiceLoader;
 
