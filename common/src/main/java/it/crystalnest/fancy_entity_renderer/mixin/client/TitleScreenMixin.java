@@ -19,6 +19,6 @@ public abstract class TitleScreenMixin extends Screen {
   @Inject(method = "init", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/TitleScreen;addRenderableWidget(Lnet/minecraft/client/gui/components/events/GuiEventListener;)Lnet/minecraft/client/gui/components/events/GuiEventListener;", ordinal = 3, shift = At.Shift.AFTER))
   private void onInit(CallbackInfo ci) {
     //this.addRenderableWidget(new PlayerSkinWidget(85, 120, this.minecraft.getEntityModels(), DefaultPlayerSkin::getDefaultSkin));
-   this.addRenderableWidget(new FancyPlayerEntityWidget(0,0,85, 120, this.minecraft.getEntityModels(), DefaultPlayerSkin::getDefaultSkin));
+   this.addRenderableWidget(new FancyPlayerEntityWidget(0,0,85, 120, DefaultPlayerSkin::getDefaultSkin));
   }
 }

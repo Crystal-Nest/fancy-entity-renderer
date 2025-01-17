@@ -6,7 +6,6 @@ import it.crystalnest.fancy_entity_renderer.entity.player.model.PlayerModel;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.renderer.RenderType;
@@ -25,9 +24,9 @@ public class FancyPlayerEntityWidget extends AbstractWidget {
   private float rotationX = -5.0F;
   private float rotationY = 30.0F;
 
-  public FancyPlayerEntityWidget(int x, int y, int width, int height, EntityModelSet model, Supplier<PlayerSkin> skin) {
+  public FancyPlayerEntityWidget(int x, int y, int width, int height, Supplier<PlayerSkin> skin) {
     super(x, y, width, height, CommonComponents.EMPTY);
-    this.model = FancyPlayerEntityWidget.Model.bake(model);
+    this.model = FancyPlayerEntityWidget.Model.bake();
     this.skin = skin;
   }
 
@@ -57,9 +56,7 @@ public class FancyPlayerEntityWidget extends AbstractWidget {
   }
 
   @Override
-  protected void updateWidgetNarration(NarrationElementOutput _f) {
-
-  }
+  protected void updateWidgetNarration(@NotNull NarrationElementOutput output) {}
 
   @Override
   protected void onDrag(double p_299829_, double p_299876_, double p_300028_, double p_299872_) {
@@ -69,16 +66,16 @@ public class FancyPlayerEntityWidget extends AbstractWidget {
 
   record Model(PlayerModel wideModel, PlayerModel slimModel) {
 
-    public static FancyPlayerEntityWidget.Model bake(EntityModelSet modelSet) {
+    public static FancyPlayerEntityWidget.Model bake() {
       // Qui al posto di prendere il modelSEt ecc, creo direttamente le cose.
       PlayerModel wideModel = new PlayerModel(LayerDefinition.create(PlayerModel.createMesh(CubeDeformation.NONE, false), 64, 64)/*.apply(PlayerModel.BABY_TRANSFORMER)*/.bakeRoot(), false);
-      PlayerModel slimModel = new PlayerModel(LayerDefinition.create(PlayerModel.createMesh(CubeDeformation.NONE, true), 64, 64)/*.apply(PlayerModel.BABY_TRANSFORMER)*/.bakeRoot(), true);
+      PlayerModel slimModel = new PlayerModel(LayerDefinition.create(PlayerModel.createMesh(CubeDeformation.NONE, true), 64, 64).apply(PlayerModel.BABY_TRANSFORMER).bakeRoot(), true);
       return new FancyPlayerEntityWidget.Model(wideModel, slimModel);
     }
 
     public void render(GuiGraphics gfx, PlayerSkin skin) {
       gfx.pose().pushPose();
-      //gfx.pose().scale(1.0F, 1.0F, -1.0F);
+      gfx.pose().scale(1.0F, 1.0F, -1.0F);
       gfx.pose().translate(0.0F, -1.501F, 0.0F);
       PlayerModel model = skin.model() == PlayerSkin.Model.SLIM ? this.slimModel : this.wideModel;
 
