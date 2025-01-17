@@ -71,14 +71,17 @@ public class FancyPlayerWidget extends AbstractWidget {
     // TODO: Maybe add narration for when the player name is visible (what about when the name is visible and the player is crouching?).
   }
 
-  record Model(PlayerModel wideModel, PlayerModel slimModel) {
+  record Model(PlayerModel wideModel, PlayerModel slimModel, PlayerModel babyWideModel, PlayerModel babySlimModel) {
+    static LayerDefinition WIDE = LayerDefinition.create(PlayerModel.createMesh(CubeDeformation.NONE, false), 64, 64);
+    static LayerDefinition SLIM = LayerDefinition.create(PlayerModel.createMesh(CubeDeformation.NONE, true), 64, 64);
+
     public static FancyPlayerWidget.Model bake() {
       // Qui al posto di prendere l'EntityModelSet ecc, creo direttamente le cose.
-      PlayerModel wideModel = new PlayerModel(LayerDefinition.create(PlayerModel.createMesh(CubeDeformation.NONE, false), 64, 64).bakeRoot(), false);
-      PlayerModel slimModel = new PlayerModel(LayerDefinition.create(PlayerModel.createMesh(CubeDeformation.NONE, true), 64, 64).bakeRoot(), true);
-      PlayerModel babyWideModel = new PlayerModel(LayerDefinition.create(PlayerModel.createMesh(CubeDeformation.NONE, false), 64, 64).apply(PlayerModel.BABY_TRANSFORMER).bakeRoot(), false);
-      PlayerModel babySlimModel = new PlayerModel(LayerDefinition.create(PlayerModel.createMesh(CubeDeformation.NONE, true), 64, 64).apply(PlayerModel.BABY_TRANSFORMER).bakeRoot(), true);
-      return new FancyPlayerWidget.Model(wideModel, slimModel);
+      PlayerModel wideModel = new PlayerModel(WIDE.bakeRoot(), false);
+      PlayerModel slimModel = new PlayerModel(SLIM.bakeRoot(), true);
+      PlayerModel babyWideModel = new PlayerModel(WIDE.apply(PlayerModel.BABY_TRANSFORMER).bakeRoot(), false);
+      PlayerModel babySlimModel = new PlayerModel(SLIM.apply(PlayerModel.BABY_TRANSFORMER).bakeRoot(), true);
+      return new FancyPlayerWidget.Model(wideModel, slimModel, babyWideModel, babySlimModel);
     }
 
     public void render(GuiGraphics gfx, PlayerSkin skin) {
