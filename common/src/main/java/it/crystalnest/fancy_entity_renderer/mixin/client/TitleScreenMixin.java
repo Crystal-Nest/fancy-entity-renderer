@@ -1,6 +1,6 @@
 package it.crystalnest.fancy_entity_renderer.mixin.client;
 
-import net.minecraft.client.gui.components.PlayerSkinWidget;
+import it.crystalnest.fancy_entity_renderer.entity.player.FancyPlayerEntityWidget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.resources.DefaultPlayerSkin;
@@ -18,6 +18,7 @@ public abstract class TitleScreenMixin extends Screen {
 
   @Inject(method = "init", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/TitleScreen;addRenderableWidget(Lnet/minecraft/client/gui/components/events/GuiEventListener;)Lnet/minecraft/client/gui/components/events/GuiEventListener;", ordinal = 3, shift = At.Shift.AFTER))
   private void onInit(CallbackInfo ci) {
-    this.addRenderableWidget(new PlayerSkinWidget(85, 120, this.minecraft.getEntityModels(), DefaultPlayerSkin::getDefaultSkin));
+    //this.addRenderableWidget(new PlayerSkinWidget(85, 120, this.minecraft.getEntityModels(), DefaultPlayerSkin::getDefaultSkin));
+   this.addRenderableWidget(new FancyPlayerEntityWidget(0,0,85, 120, this.minecraft.getEntityModels(), DefaultPlayerSkin::getDefaultSkin));
   }
 }
