@@ -1,8 +1,8 @@
-package it.crystalnest.fancy_entity_renderer.entity.player;
+package it.crystalnest.fancy_entity_renderer.api.entity.player;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import it.crystalnest.fancy_entity_renderer.entity.player.model.FancyPlayerModel;
-import it.crystalnest.fancy_entity_renderer.entity.player.state.Rotation;
+import it.crystalnest.fancy_entity_renderer.api.Rotation;
+import it.crystalnest.fancy_entity_renderer.api.entity.player.model.FancyPlayerModel;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;

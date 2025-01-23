@@ -1,4 +1,4 @@
-package it.crystalnest.fancy_entity_renderer.entity.player.model;
+package it.crystalnest.fancy_entity_renderer.api.entity.player.model;
 
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;

@@ -1,6 +1,6 @@
 package it.crystalnest.fancy_entity_renderer.mixin.client;
 
-import it.crystalnest.fancy_entity_renderer.entity.player.FancyPlayerWidget;
+import it.crystalnest.fancy_entity_renderer.api.entity.player.FancyPlayerWidget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.network.chat.Component;

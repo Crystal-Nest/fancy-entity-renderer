@@ -1,4 +1,4 @@
-package it.crystalnest.fancy_entity_renderer.entity.player.state;
+package it.crystalnest.fancy_entity_renderer.api;
 
 import java.util.Objects;
 

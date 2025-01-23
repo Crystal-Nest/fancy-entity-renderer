@@ -1,4 +1,4 @@
-package it.crystalnest.fancy_entity_renderer.entity.player;
+package it.crystalnest.fancy_entity_renderer.api.entity.player;
 
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.math.Axis;
