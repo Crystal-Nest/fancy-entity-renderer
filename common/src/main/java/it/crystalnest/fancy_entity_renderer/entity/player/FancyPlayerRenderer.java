@@ -2,6 +2,7 @@ package it.crystalnest.fancy_entity_renderer.entity.player;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import it.crystalnest.fancy_entity_renderer.entity.player.model.FancyPlayerModel;
+import it.crystalnest.fancy_entity_renderer.entity.player.state.Rotation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -17,39 +18,6 @@ import org.jetbrains.annotations.Nullable;
 
 public class FancyPlayerRenderer extends PlayerRenderer {
 
-  @NotNull
-  public volatile PlayerSkin skin = DefaultPlayerSkin.getDefaultSkin();
-  public boolean isCrouching = false;
-  public boolean isBaby = false;
-  public boolean isGlowing = false;
-  @Nullable
-  public Parrot.Variant leftShoulderParrot = null;
-  @Nullable
-  public Parrot.Variant rightShoulderParrot = null;
-
-  public float leftArmXRot = 0F;
-  public float leftArmYRot = 0F;
-  public float leftArmZRot = 0F;
-
-  public float rightArmXRot = 0F;
-  public float rightArmYRot = 0F;
-  public float rightArmZRot = 0F;
-
-  public float leftLegXRot = 0F;
-  public float leftLegYRot = 0F;
-  public float leftLegZRot = 0F;
-
-  public float rightLegXRot = 0F;
-  public float rightLegYRot = 0F;
-  public float rightLegZRot = 0F;
-
-  public float headXRot = 0F;
-  public float headYRot = 0F;
-  public float headZRot = 0F;
-
-  public float bodyXRot = 0F;
-  public float bodyYRot = 0F;
-
   private static final EntityRendererProvider.Context RENDER_CONTEXT = new EntityRendererProvider.Context(
     Minecraft.getInstance().getEntityRenderDispatcher(),
     Minecraft.getInstance().getItemModelResolver(),
@@ -60,52 +28,81 @@ public class FancyPlayerRenderer extends PlayerRenderer {
     new EquipmentAssetManager(),
     Minecraft.getInstance().font
   );
+
+  private final Rotation leftArmRot = new Rotation();
+
+  private final Rotation rightArmRot = new Rotation();
+
+  private final Rotation leftLegRot = new Rotation();
+
+  private final Rotation rightLegRot = new Rotation();
+
+  private final Rotation headRot = new Rotation();
+
+  private final Rotation bodyRot = new Rotation();
+
+  public PlayerSkin skin = DefaultPlayerSkin.getDefaultSkin();
+
+  public boolean isCrouching = false;
+
+  public boolean isBaby;
+
+  public boolean isGlowing = false;
+
+  @Nullable
+  public Parrot.Variant leftShoulderParrot = null;
+
+  @Nullable
+  public Parrot.Variant rightShoulderParrot = null;
+
   public FancyPlayerRenderer(boolean isSlim, boolean isBaby) {
     super(RENDER_CONTEXT, false);
     model = new FancyPlayerModel(isSlim, isBaby);
+    this.isBaby = isBaby;
   }
 
   public void updatePlayerProperties(@NotNull PlayerRenderState state) {
-
-    state.skin = this.skin;
-    state.isCrouching = this.isCrouching;
-    state.parrotOnLeftShoulder = this.leftShoulderParrot;
-    state.parrotOnRightShoulder = this.rightShoulderParrot;
+    state.skin = skin;
+    state.isCrouching = isCrouching;
+    state.parrotOnLeftShoulder = leftShoulderParrot;
+    state.parrotOnRightShoulder = rightShoulderParrot;
     state.nameTag = null;
     state.nameTagAttachment = null;
     state.customName = null;
-    state.isBaby = this.isBaby;
-    state.appearsGlowing = this.isGlowing;
+    state.isBaby = isBaby;
+    state.appearsGlowing = isGlowing;
     state.isSpectator = false;
     state.ageInTicks = 1000;
     state.walkAnimationPos = 0.0F;
     state.walkAnimationSpeed = 0.0F;
-    state.pose = this.isCrouching ? Pose.CROUCHING : Pose.STANDING;
+    state.pose = isCrouching ? Pose.CROUCHING : Pose.STANDING;
+    state.isUpsideDown = true;
 
     // X and Y rotations are switched for some reason
 
-    this.model.leftArm.xRot = this.leftArmXRot;
-    this.model.leftArm.yRot = this.leftArmYRot;
-    this.model.leftArm.zRot = this.leftArmZRot;
+    model.leftArm.xRot = leftArmRot.getX();
+    model.leftArm.yRot = leftArmRot.getY();
+    model.leftArm.zRot = leftArmRot.getZ();
 
-    this.model.rightArm.xRot = this.rightArmXRot;
-    this.model.rightArm.yRot = this.rightArmYRot;
-    this.model.rightArm.zRot = this.rightArmZRot;
+    model.rightArm.xRot = rightArmRot.getX();
+    model.rightArm.yRot = rightArmRot.getY();
+    model.rightArm.zRot = rightArmRot.getZ();
 
-    this.model.leftLeg.xRot = this.leftLegXRot;
-    this.model.leftLeg.yRot = this.leftLegYRot;
-    this.model.leftLeg.zRot = this.leftLegZRot;
+    model.leftLeg.xRot = leftLegRot.getX();
+    model.leftLeg.yRot = leftLegRot.getY();
+    model.leftLeg.zRot = leftLegRot.getZ();
 
-    this.model.rightLeg.xRot = this.rightLegXRot;
-    this.model.rightLeg.yRot = this.rightLegYRot;
-    this.model.rightLeg.zRot = this.rightLegZRot;
+    model.rightLeg.xRot = rightLegRot.getX();
+    model.rightLeg.yRot = rightLegRot.getY();
+    model.rightLeg.zRot = rightLegRot.getZ();
 
-    this.model.root().xRot = this.bodyXRot;
-    this.model.root().yRot = this.bodyYRot;
+    model.root().xRot = bodyRot.getX();
+    model.root().yRot = bodyRot.getY();
+    model.root().zRot = bodyRot.getZ();
 
-    this.model.head.xRot = this.headXRot;
-    this.model.head.yRot = this.headYRot;
-    this.model.head.zRot = this.headZRot;
+    model.head.xRot = headRot.getX();
+    model.head.yRot = headRot.getY();
+    model.head.zRot = headRot.getZ();
   }
 
   @Override

@@ -6,8 +6,8 @@ import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 
 public class FancyPlayerModel extends PlayerModel {
-
   private static final LayerDefinition FANCY_PLAYER = LayerDefinition.create(createMesh(CubeDeformation.NONE, false), 64, 64);
+
   private static final LayerDefinition FANCY_PLAYER_SLIM = LayerDefinition.create(createMesh(CubeDeformation.NONE, true), 64, 64);
 
   public FancyPlayerModel(boolean isSlim, boolean isBaby) {
@@ -21,5 +21,4 @@ public class FancyPlayerModel extends PlayerModel {
     }
     return layerDefinition.bakeRoot();
   }
-
 }

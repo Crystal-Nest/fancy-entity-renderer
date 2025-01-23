@@ -12,17 +12,19 @@ import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 
 public class FancyPlayerWidget extends AbstractWidget {
-  private float rotationX = 0F;
-
-  private float rotationY = 0F;
-
   private final PlayerRenderState renderState = new PlayerRenderState();
 
   private final FancyPlayerRenderer renderer = new FancyPlayerRenderer(true, true);
 
+  private float rotationX = 0F;
+
+  private float rotationY = 0F;
+
   public FancyPlayerWidget(int x, int y, int width, int height) {
     super(x, y, width, height, CommonComponents.EMPTY);
     renderer.isGlowing = true;
+    renderer.isBaby = false;
+    renderer.isCrouching = true;
   }
 
   @Override
@@ -31,12 +33,10 @@ public class FancyPlayerWidget extends AbstractWidget {
     gfx.pose().translate(getX() + getWidth() / 2.0F, (float) (getY() + getHeight()), 100.0F);
     float f = getHeight() / 2.125F;
     gfx.pose().scale(f, f, f);
-//    gfx.pose().translate(0.0F, -0.0625F, 0.0F);
+    gfx.pose().translate(0.0F, -0.0625F, 0.0F);
     gfx.pose().rotateAround(Axis.XP.rotationDegrees(this.rotationX), 0.0F, -1.0625F, 0.0F);
     gfx.pose().mulPose(Axis.YP.rotationDegrees(this.rotationY));
     gfx.flush();
-    gfx.pose().scale(1.0F, 1.0F, -1.0F);
-    gfx.pose().translate(0.0F, -1.501F, 0.0F);
     Lighting.setupForEntityInInventory(Axis.XP.rotationDegrees(this.rotationX));
     gfx.drawSpecial(src -> renderer.render(renderState, gfx.pose(), src, 15728880));
     Lighting.setupFor3DItems();
