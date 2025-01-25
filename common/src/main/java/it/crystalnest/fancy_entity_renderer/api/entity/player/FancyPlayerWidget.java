@@ -11,6 +11,9 @@ import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 public class FancyPlayerWidget extends AbstractWidget {
@@ -29,19 +32,7 @@ public class FancyPlayerWidget extends AbstractWidget {
 
   @Override
   protected void renderWidget(GuiGraphics gfx, int mouseX, int mouseY, float partialTick) {
-//    if (this.bodyFollowsMouse) {
-    float c = (float) (getX() + (getX() + getWidth())) / 2.0F;
-    float g = (float) (getY() + (getY() + getHeight())) / 2.0F;
-    float h = (float) Math.atan(((c - mouseX) / 40.0F));
-    float i = (float) Math.atan(((g - mouseY) / 40.0F));
-    // Must rotate around Y axis when mouse moves along X axis and vice versa.
-    renderState.bodyRot.setX((float) Math.toRadians(-i * 20.0F));
-    renderState.bodyRot.setY((float) -Math.toRadians(h * 20.0F));
-//    } else {
-//      renderer.bodyRot.setX((float) Math.toRadians(this.stringToFloat(this.bodyXRot)));
-//      renderer.bodyRot.setY((float) Math.toRadians(this.stringToFloat(this.bodyYRot)));
-//    }
-
+    updateRenderState(mouseX, mouseY);
     gfx.pose().pushPose();
     gfx.pose().translate(getX() + getWidth() / 2F, getY() + getHeight(), 100);
     float f = getHeight() / 2.125F;
@@ -56,6 +47,32 @@ public class FancyPlayerWidget extends AbstractWidget {
     gfx.pose().popPose();
   }
 
+  public void updateRenderState(int mouseX, int mouseY) {
+    if (renderState.bodyFollowsMouse || renderState.headFollowsMouse) {
+      // Must rotate around Y axis when mouse moves along X axis and vice versa.
+      double yRot = -Math.atan(((getX() + (getX() + getWidth())) / 2.0F - mouseX) / 40) * 20;
+      double xRot = -Math.atan(((getY() + (getY() + getHeight())) / 2.0F - mouseY) / 40) * 20;
+      // TODO: The rotations above are calculated based on the size of the bounding rectangle, meaning the adult head Y center is lower than it should be, and both baby body and head Y centers are higher than they should be.
+      //       Rather than on the bounding rectangle, the rotations should be calculated separately for head and body depending on their actual sizes and positions (what happens with Poses other than Pose.STANDING?).
+      if (renderState.bodyFollowsMouse) {
+        renderState.bodyRot.setXDeg(xRot);
+        renderState.bodyRot.setYDeg(yRot);
+        renderState.bodyRot.setZ(0);
+      } else {
+//      renderState.bodyRot.setXDeg(RotationDegreesSetByTheUser);
+//      renderState.bodyRot.setYDeg(RotationDegreesSetByTheUser);
+//      renderState.bodyRot.setZDeg(RotationDegreesSetByTheUser);
+      }
+      if (renderState.headFollowsMouse) {
+        renderState.headRot.setXDeg(xRot);
+        renderState.headRot.setYDeg(yRot);
+        renderState.headRot.setZ(0);
+      } else {
+//      renderState.headRot.setXDeg(RotationDegreesSetByTheUser);
+//      renderState.headRot.setYDeg(RotationDegreesSetByTheUser);
+//      renderState.headRot.setZDeg(RotationDegreesSetByTheUser);
+      }
+    }
 
 //  public void updateRenderState(@NotNull PlayerRenderState state) {
 //    // TODO: Implement copying the local player (name, texture, showCape/showHat/show..., cape texture)

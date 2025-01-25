@@ -19,6 +19,10 @@ public class FancyPlayerRenderState extends PlayerRenderState {
 
   public final Rotation bodyRot = new Rotation();
 
+  public boolean bodyFollowsMouse = false;
+
+  public boolean headFollowsMouse = false;
+
   public FancyPlayerRenderState() {
     isUpsideDown = true;
   }

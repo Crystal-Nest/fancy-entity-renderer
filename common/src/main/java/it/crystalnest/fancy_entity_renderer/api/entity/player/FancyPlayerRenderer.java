@@ -2,7 +2,6 @@ package it.crystalnest.fancy_entity_renderer.api.entity.player;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import it.crystalnest.fancy_entity_renderer.api.entity.player.model.FancyPlayerModel;
-import it.crystalnest.fancy_entity_renderer.api.entity.player.state.FancyPlayerRenderState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -31,16 +30,10 @@ public class FancyPlayerRenderer extends PlayerRenderer {
 
   public FancyPlayerRenderer(boolean slim) {
     super(RENDER_CONTEXT, slim);
+    entityRenderDispatcher.overrideCameraOrientation(new Quaternionf());
     adultModel = new FancyPlayerModel(slim, false);
     babyModel = new FancyPlayerModel(slim, true);
     model = adultModel;
-    entityRenderDispatcher.overrideCameraOrientation(new Quaternionf());
-  }
-
-  @NotNull
-  @Override
-  public PlayerRenderState createRenderState() {
-    return new FancyPlayerRenderState();
   }
 
   @Override
