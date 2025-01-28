@@ -23,6 +23,8 @@ public class FancyPlayerRenderState extends PlayerRenderState {
 
   public boolean headFollowsMouse = false;
 
+  public boolean copyLocalPlayer = false;
+
   public FancyPlayerRenderState() {
     isUpsideDown = true;
   }
