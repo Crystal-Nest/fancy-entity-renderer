@@ -32,9 +32,6 @@ public class FancyPlayerWidget extends AbstractWidget {
     renderer.updateRenderState(getX(), getY(), getWidth(), getHeight(), mouseX, mouseY, partialTick);
     gfx.pose().pushPose();
     gfx.pose().translate(getX() + getWidth() / 2F, getY() + getHeight(), 100);
-    gfx.pose().translate(0, -0.1, 0);
-    gfx.pose().rotateAround(Axis.XP.rotationDegrees(renderer.state.bodyRot.getX()), 0, -1.0625F, 0);
-    gfx.pose().mulPose(Axis.YP.rotationDegrees(renderer.state.bodyRot.getY()));
     gfx.flush();
     Lighting.setupForEntityInInventory(Axis.XP.rotationDegrees(renderer.state.bodyRot.getX()));
     gfx.drawSpecial(src -> renderer.render(gfx.pose(), src, 15728880));

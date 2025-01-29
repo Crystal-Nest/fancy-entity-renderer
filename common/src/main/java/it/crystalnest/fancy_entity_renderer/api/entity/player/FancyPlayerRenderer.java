@@ -1,6 +1,7 @@
 package it.crystalnest.fancy_entity_renderer.api.entity.player;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import it.crystalnest.fancy_entity_renderer.api.entity.player.model.FancyPlayerModel;
 import it.crystalnest.fancy_entity_renderer.api.entity.player.state.FancyPlayerRenderState;
 import net.minecraft.client.Minecraft;
@@ -64,6 +65,7 @@ public class FancyPlayerRenderer extends PlayerRenderer {
   @Override
   public void render(@NotNull PlayerRenderState state, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight) {
     model = state.isBaby ? babyModel : adultModel;
+    poseStack.mulPose(Axis.ZP.rotationDegrees(180.0F));
     super.render(state, poseStack, bufferSource, packedLight);
   }
 
@@ -88,6 +90,10 @@ public class FancyPlayerRenderer extends PlayerRenderer {
       // Must rotate around Y axis when mouse moves along X axis and vice versa.
       double xRot = -Math.atan(((y + y + height) / 2F - mouseY) / 40) * 20;
       double yRot = -Math.atan(((x + x + width) / 2F - mouseX) / 40) * 20;
+      if (state.isUpsideDown) {
+        xRot = -xRot;
+        yRot = -yRot;
+      }
       // TODO: The rotations above are calculated based on the size of the bounding rectangle, meaning the adult head Y center is lower than it should be, and both baby body and head Y centers are higher than they should be.
       //       Rather than on the bounding rectangle, the rotations should be calculated separately for head and body depending on their actual sizes and positions (what happens with Poses other than Pose.STANDING?).
       if (state.bodyFollowsMouse) {
