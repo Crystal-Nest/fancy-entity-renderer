@@ -32,28 +32,28 @@ public class FancyPlayerModel extends PlayerModel {
   }
 
   private void update(@NotNull FancyPlayerRenderState state) {
-    leftArm.xRot = state.leftArmRot.getX();
-    leftArm.yRot = state.leftArmRot.getY();
-    leftArm.zRot = state.leftArmRot.getZ();
+    leftArm.xRot += state.leftArmRot.getX();
+    leftArm.yRot += state.leftArmRot.getY();
+    leftArm.zRot += state.leftArmRot.getZ();
 
-    rightArm.xRot = state.rightArmRot.getX();
-    rightArm.yRot = state.rightArmRot.getY();
-    rightArm.zRot = state.rightArmRot.getZ();
+    rightArm.xRot += state.rightArmRot.getX();
+    rightArm.yRot += state.rightArmRot.getY();
+    rightArm.zRot += state.rightArmRot.getZ();
 
-    leftLeg.xRot = state.leftLegRot.getX();
-    leftLeg.yRot = state.leftLegRot.getY();
-    leftLeg.zRot = state.leftLegRot.getZ();
+    leftLeg.xRot += state.leftLegRot.getX();
+    leftLeg.yRot += state.leftLegRot.getY();
+    leftLeg.zRot += state.leftLegRot.getZ();
 
-    rightLeg.xRot = state.rightLegRot.getX();
-    rightLeg.yRot = state.rightLegRot.getY();
-    rightLeg.zRot = state.rightLegRot.getZ();
+    rightLeg.xRot += state.rightLegRot.getX();
+    rightLeg.yRot += state.rightLegRot.getY();
+    rightLeg.zRot += state.rightLegRot.getZ();
 
-    root().xRot = state.bodyRot.getX();
-    root().yRot = state.bodyRot.getY();
-    root().zRot = state.bodyRot.getZ();
+    root().xRot += state.bodyRot.getX();
+    root().yRot += state.bodyRot.getY();
+    root().zRot += state.bodyRot.getZ();
 
-    head.xRot = state.headRot.getX();
-    head.yRot = state.headRot.getY();
-    head.zRot = state.headRot.getZ();
+    head.xRot += state.headRot.getX();
+    head.yRot += state.headRot.getY();
+    head.zRot += state.headRot.getZ();
   }
 }

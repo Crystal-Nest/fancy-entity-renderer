@@ -11,6 +11,7 @@ import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import net.minecraft.client.resources.model.EquipmentAssetManager;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -32,7 +33,9 @@ public class FancyPlayerRenderer extends PlayerRenderer {
 
   private final FancyPlayerModel babyModel;
 
-  public FancyPlayerRenderState renderState;
+  public FancyPlayerRenderState state;
+
+  public float height = 0;
 
   public FancyPlayerRenderer(boolean slim) {
     super(RENDER_CONTEXT, slim);
@@ -48,14 +51,14 @@ public class FancyPlayerRenderer extends PlayerRenderer {
   @NotNull
   @Override
   public FancyPlayerRenderState createRenderState() {
-    renderState = new FancyPlayerRenderState();
-    return renderState;
+    state = new FancyPlayerRenderState();
+    return state;
   }
 
   @Override
-  public void extractRenderState(@Nullable AbstractClientPlayer player, @NotNull PlayerRenderState renderState, float partialTick) {
+  public void extractRenderState(@Nullable AbstractClientPlayer player, @NotNull PlayerRenderState state, float partialTick) {
     // Prevent changing the inner render state.
-    // TODO: Maybe we should update the renderState here?
+    // TODO: Maybe we should update the state here?
   }
 
   @Override
@@ -69,64 +72,72 @@ public class FancyPlayerRenderer extends PlayerRenderer {
   }
 
   public void updateRenderState(int x, int y, int width, int height, int mouseX, int mouseY, float partialTick) {
-//    renderState.boundingBoxWidth = width;
-//    renderState.boundingBoxHeight = -1;
-//    renderState.ageInTicks += 1;
-    renderState.scale = Math.min(width / 0.875F, height / 1.875F);
+    state.boundingBoxWidth = width;
+//    state.boundingBoxHeight = height;
+    state.ageInTicks = 3000;
+    state.walkAnimationPos = 0;
+    state.walkAnimationSpeed = 0;
+    state.isCrouching = false;
+    state.isDiscrete = false;
+    state.pose = Pose.DYING;
+    state.appearsGlowing = true;
+    this.height = height;
     // TODO: The divisors below are probably due to the entity proportions, might be better to derive them from something rather than using magic numbers.
-    if (renderState.bodyFollowsMouse || renderState.headFollowsMouse) {
+    state.scale = Math.min(width / 0.875F, height / 1.875F);
+    if (state.bodyFollowsMouse || state.headFollowsMouse) {
       // Must rotate around Y axis when mouse moves along X axis and vice versa.
       double xRot = -Math.atan(((y + y + height) / 2F - mouseY) / 40) * 20;
       double yRot = -Math.atan(((x + x + width) / 2F - mouseX) / 40) * 20;
       // TODO: The rotations above are calculated based on the size of the bounding rectangle, meaning the adult head Y center is lower than it should be, and both baby body and head Y centers are higher than they should be.
       //       Rather than on the bounding rectangle, the rotations should be calculated separately for head and body depending on their actual sizes and positions (what happens with Poses other than Pose.STANDING?).
-      if (renderState.bodyFollowsMouse) {
-        renderState.bodyRot.setXDeg(xRot);
-        renderState.bodyRot.setYDeg(yRot);
-        renderState.bodyRot.setZ(0);
+      if (state.bodyFollowsMouse) {
+        state.bodyRot.setXDeg(xRot);
+        state.bodyRot.setYDeg(yRot);
+        state.bodyRot.setZ(0);
       } else {
-//      renderState.bodyRot.setXDeg(RotationDegreesSetByTheUser);
-//      renderState.bodyRot.setYDeg(RotationDegreesSetByTheUser);
-//      renderState.bodyRot.setZDeg(RotationDegreesSetByTheUser);
+//      state.bodyRot.setXDeg(RotationDegreesSetByTheUser);
+//      state.bodyRot.setYDeg(RotationDegreesSetByTheUser);
+//      state.bodyRot.setZDeg(RotationDegreesSetByTheUser);
       }
-      if (renderState.headFollowsMouse) {
-        renderState.headRot.setXDeg(xRot);
-        renderState.headRot.setYDeg(yRot);
-        renderState.headRot.setZ(0);
+      if (state.headFollowsMouse) {
+        state.headRot.setXDeg(xRot);
+        state.headRot.setYDeg(yRot);
+        state.headRot.setZ(0);
       } else {
-//      renderState.headRot.setXDeg(RotationDegreesSetByTheUser);
-//      renderState.headRot.setYDeg(RotationDegreesSetByTheUser);
-//      renderState.headRot.setZDeg(RotationDegreesSetByTheUser);
+//      state.headRot.setXDeg(RotationDegreesSetByTheUser);
+//      state.headRot.setYDeg(RotationDegreesSetByTheUser);
+//      state.headRot.setZDeg(RotationDegreesSetByTheUser);
       }
     }
 
-    renderState.nameTag = Component.literal(renderState.copyLocalPlayer ? Minecraft.getInstance().getGameProfile().getName() : "Name Tag Test");
-    // TODO: Offset from height should scale depending on the size value.
-    renderState.nameTagAttachment = new Vec3(0, -(height + 20.5), 0);
+    // TODO: Camera orientation should be used to move the name tag along with the player body (maybe).
+//    entityRenderDispatcher.overrideCameraOrientation(new Quaternionf(-state.bodyRot.getX(), -state.bodyRot.getY(), -state.bodyRot.getZ(), 1));
+    state.nameTag = Component.literal(state.copyLocalPlayer ? Minecraft.getInstance().getGameProfile().getName() : "Name Tag Test");
+    state.nameTagAttachment = new Vec3(0, -(height + (20.5 * height / 120)), 0);
 
     // TODO: Implement copying the local player (texture, showCape/showHat/show..., cape texture)
     // TODO: Implement choosing local texture files (both skin and cape), as well as choosing the texture from a player's name/uuid.
-//    renderState.skin = skin;
-//    renderState.isCrouching = isCrouching;
-//    renderState.parrotOnLeftShoulder = leftShoulderParrot;
-//    renderState.parrotOnRightShoulder = rightShoulderParrot;
+//    state.skin = skin;
+//    state.isCrouching = isCrouching;
+//    state.parrotOnLeftShoulder = leftShoulderParrot;
+//    state.parrotOnRightShoulder = rightShoulderParrot;
     // TODO: Fix name tag. It doesn't render currently.
-//    renderState.customName = null;
-//    renderState.isBaby = isBaby;
+//    state.customName = null;
+//    state.isBaby = isBaby;
     // TODO: Glowing effect doesn't work. The entity renders the same regardless. Could ignore this, since it was not in the original FancyManu, but it would be nice to have (not even sure this is the right property).
-//    renderState.appearsGlowing = isGlowing;
-//    renderState.isSpectator = false;
-//    renderState.pose = isCrouching ? Pose.CROUCHING : pose;
-//    renderState.isDiscrete = isCrouching;
+//    state.appearsGlowing = isGlowing;
+//    state.isSpectator = false;
+//    state.pose = isCrouching ? Pose.CROUCHING : pose;
+//    state.isDiscrete = isCrouching;
     // TODO: Works almost fine, but the item model is kind of transparent to itself.
-//    Minecraft.getInstance().getItemModelResolver().updateForTopItem(renderState.rightHandItem, Items.NETHERITE_SWORD.getDefaultInstance(), ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, false, null, null, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND.ordinal());
+//    Minecraft.getInstance().getItemModelResolver().updateForTopItem(state.rightHandItem, Items.NETHERITE_SWORD.getDefaultInstance(), ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, false, null, null, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND.ordinal());
     // TODO: Why is armor not rendered?
-//    renderState.headEquipment = Items.NETHERITE_HELMET.getDefaultInstance();
-//    renderState.chestEquipment = Items.NETHERITE_CHESTPLATE.getDefaultInstance();
+//    state.headEquipment = Items.NETHERITE_HELMET.getDefaultInstance();
+//    state.chestEquipment = Items.NETHERITE_CHESTPLATE.getDefaultInstance();
     // TODO: Render elytra (if cape has a texture, elytra should be renderer with that texture too).
     // TODO: Only makes the body disappear, but maybe it should also make the head transparent. It might be nice to have a flag to choose between "no body, solid head" and "no body, transparent head".
-//    renderState.isSpectator = true;
+//    state.isSpectator = true;
     // TODO: Flame is not rendered.
-    renderState.displayFireAnimation = false;
+    state.displayFireAnimation = false;
   }
 }
