@@ -25,7 +25,5 @@ public class FancyPlayerRenderState extends PlayerRenderState {
 
   public boolean copyLocalPlayer = false;
 
-  public FancyPlayerRenderState() {
-    isUpsideDown = true;
-  }
+  public FancyPlayerRenderState() {}
 }
