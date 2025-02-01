@@ -24,8 +24,7 @@ public class FancyPlayerWidget extends AbstractWidget {
     super(x, y, width, height, CommonComponents.EMPTY);
     renderer = DefaultPlayerSkin.get(Minecraft.getInstance().getGameProfile()).model() == PlayerSkin.Model.SLIM ? slimRenderer : wideRenderer;
     renderer.state.headFollowsMouse = true;
-    renderer.state.bodyFollowsMouse = false;
-    renderer.state.appearsGlowing = true;
+    renderer.state.bodyFollowsMouse = true;
   }
 
   @Override
@@ -35,9 +34,8 @@ public class FancyPlayerWidget extends AbstractWidget {
     gfx.pose().translate(getX() + getWidth() / 2F, getY() + getHeight(), 100);
     gfx.flush();
     Lighting.setupForEntityInInventory(Axis.XP.rotationDegrees(renderer.state.bodyRot.getX()));
-    Lighting.setupFor3DItems();
-    Lighting.setupForFlatItems();
     gfx.drawSpecial(src -> renderer.render(gfx.pose(), src, 15728880));
+    Lighting.setupFor3DItems();
     gfx.pose().popPose();
   }
 
