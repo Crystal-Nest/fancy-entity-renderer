@@ -75,13 +75,13 @@ public class FancyPlayerRenderer extends PlayerRenderer {
 
   public void updateRenderState(int x, int y, int width, int height, int mouseX, int mouseY, float partialTick) {
     state.boundingBoxWidth = width;
-//    state.boundingBoxHeight = height;
+    state.boundingBoxHeight = height;
     state.ageInTicks = 3000;
     state.walkAnimationPos = 0;
     state.walkAnimationSpeed = 0;
     state.isCrouching = false;
     state.isDiscrete = false;
-    state.pose = Pose.DYING;
+    state.pose = Pose.STANDING;
     state.appearsGlowing = true;
     this.height = height;
     // TODO: The divisors below are probably due to the entity proportions, might be better to derive them from something rather than using magic numbers.
@@ -144,6 +144,6 @@ public class FancyPlayerRenderer extends PlayerRenderer {
     // TODO: Only makes the body disappear, but maybe it should also make the head transparent. It might be nice to have a flag to choose between "no body, solid head" and "no body, transparent head".
 //    state.isSpectator = true;
     // TODO: Flame is not rendered.
-    state.displayFireAnimation = false;
+    state.displayFireAnimation = true;
   }
 }
