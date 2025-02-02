@@ -54,5 +54,3 @@ public class FancyPlayerWidget extends AbstractWidget {
     // TODO: Maybe add narration for when the player name is visible (what about when the name is visible and the player is crouching?).
   }
 }
-
-

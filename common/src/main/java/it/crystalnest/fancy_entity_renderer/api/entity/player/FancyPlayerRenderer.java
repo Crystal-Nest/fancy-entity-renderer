@@ -36,8 +36,6 @@ public class FancyPlayerRenderer extends PlayerRenderer {
 
   public FancyPlayerRenderState state;
 
-  public float height = 0;
-
   public FancyPlayerRenderer(boolean slim) {
     super(RENDER_CONTEXT, slim);
     entityRenderDispatcher.overrideCameraOrientation(new Quaternionf());
@@ -83,7 +81,6 @@ public class FancyPlayerRenderer extends PlayerRenderer {
     state.isDiscrete = false;
     state.pose = Pose.STANDING;
     state.appearsGlowing = true;
-    this.height = height;
     // TODO: The divisors below are probably due to the entity proportions, might be better to derive them from something rather than using magic numbers.
     state.scale = Math.min(width / 0.875F, height / 1.875F);
     if (state.bodyFollowsMouse || state.headFollowsMouse) {
