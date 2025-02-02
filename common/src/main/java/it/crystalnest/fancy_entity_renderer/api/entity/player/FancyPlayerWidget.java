@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.client.resources.PlayerSkin;
@@ -31,8 +32,8 @@ public class FancyPlayerWidget extends AbstractWidget {
   public FancyPlayerWidget(int x, int y, int width, int height) {
     super(x, y, width, height, CommonComponents.EMPTY);
     renderer = DefaultPlayerSkin.get(Minecraft.getInstance().getGameProfile()).model() == PlayerSkin.Model.SLIM ? slimRenderer : wideRenderer;
-    renderer.state.headFollowsMouse = true;
-    renderer.state.bodyFollowsMouse = true;
+//    renderer.state.headFollowsMouse = true;
+//    renderer.state.bodyFollowsMouse = true;
     renderer.state.skin = skin;
 //    PlayerSkin ps = Minecraft.getInstance().getSkinManager().lookupInsecure(new GameProfile(UUID.fromString("b6ce7857-012b-41d0-90b3-dff25058e379"), "brrrlol")).get();
     setSkin(new PlayerSkin(skinres.getSkinLocation(), null, null, null, skinres.isSlimPlayerNameSkin() ? PlayerSkin.Model.SLIM : PlayerSkin.Model.WIDE, false));
@@ -48,13 +49,10 @@ public class FancyPlayerWidget extends AbstractWidget {
     gfx.pose().pushPose();
     gfx.pose().translate(getX() + getWidth() / 2F, getY() + getHeight(), 100);
     gfx.flush();
-//    gfx.pose().mulPose(Axis.ZP.rotationDegrees(180.0F));
 //    gfx.pose().scale(1,1,1); // render flame
     Lighting.setupForEntityInInventory(Axis.XP.rotationDegrees(renderer.state.bodyRot.getX()));
-    gfx.drawSpecial(src -> renderer.render(gfx.pose(), src, 15728880));
+    gfx.drawSpecial(src -> renderer.render(gfx.pose(), src, LightTexture.FULL_BRIGHT));
     gfx.flush();
-    Lighting.setupFor3DItems();
-//    gfx.drawSpecial(src -> testRender.render(testRender.createRenderState(), gfx.pose(), src, 15728880 ));
     gfx.pose().popPose();
 
   }

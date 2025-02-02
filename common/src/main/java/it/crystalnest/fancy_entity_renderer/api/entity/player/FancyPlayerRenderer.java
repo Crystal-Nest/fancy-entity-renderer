@@ -1,6 +1,7 @@
 package it.crystalnest.fancy_entity_renderer.api.entity.player;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import it.crystalnest.fancy_entity_renderer.api.entity.player.model.FancyPlayerModel;
 import it.crystalnest.fancy_entity_renderer.api.entity.player.state.FancyPlayerRenderState;
 import net.minecraft.client.Minecraft;
@@ -62,6 +63,7 @@ public class FancyPlayerRenderer extends PlayerRenderer {
   @Override
   public void render(@NotNull PlayerRenderState state, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight) {
     model = state.isBaby ? babyModel : adultModel;
+    poseStack.mulPose(Axis.ZP.rotationDegrees(180));
     super.render(state, poseStack, bufferSource, packedLight);
   }
 
@@ -79,8 +81,8 @@ public class FancyPlayerRenderer extends PlayerRenderer {
     state.isDiscrete = false;
     state.pose = Pose.STANDING;
     state.appearsGlowing = true;
-    // TODO: The divisors below are probably due to the entity proportions, might be better to derive them from something rather than using magic numbers.
-    state.scale = Math.min(width / 0.875F, height / 1.875F);
+    // 1.875 is the rendered height (1.8 is the hitbox height).
+    state.scale = height / 1.875F;
     if (state.bodyFollowsMouse || state.headFollowsMouse) {
       // Must rotate around Y axis when mouse moves along X axis and vice versa.
       double xRot = -Math.atan(((y + y + height) / 2F - mouseY) / 40) * 20;
