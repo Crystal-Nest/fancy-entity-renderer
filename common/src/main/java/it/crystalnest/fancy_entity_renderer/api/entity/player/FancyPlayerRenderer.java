@@ -10,7 +10,6 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import net.minecraft.client.resources.model.EquipmentAssetManager;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
@@ -114,7 +113,7 @@ public class FancyPlayerRenderer extends PlayerRenderer {
 
     // TODO: Camera orientation should be used to move the name tag along with the player body (maybe).
 //    entityRenderDispatcher.overrideCameraOrientation(new Quaternionf(-state.bodyRot.getX(), -state.bodyRot.getY(), -state.bodyRot.getZ(), 1));
-    state.nameTag = Component.literal(state.copyLocalPlayer ? Minecraft.getInstance().getGameProfile().getName() : "Name Tag Test");
+    state.nameTag = null;//Component.literal(state.copyLocalPlayer ? Minecraft.getInstance().getGameProfile().getName() : "Name Tag Test");
     state.nameTagAttachment = new Vec3(0, -(height + (20.5 * height / 120)), 0);
 
     // TODO: Implement copying the local player (texture, showCape/showHat/show..., cape texture)

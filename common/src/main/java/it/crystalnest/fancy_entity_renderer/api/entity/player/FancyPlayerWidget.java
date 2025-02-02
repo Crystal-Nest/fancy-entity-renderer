@@ -34,27 +34,27 @@ public class FancyPlayerWidget extends AbstractWidget {
     renderer.state.headFollowsMouse = true;
     renderer.state.bodyFollowsMouse = true;
     renderer.state.skin = skin;
-
-      //PlayerSkin ps = Minecraft.getInstance().getSkinManager().lookupInsecure(new GameProfile(UUID.fromString("b6ce7857-012b-41d0-90b3-dff25058e379"), "brrrlol")).get();
-      setSkin(new PlayerSkin(skinres.getSkinLocation(), null, null, null, skinres.isSlimPlayerNameSkin() ? PlayerSkin.Model.SLIM : PlayerSkin.Model.WIDE, false));
+//    PlayerSkin ps = Minecraft.getInstance().getSkinManager().lookupInsecure(new GameProfile(UUID.fromString("b6ce7857-012b-41d0-90b3-dff25058e379"), "brrrlol")).get();
+    setSkin(new PlayerSkin(skinres.getSkinLocation(), null, null, null, skinres.isSlimPlayerNameSkin() ? PlayerSkin.Model.SLIM : PlayerSkin.Model.WIDE, false));
   }
 
   public void setSkin(@NotNull PlayerSkin skin) {
     this.skin = skin;
   }
+
   @Override
   protected void renderWidget(GuiGraphics gfx, int mouseX, int mouseY, float partialTick) {
     renderer.updateRenderState(getX(), getY(), getWidth(), getHeight(), mouseX, mouseY, partialTick);
     gfx.pose().pushPose();
     gfx.pose().translate(getX() + getWidth() / 2F, getY() + getHeight(), 100);
     gfx.flush();
-    // gfx.pose().mulPose(Axis.ZP.rotationDegrees(180.0F));
-     gfx.pose().scale(1,-1,-1); // render flame
+//    gfx.pose().mulPose(Axis.ZP.rotationDegrees(180.0F));
+//    gfx.pose().scale(1,1,1); // render flame
     Lighting.setupForEntityInInventory(Axis.XP.rotationDegrees(renderer.state.bodyRot.getX()));
     gfx.drawSpecial(src -> renderer.render(gfx.pose(), src, 15728880));
     gfx.flush();
     Lighting.setupFor3DItems();
-    //gfx.drawSpecial(src -> testRender.render(testRender.createRenderState(), gfx.pose(), src, 15728880 ));
+//    gfx.drawSpecial(src -> testRender.render(testRender.createRenderState(), gfx.pose(), src, 15728880 ));
     gfx.pose().popPose();
 
   }
