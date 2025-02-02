@@ -4,9 +4,6 @@ import it.crystalnest.fancy_entity_renderer.api.Rotation;
 import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 
 public class FancyPlayerRenderState extends PlayerRenderState {
-
-  public boolean isSlim = false;
-
   public final Rotation leftArmRot = new Rotation();
 
   public final Rotation rightArmRot = new Rotation();
@@ -24,6 +21,8 @@ public class FancyPlayerRenderState extends PlayerRenderState {
   public boolean headFollowsMouse = false;
 
   public boolean copyLocalPlayer = false;
+
+  public boolean isSlim = false;
 
   public FancyPlayerRenderState() {}
 }
