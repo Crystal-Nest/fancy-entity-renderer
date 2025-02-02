@@ -17,6 +17,6 @@ public abstract class TitleScreenMixin extends Screen {
 
   @Inject(method = "init", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/TitleScreen;addRenderableWidget(Lnet/minecraft/client/gui/components/events/GuiEventListener;)Lnet/minecraft/client/gui/components/events/GuiEventListener;", ordinal = 3, shift = At.Shift.AFTER))
   private void onInit(CallbackInfo ci) {
-    addRenderableWidget(new FancyPlayerWidget(20, 60, 85, 120));
+    addRenderableWidget(new FancyPlayerWidget(80, 200, 85, 120));
   }
 }

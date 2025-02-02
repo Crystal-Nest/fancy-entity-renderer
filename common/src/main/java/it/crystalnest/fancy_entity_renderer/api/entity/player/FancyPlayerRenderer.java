@@ -1,7 +1,6 @@
 package it.crystalnest.fancy_entity_renderer.api.entity.player;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
 import it.crystalnest.fancy_entity_renderer.api.entity.player.model.FancyPlayerModel;
 import it.crystalnest.fancy_entity_renderer.api.entity.player.state.FancyPlayerRenderState;
 import net.minecraft.client.Minecraft;
@@ -13,13 +12,14 @@ import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import net.minecraft.client.resources.model.EquipmentAssetManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Pose;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 
 public class FancyPlayerRenderer extends PlayerRenderer {
-  private static final EntityRendererProvider.Context RENDER_CONTEXT = new EntityRendererProvider.Context(
+  public static final EntityRendererProvider.Context RENDER_CONTEXT = new EntityRendererProvider.Context(
     Minecraft.getInstance().getEntityRenderDispatcher(),
     Minecraft.getInstance().getItemModelResolver(),
     Minecraft.getInstance().getMapRenderer(),
@@ -63,7 +63,6 @@ public class FancyPlayerRenderer extends PlayerRenderer {
   @Override
   public void render(@NotNull PlayerRenderState state, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight) {
     model = state.isBaby ? babyModel : adultModel;
-    poseStack.mulPose(Axis.ZP.rotationDegrees(180.0F));
     super.render(state, poseStack, bufferSource, packedLight);
   }
 
@@ -135,12 +134,12 @@ public class FancyPlayerRenderer extends PlayerRenderer {
     // TODO: Works almost fine, but the item model is kind of transparent to itself.
 //    Minecraft.getInstance().getItemModelResolver().updateForTopItem(state.rightHandItem, Items.NETHERITE_SWORD.getDefaultInstance(), ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, false, null, null, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND.ordinal());
     // TODO: Why is armor not rendered?
-//    state.headEquipment = Items.NETHERITE_HELMET.getDefaultInstance();
-//    state.chestEquipment = Items.NETHERITE_CHESTPLATE.getDefaultInstance();
+    state.headEquipment = Items.NETHERITE_HELMET.getDefaultInstance();
+    state.chestEquipment = Items.NETHERITE_CHESTPLATE.getDefaultInstance();
     // TODO: Render elytra (if cape has a texture, elytra should be renderer with that texture too).
     // TODO: Only makes the body disappear, but maybe it should also make the head transparent. It might be nice to have a flag to choose between "no body, solid head" and "no body, transparent head".
 //    state.isSpectator = true;
     // TODO: Flame is not rendered.
-    state.displayFireAnimation = true;
+    state.displayFireAnimation = false;
   }
 }
