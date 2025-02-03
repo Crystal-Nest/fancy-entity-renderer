@@ -3,17 +3,15 @@ package it.crystalnest.fancy_entity_renderer.mixin;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.HttpAuthenticationService;
 import com.mojang.authlib.exceptions.MinecraftClientException;
 import com.mojang.authlib.minecraft.client.MinecraftClient;
-import com.mojang.authlib.yggdrasil.ProfileActionType;
 import com.mojang.authlib.yggdrasil.ProfileResult;
 import com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService;
 import com.mojang.authlib.yggdrasil.response.MinecraftProfilePropertiesResponse;
-import com.mojang.authlib.yggdrasil.response.ProfileAction;
 import it.crystalnest.fancy_entity_renderer.api.FancySessionService;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.asm.mixin.Final;
@@ -21,13 +19,10 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 
-import javax.annotation.Nullable;
 import java.net.URL;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 @Mixin(YggdrasilMinecraftSessionService.class)
 public abstract class YggdrasilMinecraftSessionServiceMixin implements FancySessionService {
@@ -72,17 +67,14 @@ public abstract class YggdrasilMinecraftSessionServiceMixin implements FancySess
   @Nullable
   private ProfileResult fetchProfileUncached(final String profileName, final boolean requireSecure) {
     try {
-      URL url = HttpAuthenticationService.constantURL(baseUrl + "profiles/minecraft/" + profileName);
+      URL url = HttpAuthenticationService.constantURL("https://api.minecraftservices.com/minecraft/profile/lookup/name/" + profileName);
       url = HttpAuthenticationService.concatenateURL(url, "unsigned=" + !requireSecure);
       final MinecraftProfilePropertiesResponse response = client.get(url, MinecraftProfilePropertiesResponse.class);
       if (response == null) {
         LOGGER.debug("Couldn't fetch profile properties for {} as the profile does not exist", profileName);
         return null;
       }
-      final GameProfile profile = response.toProfile();
-      final Set<ProfileActionType> profileActions = response.profileActions().stream().map(ProfileAction::type).collect(Collectors.toSet());
-      LOGGER.debug("Successfully fetched profile properties for {}", profile);
-      return new ProfileResult(profile, profileActions);
+      return fetchProfile(response.id(), requireSecure);
     } catch (final MinecraftClientException | IllegalArgumentException e) {
       LOGGER.warn("Couldn't look up profile properties for {}", profileName, e);
       return null;

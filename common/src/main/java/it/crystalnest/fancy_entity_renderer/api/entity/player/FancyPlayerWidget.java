@@ -1,6 +1,7 @@
 package it.crystalnest.fancy_entity_renderer.api.entity.player;
 
 import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.yggdrasil.ProfileResult;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.math.Axis;
 import it.crystalnest.fancy_entity_renderer.Constants;
@@ -17,8 +18,10 @@ import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
+import java.util.UUID;
 
 public class FancyPlayerWidget extends AbstractWidget {
   private final FancyPlayerRenderState renderState = new FancyPlayerRenderState();
@@ -35,13 +38,14 @@ public class FancyPlayerWidget extends AbstractWidget {
 
   public FancyPlayerWidget(int x, int y, int width, int height) {
     super(x, y, width, height, CommonComponents.EMPTY);
-//    setSlim(renderState.isSlim);
+    renderer = renderState.isSlim ? slimRenderer : wideRenderer;
 //    renderState.displayFireAnimation = true;
-    // TODO: Rotations aren't working correctly, and the cape doesn't rotate (also, how come the cape is visible the cape property is not explicitly set?).
+    // TODO: Rotations aren't working correctly, and the cape doesn't rotate.
     renderState.headFollowsMouse = true;
     renderState.bodyFollowsMouse = true;
-//    copyPlayer(fancySessionService().fetchProfile(UUID.fromString("6be8d691-9635-4468-ace3-69a05a4440b6"), false).profile());
-    copyPlayer(fancySessionService().fetchProfile("Crystal_Spider_", false).profile());
+    copyPlayer(Minecraft.getInstance().getGameProfile());
+    copyPlayer("Crystal_Spider_");
+    copyPlayer(UUID.fromString("6be8d691-9635-4468-ace3-69a05a4440b6"));
   }
 
   @Override
@@ -76,10 +80,8 @@ public class FancyPlayerWidget extends AbstractWidget {
   public boolean mouseClicked(double mouseX, double mouseY, int button) {
     if (button == 0) {
         setSlim(!renderState.isSlim);
-        Constants.LOGGER.error("SLIM");
     } else {
       setCopyLocalPlayer(!renderState.copyLocalPlayer);
-      Constants.LOGGER.error("COPY");
     }
     return super.mouseClicked(mouseX, mouseY, button);
   }
@@ -110,6 +112,22 @@ public class FancyPlayerWidget extends AbstractWidget {
         renderState.isSlim = renderState.skin.model() == PlayerSkin.Model.SLIM;
         renderer = renderState.isSlim ? slimRenderer : wideRenderer;
       });
+  }
+
+  public void copyPlayer(String profileName) {
+    copyPlayer(fancySessionService().fetchProfile(profileName, false), profileName);
+  }
+
+  public void copyPlayer(UUID profileId) {
+    copyPlayer(fancySessionService().fetchProfile(profileId, false), profileId.toString());
+  }
+
+  public void copyPlayer(@Nullable ProfileResult result, String source) {
+    if (result != null) {
+      copyPlayer(result.profile());
+    } else {
+      Constants.LOGGER.error("Copy of player {} failed!", source);
+    }
   }
 
   public void updateRenderState(int x, int y, int width, int height, int mouseX, int mouseY, float partialTick) {
