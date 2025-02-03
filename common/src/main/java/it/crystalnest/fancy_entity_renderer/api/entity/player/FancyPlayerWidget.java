@@ -33,9 +33,11 @@ public class FancyPlayerWidget extends AbstractWidget {
     super(x, y, width, height, CommonComponents.EMPTY);
 //    setSlim(renderState.isSlim);
 //    renderState.displayFireAnimation = true;
-//    renderState.headFollowsMouse = true;
-//    renderState.bodyFollowsMouse = true;
-    copyPlayer(new GameProfile(UUID.fromString("6be8d691-9635-4468-ace3-69a05a4440b6"), "Crystal_Spider_"));
+    // TODO: Rotations aren't working correctly, and the cape doesn't rotate (also, how come the cape is visible the cape property is not explicitly set?).
+    renderState.headFollowsMouse = true;
+    renderState.bodyFollowsMouse = true;
+    // Crystal_Spider_
+    copyPlayer(Minecraft.getInstance().getMinecraftSessionService().fetchProfile(UUID.fromString("6be8d691-9635-4468-ace3-69a05a4440b6"), false).profile());
   }
 
   @Override
