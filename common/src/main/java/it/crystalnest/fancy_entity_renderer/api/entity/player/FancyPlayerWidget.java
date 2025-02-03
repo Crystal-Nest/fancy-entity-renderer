@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.math.Axis;
 import it.crystalnest.fancy_entity_renderer.Constants;
+import it.crystalnest.fancy_entity_renderer.api.FancySessionService;
 import it.crystalnest.fancy_entity_renderer.api.entity.player.state.FancyPlayerRenderState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -18,7 +19,6 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
-import java.util.UUID;
 
 public class FancyPlayerWidget extends AbstractWidget {
   private final FancyPlayerRenderState renderState = new FancyPlayerRenderState();
@@ -29,6 +29,10 @@ public class FancyPlayerWidget extends AbstractWidget {
 
   private FancyPlayerRenderer renderer;
 
+  private static FancySessionService fancySessionService() {
+    return (FancySessionService) Minecraft.getInstance().getMinecraftSessionService();
+  }
+
   public FancyPlayerWidget(int x, int y, int width, int height) {
     super(x, y, width, height, CommonComponents.EMPTY);
 //    setSlim(renderState.isSlim);
@@ -36,8 +40,8 @@ public class FancyPlayerWidget extends AbstractWidget {
     // TODO: Rotations aren't working correctly, and the cape doesn't rotate (also, how come the cape is visible the cape property is not explicitly set?).
     renderState.headFollowsMouse = true;
     renderState.bodyFollowsMouse = true;
-    // Crystal_Spider_
-    copyPlayer(Minecraft.getInstance().getMinecraftSessionService().fetchProfile(UUID.fromString("6be8d691-9635-4468-ace3-69a05a4440b6"), false).profile());
+//    copyPlayer(fancySessionService().fetchProfile(UUID.fromString("6be8d691-9635-4468-ace3-69a05a4440b6"), false).profile());
+    copyPlayer(fancySessionService().fetchProfile("Crystal_Spider_", false).profile());
   }
 
   @Override
