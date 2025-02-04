@@ -138,7 +138,7 @@ public class FancyPlayerWidget extends AbstractWidget {
     if (renderState.bodyFollowsMouse || renderState.headFollowsMouse) {
       // Must rotate around Y axis when mouse moves along X axis and vice versa.
       double xRot = -Math.atan(((y + y + height) / 2F - mouseY) / 40) * 20;
-      double yRot = -Math.atan(((x + x + width) / 2F - mouseX) / 40) * 20;
+      double yRot = Math.atan(((x + x + width) / 2F - mouseX) / 40) * 20;
       if (renderState.isUpsideDown) {
         xRot = -xRot;
         yRot = -yRot;

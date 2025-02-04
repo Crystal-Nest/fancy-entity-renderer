@@ -100,23 +100,23 @@ public class FancyPlayerRenderer extends PlayerRenderer {
     renderState.displayFireAnimation = state.displayFireAnimation;
     // TODO: Glowing effect doesn't work. The entity renders the same regardless. Could ignore this, since it was not in the original FancyManu, but it would be nice to have (not even sure this is the right property).
     renderState.appearsGlowing = state.appearsGlowing;
-    renderState.capeFlap = 10;
-    renderState.capeLean = state.bodyRot.getX()*150;
-    renderState.capeLean2 = -state.bodyRot.getY()*80;
+    renderState.capeFlap = state.bodyRot.getXDeg() + 10;
+    renderState.capeLean = 0;
+    renderState.capeLean2 = 0;
 
-//    this.cape reference
-//      .rotateBy(
-//        new Quaternionf()
-//          .rotateY((float) -Math.PI)
-//          .rotateX((6.0F + p_361567_.capeLean / 2.0F + p_361567_.capeFlap) * (float) (Math.PI / 180.0))
-//          .rotateZ(p_361567_.capeLean2 / 2.0F * (float) (Math.PI / 180.0))
-//          .rotateY((180.0F - p_361567_.capeLean2 / 2.0F) * (float) (Math.PI / 180.0))
-//      );
+//    this.cape.rotateBy(
+//      new Quaternionf()
+//        .rotateY((float) -Math.PI)
+//        .rotateX((6.0F + renderState.capeLean / 2.0F + renderState.capeFlap) * (float) (Math.PI / 180.0))
+//        .rotateZ(renderState.capeLean2 / 2.0F * (float) (Math.PI / 180.0))
+//        .rotateY((180.0F - renderState.capeLean2 / 2.0F) * (float) (Math.PI / 180.0))
+//    );
   }
 
   @Override
   public void render(@NotNull PlayerRenderState state, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight) {
     model = state.isBaby ? babyModel : adultModel;
+//    poseStack.mulPose(Axis.ZP.rotationDegrees(180));
     super.render(state, poseStack, bufferSource, packedLight);
   }
 

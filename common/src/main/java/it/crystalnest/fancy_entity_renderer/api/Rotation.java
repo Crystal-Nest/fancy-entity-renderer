@@ -46,6 +46,15 @@ public class Rotation {
   }
 
   /**
+   * Returns the {@link #x} component in degrees.
+   *
+   * @return the {@link #x} component in degrees.
+   */
+  public float getXDeg() {
+    return (float) Math.toDegrees(x);
+  }
+
+  /**
    * Sets the value for the {@link #x} component.
    *
    * @param x {@link #x} component.
@@ -73,6 +82,15 @@ public class Rotation {
   }
 
   /**
+   * Returns the {@link #y} component in degrees.
+   *
+   * @return the {@link #y} component in degrees.
+   */
+  public float getYDeg() {
+    return (float) Math.toDegrees(y);
+  }
+
+  /**
    * Sets the value for the {@link #y} component.
    *
    * @param y {@link #y} component.
@@ -97,6 +115,15 @@ public class Rotation {
    */
   public float getZ() {
     return z;
+  }
+
+  /**
+   * Returns the {@link #z} component in degrees.
+   *
+   * @return the {@link #z} component in degrees.
+   */
+  public float getZDeg() {
+    return (float) Math.toDegrees(z);
   }
 
   /**
