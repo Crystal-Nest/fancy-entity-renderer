@@ -19,24 +19,31 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 
-import java.net.URL;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+/**
+ *
+ */
 @Mixin(YggdrasilMinecraftSessionService.class)
 public abstract class YggdrasilMinecraftSessionServiceMixin implements FancySessionService {
+  /**
+   * Shadowed {@link YggdrasilMinecraftSessionService#LOGGER}.
+   */
   @Shadow
   private static final Logger LOGGER = LoggerFactory.getLogger(YggdrasilMinecraftSessionService.class);
 
-  @Final
-  @Shadow
-  private String baseUrl;
-
+  /**
+   * Shadowed {@link YggdrasilMinecraftSessionService#client}.
+   */
   @Final
   @Shadow
   private MinecraftClient client;
 
+  /**
+   * Cache mapping profile names to UUIDs.
+   */
   @Unique
   private final LoadingCache<String, Optional<UUID>> insecureUUIDs = CacheBuilder
     .newBuilder()
@@ -49,6 +56,9 @@ public abstract class YggdrasilMinecraftSessionServiceMixin implements FancySess
       }
     });
 
+  /**
+   * Shadowed {@link YggdrasilMinecraftSessionService#insecureProfiles}.
+   */
   @Final
   @Shadow
   private LoadingCache<UUID, Optional<ProfileResult>> insecureProfiles;
@@ -63,13 +73,18 @@ public abstract class YggdrasilMinecraftSessionServiceMixin implements FancySess
     return fetchProfileUncached(profileName, true);
   }
 
+  /**
+   * Fetches a profile from its name.
+   *
+   * @param profileName user name.
+   * @param requireSecure whether to make a secure request for the texture.
+   * @return profile result.
+   */
   @Unique
   @Nullable
   private ProfileResult fetchProfileUncached(final String profileName, final boolean requireSecure) {
     try {
-      URL url = HttpAuthenticationService.constantURL("https://api.minecraftservices.com/minecraft/profile/lookup/name/" + profileName);
-      url = HttpAuthenticationService.concatenateURL(url, "unsigned=" + !requireSecure);
-      final MinecraftProfilePropertiesResponse response = client.get(url, MinecraftProfilePropertiesResponse.class);
+      final MinecraftProfilePropertiesResponse response = client.get(HttpAuthenticationService.constantURL("https://api.minecraftservices.com/minecraft/profile/lookup/name/" + profileName), MinecraftProfilePropertiesResponse.class);
       if (response == null) {
         LOGGER.debug("Couldn't fetch profile properties for {} as the profile does not exist", profileName);
         return null;
