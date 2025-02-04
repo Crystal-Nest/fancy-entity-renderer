@@ -16,6 +16,7 @@ import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -39,8 +40,8 @@ public class FancyPlayerWidget extends AbstractWidget {
   public FancyPlayerWidget(int x, int y, int width, int height) {
     super(x, y, width, height, CommonComponents.EMPTY);
     renderer = renderState.isSlim ? slimRenderer : wideRenderer;
+    // TODO: Flames are too wide and too "in front".
 //    renderState.displayFireAnimation = true;
-    // TODO: Rotations aren't working correctly, and the cape doesn't rotate.
     renderState.headFollowsMouse = true;
     renderState.bodyFollowsMouse = true;
     copyPlayer(Minecraft.getInstance().getGameProfile());
@@ -78,6 +79,7 @@ public class FancyPlayerWidget extends AbstractWidget {
 
   @Override
   public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    // TODO: Remove.
     if (button == 0) {
         setSlim(!renderState.isSlim);
     } else {
@@ -165,5 +167,7 @@ public class FancyPlayerWidget extends AbstractWidget {
       }
     }
     renderState.nameTagAttachment = new Vec3(0, (height + (20.5 * height / 120)), 0);
+    renderState.rightHandHeldItem = Items.NETHERITE_SWORD;
+    renderState.leftHandHeldItem = Items.OAK_TRAPDOOR;
   }
 }

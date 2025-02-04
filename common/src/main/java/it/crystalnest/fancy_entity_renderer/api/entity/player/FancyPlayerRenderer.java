@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import net.minecraft.client.resources.model.EquipmentAssetManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Pose;
+import net.minecraft.world.item.ItemDisplayContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
@@ -82,17 +83,22 @@ public class FancyPlayerRenderer extends PlayerRenderer {
     // TODO: Camera orientation should be used to move the name tag along with the player body (maybe).
 //    entityRenderDispatcher.overrideCameraOrientation(new Quaternionf(-state.bodyRot.getX(), -state.bodyRot.getY(), -state.bodyRot.getZ(), 1));
     renderState.nameTag = Component.literal(state.copyLocalPlayer ? Minecraft.getInstance().getGameProfile().getName() : "Name Tag Test");
-    // TODO: Implement copying the local player (texture, showCape/showHat/show..., cape texture)
     // TODO: Implement choosing local texture files (both skin and cape), as well as choosing the texture from a player's name/uuid.
     renderState.skin = state.skin;
     renderState.parrotOnLeftShoulder = state.parrotOnLeftShoulder;
     renderState.parrotOnRightShoulder = state.parrotOnRightShoulder;
     renderState.isBaby = state.isBaby;
-    // TODO: Works almost fine, but the item model is kind of transparent to itself.
-//    Minecraft.getInstance().getItemModelResolver().updateForTopItem(state.rightHandItem, Items.NETHERITE_SWORD.getDefaultInstance(), ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, false, null, null, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND.ordinal());
+    if (state.rightHandHeldItem != null) {
+      Minecraft.getInstance().getItemModelResolver().updateForTopItem(state.rightHandItem, state.rightHandHeldItem.getDefaultInstance(), ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, false, null, null, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND.ordinal());
+    }
+    if (state.leftHandHeldItem != null) {
+      Minecraft.getInstance().getItemModelResolver().updateForTopItem(state.leftHandItem, state.leftHandHeldItem.getDefaultInstance(), ItemDisplayContext.THIRD_PERSON_LEFT_HAND, true, null, null, ItemDisplayContext.THIRD_PERSON_LEFT_HAND.ordinal());
+    }
     // TODO: Why is armor not rendered?
     renderState.headEquipment = state.headEquipment;
     renderState.chestEquipment = state.chestEquipment;
+    renderState.legsEquipment = state.legsEquipment;
+    renderState.feetEquipment = state.feetEquipment;
     // TODO: Render elytra (if cape has a texture, elytra should be renderer with that texture too).
     // TODO: Only makes the body disappear, but maybe it should also make the head transparent. It might be nice to have a flag to choose between "no body, solid head" and "no body, transparent head".
     renderState.isSpectator = state.isSpectator;
@@ -100,10 +106,10 @@ public class FancyPlayerRenderer extends PlayerRenderer {
     renderState.displayFireAnimation = state.displayFireAnimation;
     // TODO: Glowing effect doesn't work. The entity renders the same regardless. Could ignore this, since it was not in the original FancyManu, but it would be nice to have (not even sure this is the right property).
     renderState.appearsGlowing = state.appearsGlowing;
+    // TODO: Cape rotates correctly only around x axis.
     renderState.capeFlap = state.bodyRot.getXDeg() + 10;
     renderState.capeLean = 0;
     renderState.capeLean2 = 0;
-
 //    this.cape.rotateBy(
 //      new Quaternionf()
 //        .rotateY((float) -Math.PI)
