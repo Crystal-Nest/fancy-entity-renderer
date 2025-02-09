@@ -69,7 +69,7 @@ public class FancyPlayerRenderer extends PlayerRenderer {
   protected void renderNameTag(@NotNull PlayerRenderState renderState, @NotNull Component nameTag, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight) {
     FancyPlayerRenderState state = state();
     if (state.showPlayerName) {
-      float scale = state.scale / 40;
+      float scale = state.scale * NAMETAG_SCALE;
       Font font = getFont();
       poseStack.pushPose();
       // nameTagAttachment can't be null, its value is always update in extractRenderState.
