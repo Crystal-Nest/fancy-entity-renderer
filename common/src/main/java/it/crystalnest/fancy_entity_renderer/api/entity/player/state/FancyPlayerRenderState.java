@@ -73,5 +73,7 @@ public class FancyPlayerRenderState extends PlayerRenderState {
   @Nullable
   public Item leftHandHeldItem = null;
 
+  public boolean showPlayerName = false;
+
   public FancyPlayerRenderState() {}
 }

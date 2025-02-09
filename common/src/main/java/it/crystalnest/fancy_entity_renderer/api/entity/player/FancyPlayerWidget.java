@@ -17,7 +17,6 @@ import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,10 +32,6 @@ public class FancyPlayerWidget extends AbstractWidget {
 
   private FancyPlayerRenderer renderer;
 
-  private static FancySessionService fancySessionService() {
-    return (FancySessionService) Minecraft.getInstance().getMinecraftSessionService();
-  }
-
   public FancyPlayerWidget(int x, int y, int width, int height) {
     super(x, y, width, height, CommonComponents.EMPTY);
     renderer = renderState.isSlim ? slimRenderer : wideRenderer;
@@ -44,9 +39,14 @@ public class FancyPlayerWidget extends AbstractWidget {
 //    renderState.displayFireAnimation = true;
     renderState.headFollowsMouse = true;
     renderState.bodyFollowsMouse = true;
+    renderState.showPlayerName = true;
     copyPlayer(Minecraft.getInstance().getGameProfile());
-    copyPlayer("Crystal_Spider_");
-    copyPlayer(UUID.fromString("6be8d691-9635-4468-ace3-69a05a4440b6"));
+//    copyPlayer("Crystal_Spider_");
+//    copyPlayer(UUID.fromString("6be8d691-9635-4468-ace3-69a05a4440b6"));
+  }
+
+  private static FancySessionService fancySessionService() {
+    return (FancySessionService) Minecraft.getInstance().getMinecraftSessionService();
   }
 
   @Override
@@ -55,11 +55,24 @@ public class FancyPlayerWidget extends AbstractWidget {
     gfx.pose().pushPose();
     gfx.pose().translate(getX() + getWidth() / 2F, getY() + getHeight(), 100);
     gfx.flush();
-    gfx.pose().scale(1 , -1, 1); // For some reason this renders the flame overlay.
+    gfx.pose().scale(1, -1, 1); // For some reason this renders the flame overlay.
     Lighting.setupForEntityInInventory(Axis.XP.rotationDegrees(renderState.bodyRot.getX()));
-    gfx.drawSpecial(src -> renderer.render(gfx.pose(), src, LightTexture.FULL_BRIGHT));
+    gfx.drawSpecial(bufferSource -> renderer.render(gfx.pose(), bufferSource, LightTexture.FULL_BRIGHT));
     gfx.flush();
     gfx.pose().popPose();
+  }
+
+  @Override
+  public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    // TODO: Remove.
+    if (button == 0) {
+      renderState.isCrouching = !renderState.isCrouching;
+      copyPlayer("Crystal_Spider_");
+//      setSlim(!renderState.isSlim);
+    } else {
+      setCopyLocalPlayer(true);
+    }
+    return super.mouseClicked(mouseX, mouseY, button);
   }
 
   @Override
@@ -75,17 +88,6 @@ public class FancyPlayerWidget extends AbstractWidget {
   @Override
   protected void updateWidgetNarration(@NotNull NarrationElementOutput output) {
     // TODO: Maybe add narration for when the player name is visible (what about when the name is visible and the player is crouching?).
-  }
-
-  @Override
-  public boolean mouseClicked(double mouseX, double mouseY, int button) {
-    // TODO: Remove.
-    if (button == 0) {
-        setSlim(!renderState.isSlim);
-    } else {
-      setCopyLocalPlayer(!renderState.copyLocalPlayer);
-    }
-    return super.mouseClicked(mouseX, mouseY, button);
   }
 
   public void setSlim(boolean isSlim) {
@@ -110,6 +112,7 @@ public class FancyPlayerWidget extends AbstractWidget {
         return Optional.of(renderState.skin);
       })
       .thenAccept(skin -> {
+        renderState.name = profile.getName();
         renderState.skin = skin.orElse(renderState.skin);
         renderState.isSlim = renderState.skin.model() == PlayerSkin.Model.SLIM;
         renderer = renderState.isSlim ? slimRenderer : wideRenderer;
@@ -166,7 +169,6 @@ public class FancyPlayerWidget extends AbstractWidget {
 //      renderState.headRot.setZDeg(RotationDegreesSetByTheUser);
       }
     }
-    renderState.nameTagAttachment = new Vec3(0, (height + (20.5 * height / 120)), 0);
     renderState.rightHandHeldItem = Items.NETHERITE_SWORD;
     renderState.leftHandHeldItem = Items.OAK_TRAPDOOR;
   }

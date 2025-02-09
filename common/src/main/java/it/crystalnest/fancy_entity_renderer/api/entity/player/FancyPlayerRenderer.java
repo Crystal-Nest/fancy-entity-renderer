@@ -1,9 +1,11 @@
 package it.crystalnest.fancy_entity_renderer.api.entity.player;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import it.crystalnest.fancy_entity_renderer.api.entity.player.model.FancyPlayerModel;
 import it.crystalnest.fancy_entity_renderer.api.entity.player.state.FancyPlayerRenderState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -11,8 +13,10 @@ import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import net.minecraft.client.resources.model.EquipmentAssetManager;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.CommonColors;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
@@ -45,11 +49,54 @@ public class FancyPlayerRenderer extends PlayerRenderer {
     // TODO: Define armor model layers correctly (slim, wide, baby, adult). Check out the Zombie renderer.
   }
 
+  public FancyPlayerRenderState state() {
+    return (FancyPlayerRenderState) reusedState;
+  }
+
+  @Override
+  public void render(@NotNull PlayerRenderState state, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight) {
+    model = state.isBaby ? babyModel : adultModel;
+    super.render(state, poseStack, bufferSource, packedLight);
+  }
+
+  public void render(@NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight) {
+    // Entity is null, but it won't get used anyway because extractRenderState was overridden.
+    // noinspection DataFlowIssue
+    entityRenderDispatcher.render(null, 0, 0, 0, 0, poseStack, bufferSource, packedLight, this);
+  }
+
+  @Override
+  protected void renderNameTag(@NotNull PlayerRenderState renderState, @NotNull Component nameTag, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight) {
+    FancyPlayerRenderState state = state();
+    if (state.showPlayerName) {
+      float scale = state.scale / 40;
+      Font font = getFont();
+      poseStack.pushPose();
+      // nameTagAttachment can't be null, its value is always update in extractRenderState.
+      // noinspection DataFlowIssue
+      poseStack.translate(state.nameTagAttachment);
+      poseStack.scale(scale, -scale, scale);
+      poseStack.mulPose(Axis.XN.rotation(state.bodyRot.getX()));
+      font.drawInBatch(
+        nameTag,
+        -font.width(nameTag) / 2F,
+        -state.boundingBoxHeight / scale,
+        state.isDiscrete ? -2130706433 : CommonColors.WHITE,
+        false,
+        poseStack.last().pose(),
+        bufferSource,
+        Font.DisplayMode.NORMAL,
+        (int) (Minecraft.getInstance().options.getBackgroundOpacity(0.25F) * 255) << 24,
+        packedLight
+      );
+      poseStack.popPose();
+    }
+  }
+
   @Override
   public void extractRenderState(@Nullable AbstractClientPlayer player, @NotNull PlayerRenderState renderState, float partialTick) {
-    FancyPlayerRenderState state = (FancyPlayerRenderState) reusedState;
+    FancyPlayerRenderState state = state();
     // Update fixed properties.
-    renderState.customName = null;
 //    renderState.ageInTicks += 1; // To use if we implement dynamic player movements. TODO: Check if it stops after some time.
     renderState.ageInTicks = 3000;
     renderState.walkAnimationPos = 0;
@@ -59,7 +106,6 @@ public class FancyPlayerRenderer extends PlayerRenderer {
     renderState.boundingBoxWidth = state.boundingBoxWidth;
     renderState.boundingBoxHeight = state.boundingBoxHeight;
     renderState.scale = state.scale;
-    renderState.nameTagAttachment = state.nameTagAttachment;
     // TODO:
     //  STANDING is fine.
     //  FALL_FLYING is to be blacklisted.
@@ -80,9 +126,8 @@ public class FancyPlayerRenderer extends PlayerRenderer {
     //  SHOOTING is for Breeze only.
     //  INHALING is for Breeze only.
     renderState.pose = Pose.STANDING;
-    // TODO: Camera orientation should be used to move the name tag along with the player body (maybe).
-//    entityRenderDispatcher.overrideCameraOrientation(new Quaternionf(-state.bodyRot.getX(), -state.bodyRot.getY(), -state.bodyRot.getZ(), 1));
-    renderState.nameTag = Component.literal(state.copyLocalPlayer ? Minecraft.getInstance().getGameProfile().getName() : "Name Tag Test");
+    renderState.nameTag = Component.literal(state.name);
+    renderState.nameTagAttachment = new Vec3(0, 0.5F * state.scale, 0);
     // TODO: Implement choosing local texture files (both skin and cape), as well as choosing the texture from a player's name/uuid.
     renderState.skin = state.skin;
     renderState.parrotOnLeftShoulder = state.parrotOnLeftShoulder;
@@ -107,8 +152,8 @@ public class FancyPlayerRenderer extends PlayerRenderer {
     // TODO: Glowing effect doesn't work. The entity renders the same regardless. Could ignore this, since it was not in the original FancyManu, but it would be nice to have (not even sure this is the right property).
     renderState.appearsGlowing = state.appearsGlowing;
     // TODO: Cape rotates correctly only around x axis.
-    renderState.capeFlap = state.bodyRot.getXDeg() + 10;
-    renderState.capeLean = 0;
+    renderState.capeFlap = 10;
+    renderState.capeLean = state.bodyRot.getXDeg();
     renderState.capeLean2 = 0;
 //    this.cape.rotateBy(
 //      new Quaternionf()
@@ -117,17 +162,5 @@ public class FancyPlayerRenderer extends PlayerRenderer {
 //        .rotateZ(renderState.capeLean2 / 2.0F * (float) (Math.PI / 180.0))
 //        .rotateY((180.0F - renderState.capeLean2 / 2.0F) * (float) (Math.PI / 180.0))
 //    );
-  }
-
-  @Override
-  public void render(@NotNull PlayerRenderState state, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight) {
-    model = state.isBaby ? babyModel : adultModel;
-//    poseStack.mulPose(Axis.ZP.rotationDegrees(180));
-    super.render(state, poseStack, bufferSource, packedLight);
-  }
-
-  public void render(@NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight) {
-    // noinspection DataFlowIssue
-    entityRenderDispatcher.render(null, 0, 0, 0, 0, poseStack, bufferSource, packedLight, this);
   }
 }
