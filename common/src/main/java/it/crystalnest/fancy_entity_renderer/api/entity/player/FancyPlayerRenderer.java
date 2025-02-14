@@ -6,12 +6,14 @@ import it.crystalnest.fancy_entity_renderer.api.entity.player.model.FancyPlayerM
 import it.crystalnest.fancy_entity_renderer.api.entity.player.state.FancyPlayerRenderState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.model.HumanoidArmorModel;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.entity.state.PlayerRenderState;
-import net.minecraft.client.resources.model.EquipmentAssetManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.CommonColors;
 import net.minecraft.world.entity.Pose;
@@ -29,7 +31,7 @@ public class FancyPlayerRenderer extends PlayerRenderer {
     Minecraft.getInstance().getBlockRenderer(),
     Minecraft.getInstance().getResourceManager(),
     Minecraft.getInstance().getEntityModels(),
-    new EquipmentAssetManager(),
+    Minecraft.getInstance().getEntityRenderDispatcher().equipmentAssets,
     Minecraft.getInstance().font
   );
 
@@ -37,16 +39,23 @@ public class FancyPlayerRenderer extends PlayerRenderer {
 
   private final FancyPlayerModel babyModel;
 
-  public FancyPlayerRenderer(FancyPlayerRenderState state, boolean slim) {
-    super(RENDER_CONTEXT, slim);
+  public FancyPlayerRenderer(FancyPlayerRenderState state, boolean isSlim) {
+    super(RENDER_CONTEXT, isSlim);
     entityRenderDispatcher.overrideCameraOrientation(new Quaternionf());
     entityRenderDispatcher.setRenderShadow(false);
     entityRenderDispatcher.setRenderHitBoxes(false);
-    adultModel = new FancyPlayerModel(slim, false);
-    babyModel = new FancyPlayerModel(slim, true);
+    adultModel = new FancyPlayerModel(isSlim, false);
+    babyModel = new FancyPlayerModel(isSlim, true);
     model = adultModel;
     reusedState = state;
-    // TODO: Define armor model layers correctly (slim, wide, baby, adult). Check out the Zombie renderer.
+    layers.set(0, new HumanoidArmorLayer<>(
+      this,
+      new HumanoidArmorModel<>(RENDER_CONTEXT.bakeLayer(isSlim ? ModelLayers.PLAYER_SLIM_INNER_ARMOR : ModelLayers.PLAYER_INNER_ARMOR)),
+      new HumanoidArmorModel<>(RENDER_CONTEXT.bakeLayer(isSlim ? ModelLayers.PLAYER_SLIM_OUTER_ARMOR : ModelLayers.PLAYER_OUTER_ARMOR)),
+      new HumanoidArmorModel<>(FancyPlayerModel.getBabyArmorModel(true)),
+      new HumanoidArmorModel<>(FancyPlayerModel.getBabyArmorModel(false)),
+      RENDER_CONTEXT.getEquipmentRenderer()
+    ));
   }
 
   public FancyPlayerRenderState state() {
@@ -139,22 +148,25 @@ public class FancyPlayerRenderer extends PlayerRenderer {
     if (state.leftHandHeldItem != null) {
       Minecraft.getInstance().getItemModelResolver().updateForTopItem(state.leftHandItem, state.leftHandHeldItem.getDefaultInstance(), ItemDisplayContext.THIRD_PERSON_LEFT_HAND, true, null, null, ItemDisplayContext.THIRD_PERSON_LEFT_HAND.ordinal());
     }
-    // TODO: Why is armor not rendered?
+    // TODO: Render elytra (if cape has a texture, elytra should be renderer with that texture too).
     renderState.headEquipment = state.headEquipment;
     renderState.chestEquipment = state.chestEquipment;
     renderState.legsEquipment = state.legsEquipment;
     renderState.feetEquipment = state.feetEquipment;
-    // TODO: Render elytra (if cape has a texture, elytra should be renderer with that texture too).
     // TODO: Only makes the body disappear, but maybe it should also make the head transparent. It might be nice to have a flag to choose between "no body, solid head" and "no body, transparent head".
     renderState.isSpectator = state.isSpectator;
-    // TODO: Flame is not rendered.
-    renderState.displayFireAnimation = state.displayFireAnimation;
     // TODO: Glowing effect doesn't work. The entity renders the same regardless. Could ignore this, since it was not in the original FancyManu, but it would be nice to have (not even sure this is the right property).
     renderState.appearsGlowing = state.appearsGlowing;
+    renderState.displayFireAnimation = state.displayFireAnimation;
+    // TODO: Elytra seems kind of broken.
+    renderState.elytraRotX = state.bodyRot.getX();
+    renderState.elytraRotY = state.bodyRot.getY();
+    renderState.elytraRotZ = state.bodyRot.getZ();
     // TODO: Cape rotates correctly only around x axis.
     renderState.capeFlap = 10;
     renderState.capeLean = state.bodyRot.getXDeg();
     renderState.capeLean2 = 0;
+
 //    this.cape.rotateBy(
 //      new Quaternionf()
 //        .rotateY((float) -Math.PI)

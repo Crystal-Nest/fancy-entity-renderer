@@ -1,7 +1,10 @@
 package it.crystalnest.fancy_entity_renderer.api.entity.player.model;
 
 import it.crystalnest.fancy_entity_renderer.api.entity.player.state.FancyPlayerRenderState;
+import net.minecraft.client.model.HumanoidArmorModel;
+import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.geom.LayerDefinitions;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
@@ -23,6 +26,10 @@ public class FancyPlayerModel extends PlayerModel {
       layerDefinition = layerDefinition.apply(BABY_TRANSFORMER);
     }
     return layerDefinition.bakeRoot();
+  }
+
+  public static ModelPart getBabyArmorModel(boolean isInner) {
+    return LayerDefinition.create(HumanoidArmorModel.createBodyLayer(isInner ? LayerDefinitions.INNER_ARMOR_DEFORMATION : LayerDefinitions.OUTER_ARMOR_DEFORMATION), 64, 32).apply(HumanoidModel.BABY_TRANSFORMER).bakeRoot();
   }
 
   @Override

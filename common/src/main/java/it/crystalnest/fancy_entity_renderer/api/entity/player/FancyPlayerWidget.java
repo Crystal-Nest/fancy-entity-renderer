@@ -35,13 +35,13 @@ public class FancyPlayerWidget extends AbstractWidget {
   public FancyPlayerWidget(int x, int y, int width, int height) {
     super(x, y, width, height, CommonComponents.EMPTY);
     renderer = renderState.isSlim ? slimRenderer : wideRenderer;
-    // TODO: Flames are too wide and too "in front".
+    // TODO: Flames are too wide, tall, and "in front".
 //    renderState.displayFireAnimation = true;
     renderState.headFollowsMouse = true;
     renderState.bodyFollowsMouse = true;
     renderState.showPlayerName = true;
     copyPlayer(Minecraft.getInstance().getGameProfile());
-//    copyPlayer("Crystal_Spider_");
+    copyPlayer("Crystal_Spider_");
 //    copyPlayer(UUID.fromString("6be8d691-9635-4468-ace3-69a05a4440b6"));
   }
 
@@ -55,7 +55,7 @@ public class FancyPlayerWidget extends AbstractWidget {
     gfx.pose().pushPose();
     gfx.pose().translate(getX() + getWidth() / 2F, getY() + getHeight(), 100);
     gfx.flush();
-    gfx.pose().scale(1, -1, 1); // For some reason this renders the flame overlay.
+    gfx.pose().scale(1, -1, 1);
     Lighting.setupForEntityInInventory(Axis.XP.rotationDegrees(renderState.bodyRot.getX()));
     gfx.drawSpecial(bufferSource -> renderer.render(gfx.pose(), bufferSource, LightTexture.FULL_BRIGHT));
     gfx.flush();
@@ -66,11 +66,9 @@ public class FancyPlayerWidget extends AbstractWidget {
   public boolean mouseClicked(double mouseX, double mouseY, int button) {
     // TODO: Remove.
     if (button == 0) {
-      renderState.isCrouching = !renderState.isCrouching;
-      copyPlayer("Crystal_Spider_");
-//      setSlim(!renderState.isSlim);
+      setSlim(!renderState.isSlim);
     } else {
-      setCopyLocalPlayer(true);
+      renderState.isBaby = !renderState.isBaby;
     }
     return super.mouseClicked(mouseX, mouseY, button);
   }
@@ -171,5 +169,9 @@ public class FancyPlayerWidget extends AbstractWidget {
     }
     renderState.rightHandHeldItem = Items.NETHERITE_SWORD;
     renderState.leftHandHeldItem = Items.OAK_TRAPDOOR;
+//    renderState.headEquipment = Items.NETHERITE_HELMET.getDefaultInstance();
+//    renderState.chestEquipment = Items.ELYTRA.getDefaultInstance();
+//    renderState.legsEquipment = Items.LEATHER_LEGGINGS.getDefaultInstance();
+//    renderState.feetEquipment = Items.GOLDEN_BOOTS.getDefaultInstance();
   }
 }
