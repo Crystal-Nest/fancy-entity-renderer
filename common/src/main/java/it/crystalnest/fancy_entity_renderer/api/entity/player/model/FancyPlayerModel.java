@@ -4,24 +4,21 @@ import it.crystalnest.fancy_entity_renderer.api.entity.player.state.FancyPlayerR
 import net.minecraft.client.model.HumanoidArmorModel;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.model.geom.LayerDefinitions;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import org.jetbrains.annotations.NotNull;
 
 public class FancyPlayerModel extends PlayerModel {
-  private static final LayerDefinition FANCY_PLAYER = LayerDefinition.create(createMesh(CubeDeformation.NONE, false), 64, 64);
-
-  private static final LayerDefinition FANCY_PLAYER_SLIM = LayerDefinition.create(createMesh(CubeDeformation.NONE, true), 64, 64);
-
-  public FancyPlayerModel(boolean isSlim, boolean isBaby) {
-    super(getModelPart(isSlim, isBaby), isSlim);
+  public FancyPlayerModel(EntityModelSet modelSet, boolean isSlim, boolean isBaby) {
+    super(getModelPart(modelSet, isSlim, isBaby), isSlim);
   }
 
-  private static ModelPart getModelPart(boolean isSlim, boolean isBaby) {
-    LayerDefinition layerDefinition = isSlim ? FANCY_PLAYER_SLIM : FANCY_PLAYER;
+  private static ModelPart getModelPart(EntityModelSet modelSet, boolean isSlim, boolean isBaby) {
+    LayerDefinition layerDefinition = modelSet.roots.get(isSlim ? ModelLayers.PLAYER_SLIM : ModelLayers.PLAYER);
     if (isBaby) {
       layerDefinition = layerDefinition.apply(BABY_TRANSFORMER);
     }
@@ -62,5 +59,11 @@ public class FancyPlayerModel extends PlayerModel {
     head.xRot += state.headRot.getX();
     head.yRot += state.headRot.getY();
     head.zRot += state.headRot.getZ();
+
+//    body.yScale = 0;
+//    head.yScale = 0;
+//    head.xScale = 0;
+//    rightArm.yScale = 0;
+//    leftArm.yScale = 0;
   }
 }

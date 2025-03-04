@@ -2,6 +2,7 @@ package it.crystalnest.fancy_entity_renderer.api.entity.player;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import it.crystalnest.fancy_entity_renderer.api.entity.player.layer.FancyCapeLayer;
 import it.crystalnest.fancy_entity_renderer.api.entity.player.model.FancyPlayerModel;
 import it.crystalnest.fancy_entity_renderer.api.entity.player.state.FancyPlayerRenderState;
 import net.minecraft.client.Minecraft;
@@ -11,6 +12,7 @@ import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.layers.CapeLayer;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.entity.state.PlayerRenderState;
@@ -44,8 +46,8 @@ public class FancyPlayerRenderer extends PlayerRenderer {
     entityRenderDispatcher.overrideCameraOrientation(new Quaternionf());
     entityRenderDispatcher.setRenderShadow(false);
     entityRenderDispatcher.setRenderHitBoxes(false);
-    adultModel = new FancyPlayerModel(isSlim, false);
-    babyModel = new FancyPlayerModel(isSlim, true);
+    adultModel = new FancyPlayerModel(RENDER_CONTEXT.getModelSet(), isSlim, false);
+    babyModel = new FancyPlayerModel(RENDER_CONTEXT.getModelSet(), isSlim, true);
     model = adultModel;
     reusedState = state;
     layers.set(0, new HumanoidArmorLayer<>(
@@ -56,6 +58,7 @@ public class FancyPlayerRenderer extends PlayerRenderer {
       new HumanoidArmorModel<>(FancyPlayerModel.getBabyArmorModel(false)),
       RENDER_CONTEXT.getEquipmentRenderer()
     ));
+    layers.replaceAll(layer -> layer instanceof CapeLayer ? new FancyCapeLayer(this, RENDER_CONTEXT.getModelSet(), RENDER_CONTEXT.getEquipmentAssets()) : layer);
   }
 
   public FancyPlayerRenderState state() {
@@ -165,14 +168,6 @@ public class FancyPlayerRenderer extends PlayerRenderer {
     // TODO: Cape rotates correctly only around x axis.
     renderState.capeFlap = 10;
     renderState.capeLean = state.bodyRot.getXDeg();
-    renderState.capeLean2 = 0;
-
-//    this.cape.rotateBy(
-//      new Quaternionf()
-//        .rotateY((float) -Math.PI)
-//        .rotateX((6.0F + renderState.capeLean / 2.0F + renderState.capeFlap) * (float) (Math.PI / 180.0))
-//        .rotateZ(renderState.capeLean2 / 2.0F * (float) (Math.PI / 180.0))
-//        .rotateY((180.0F - renderState.capeLean2 / 2.0F) * (float) (Math.PI / 180.0))
-//    );
+    renderState.capeLean2 = state.bodyRot.getYDeg();
   }
 }
