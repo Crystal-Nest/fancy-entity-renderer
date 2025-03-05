@@ -59,11 +59,5 @@ public class FancyPlayerModel extends PlayerModel {
     head.xRot += state.headRot.getX();
     head.yRot += state.headRot.getY();
     head.zRot += state.headRot.getZ();
-
-//    body.yScale = 0;
-//    head.yScale = 0;
-//    head.xScale = 0;
-//    rightArm.yScale = 0;
-//    leftArm.yScale = 0;
   }
 }

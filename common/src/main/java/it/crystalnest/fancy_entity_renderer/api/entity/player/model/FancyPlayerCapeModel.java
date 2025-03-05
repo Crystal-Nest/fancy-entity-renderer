@@ -1,5 +1,6 @@
 package it.crystalnest.fancy_entity_renderer.api.entity.player.model;
 
+import it.crystalnest.fancy_entity_renderer.api.entity.player.state.FancyPlayerRenderState;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.model.geom.ModelLayers;
@@ -10,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 
 public class FancyPlayerCapeModel extends HumanoidModel<PlayerRenderState> {
-  private final ModelPart cape = this.body.getChild("cape");
+  private final ModelPart cape = body.getChild("cape");
 
   public FancyPlayerCapeModel(EntityModelSet modelSet, boolean isBaby) {
     super(getModelPart(modelSet, isBaby));
@@ -26,21 +27,10 @@ public class FancyPlayerCapeModel extends HumanoidModel<PlayerRenderState> {
 
   public void setupAnim(@NotNull PlayerRenderState renderState) {
     super.setupAnim(renderState);
-
-//    cape.rotateBy(
-//      new Quaternionf()
-//        .rotateY((float) -Math.PI)
-//        .rotateX((6.0F + renderState.capeLean / 2.0F + renderState.capeFlap) * (float) (Math.PI / 180.0))
-//        .rotateZ(renderState.capeLean2 / 2.0F * (float) (Math.PI / 180.0))
-//        .rotateY((180.0F - renderState.capeLean2 / 2.0F) * (float) (Math.PI / 180.0))
-//    );
-
-    cape.rotateBy(
-      new Quaternionf()
-        .rotateY((float) -Math.PI)
-        .rotateX((6.0F + renderState.capeLean / 2.0F + renderState.capeFlap) * (float) (Math.PI / 180.0))
-        .rotateZ(renderState.capeLean2 / 2.0F * (float) (Math.PI / 180.0))
-        .rotateY((180.0F - renderState.capeLean2 / 2.0F) * (float) (Math.PI / 180.0))
-    );
+    cape.rotateBy(new Quaternionf().rotateY((float) -Math.PI).rotateX((float) (renderState.capeLean / 2 + Math.PI / 12)).rotateY((float) Math.PI));
+    FancyPlayerRenderState state = (FancyPlayerRenderState) renderState;
+    root().xRot += state.bodyRot.getX();
+    root().yRot += state.bodyRot.getY();
+    root().zRot += state.bodyRot.getZ();
   }
 }

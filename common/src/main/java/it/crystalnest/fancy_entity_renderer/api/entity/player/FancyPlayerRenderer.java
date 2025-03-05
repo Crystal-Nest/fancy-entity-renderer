@@ -165,9 +165,6 @@ public class FancyPlayerRenderer extends PlayerRenderer {
     renderState.elytraRotX = state.bodyRot.getX();
     renderState.elytraRotY = state.bodyRot.getY();
     renderState.elytraRotZ = state.bodyRot.getZ();
-    // TODO: Cape rotates correctly only around x axis.
-    renderState.capeFlap = 10;
-    renderState.capeLean = state.bodyRot.getXDeg();
-    renderState.capeLean2 = state.bodyRot.getYDeg();
+    renderState.capeLean = state.bodyRot.getX();
   }
 }
