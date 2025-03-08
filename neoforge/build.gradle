@@ -3,12 +3,6 @@ plugins {
   id "net.neoforged.moddev"
 }
 
-dependencies {
-  implementation files("libs/fancymenu-1.0.0.jar")
-  implementation files("libs/konkrete_neoforge_1.9.9_MC_1.21.4.jar")
-  implementation files("libs/melody_neoforge_1.0.10_MC_1.21.jar")
-}
-
 neoForge {
   version = neoforge_version
   def at = project(":common").file("src/main/resources/META-INF/accesstransformer.cfg")

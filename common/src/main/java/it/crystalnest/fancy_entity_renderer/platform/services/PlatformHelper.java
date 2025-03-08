@@ -1,7 +1,7 @@
 package it.crystalnest.fancy_entity_renderer.platform.services;
 
-import it.crystalnest.cobweb.platform.model.Environment;
-import it.crystalnest.cobweb.platform.model.Platform;
+import it.crystalnest.fancy_entity_renderer.platform.model.Environment;
+import it.crystalnest.fancy_entity_renderer.platform.model.Platform;
 
 /**
  * Platform specific helper.

@@ -11,10 +11,6 @@ dependencies {
   }
   modImplementation "net.fabricmc:fabric-loader:$fabric_loader_version"
   modImplementation "net.fabricmc.fabric-api:fabric-api:$fabric_version"
-  modImplementation "it.crystalnest:cobweb-$name:$minecraft_version-$cobweb_version"
-  modImplementation files("libs/fancymenu-1.0.0.jar")
-  modImplementation files("libs/konkrete_fabric_1.9.9_MC_1.21.4.jar")
-  modImplementation files("libs/melody_fabric_1.0.10_MC_1.21.jar")
 }
 
 loom {

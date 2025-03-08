@@ -44,23 +44,6 @@ repositories {
     )
     filter { includeGroup("org.parchmentmc.data") }
   }
-  exclusiveContent {
-    forRepository {
-      maven {
-        name = "Crystal Nest"
-        url = "https://maven.crystalnest.it"
-      }
-    }
-    filter {
-      includeGroup "it.crystalnest"
-    }
-  }
-}
-
-if (name != "fabric") {
-  dependencies {
-    implementation "it.crystalnest:cobweb-$name:$minecraft_version-$cobweb_version"
-  }
 }
 
 ["apiElements", "runtimeElements", "sourcesElements", "javadocElements"].each { variant ->
@@ -119,8 +102,7 @@ processResources {
     "fabric_version"               : fabric_version,
     "fabric_loader_version"        : fabric_loader_version,
     "neoforge_version"             : neoforge_version,
-    "neoforge_loader_version_range": neoforge_loader_version_range,
-    "cobweb_version"               : cobweb_version,
+    "neoforge_loader_version_range": neoforge_loader_version_range
   ]
   filesMatching(["pack.mcmeta", "fabric.mod.json", "META-INF/neoforge.mods.toml", "*.mixins.json"]) {
     expand expandProps
@@ -218,7 +200,6 @@ publisher {
     draft = false
   }
   modrinthDepends {
-    required "cobweb"
     switch (loader) {
       case "Fabric":
         required "fabric-api"
@@ -228,7 +209,6 @@ publisher {
     }
   }
   curseDepends {
-    required "cobweb"
     switch (loader) {
       case "Fabric":
         required "fabric-api"
