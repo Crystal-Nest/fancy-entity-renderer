@@ -151,6 +151,19 @@ public class FancyPlayerWidget extends AbstractWidget {
   }
 
   /**
+   * Sets a custom skin for the player.
+   *
+   * @param skin {@link PlayerSkin}.
+   */
+  public void setSkin(PlayerSkin skin) {
+    if (!renderState.copyLocalPlayer) {
+      renderState.isSlim = skin.model() == PlayerSkin.Model.SLIM;
+      renderState.skin = skin;
+      renderer = renderState.isSlim ? slimRenderer : wideRenderer;
+    }
+  }
+
+  /**
    * Makes the player copy the local player or not.
    *
    * @param copyLocalPlayer whether to copy the local player.
