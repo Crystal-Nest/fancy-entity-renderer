@@ -24,41 +24,39 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- *
+ * Custom player widget.
  */
 public class FancyPlayerWidget extends AbstractWidget {
   /**
-   *
+   * Player render height.
    */
   public static final float PLAYER_RENDER_HEIGHT = 1.875F;
 
   /**
-   *
+   * Global render state.
    */
   private final FancyPlayerRenderState renderState = new FancyPlayerRenderState();
 
   /**
-   *
+   * Renderer for the wide player model.
    */
   private final FancyPlayerRenderer wideRenderer = new FancyPlayerRenderer(renderState, false);
 
   /**
-   *
+   * Renderer for the slim player model.
    */
   private final FancyPlayerRenderer slimRenderer = new FancyPlayerRenderer(renderState, true);
 
   /**
-   *
+   * Current player renderer.
    */
   private FancyPlayerRenderer renderer;
 
   /**
-   *
-   *
-   * @param x
-   * @param y
-   * @param width
-   * @param height
+   * @param x x coordinate on the screen.
+   * @param y y coordinate on the screen.
+   * @param width widget width.
+   * @param height widget height.
    */
   public FancyPlayerWidget(int x, int y, int width, int height) {
     super(x, y, width, height, CommonComponents.EMPTY);
@@ -68,21 +66,21 @@ public class FancyPlayerWidget extends AbstractWidget {
   }
 
   /**
+   * Retrieves the session service for skin caching.
    *
-   *
-   * @return
+   * @return session service.
    */
   private static FancySessionService fancySessionService() {
     return (FancySessionService) Minecraft.getInstance().getMinecraftSessionService();
   }
 
   /**
+   * Renders the widget.
    *
-   *
-   * @param gfx
-   * @param mouseX
-   * @param mouseY
-   * @param partialTick
+   * @param gfx GUI graphics.
+   * @param mouseX mouse x coordinate.
+   * @param mouseY mouse y coordinate.
+   * @param partialTick partial tick.
    */
   @Override
   protected void renderWidget(GuiGraphics gfx, int mouseX, int mouseY, float partialTick) {
@@ -109,9 +107,10 @@ public class FancyPlayerWidget extends AbstractWidget {
   }
 
   /**
+   * Plays a sound when the widget is pressed.<br>
+   * Here no sound is played.
    *
-   *
-   * @param soundManager
+   * @param soundManager sound manager.
    */
   @Override
   public void playDownSound(@NotNull SoundManager soundManager) {
@@ -119,9 +118,9 @@ public class FancyPlayerWidget extends AbstractWidget {
   }
 
   /**
+   * Returns whether the widget is active.
    *
-   *
-   * @return
+   * @return whether the widget is active.
    */
   @Override
   public boolean isActive() {
@@ -129,9 +128,9 @@ public class FancyPlayerWidget extends AbstractWidget {
   }
 
   /**
+   * Updates the narrator narration for this widget.
    *
-   *
-   * @param output
+   * @param output narration element output.
    */
   @Override
   protected void updateWidgetNarration(@NotNull NarrationElementOutput output) {
@@ -139,9 +138,9 @@ public class FancyPlayerWidget extends AbstractWidget {
   }
 
   /**
+   * Makes the player slim or wide.
    *
-   *
-   * @param isSlim
+   * @param isSlim whether the player should be slim.
    */
   public void setSlim(boolean isSlim) {
     if (!renderState.copyLocalPlayer) {
@@ -152,9 +151,9 @@ public class FancyPlayerWidget extends AbstractWidget {
   }
 
   /**
+   * Makes the player copy the local player or not.
    *
-   *
-   * @param copyLocalPlayer
+   * @param copyLocalPlayer whether to copy the local player.
    */
   public void setCopyLocalPlayer(boolean copyLocalPlayer) {
     renderState.copyLocalPlayer = copyLocalPlayer;
@@ -164,49 +163,30 @@ public class FancyPlayerWidget extends AbstractWidget {
   }
 
   /**
+   * Copies a player from its profile name.
    *
-   *
-   * @param profile
-   */
-  public void copyPlayer(GameProfile profile) {
-    Minecraft.getInstance().getSkinManager().getOrLoad(profile)
-      .exceptionally(error -> {
-        Constants.LOGGER.error("Copy of player \"{}\" failed!", profile.getName(), error);
-        return Optional.of(renderState.skin);
-      })
-      .thenAccept(skin -> {
-        renderState.name = profile.getName();
-        renderState.skin = skin.orElse(renderState.skin);
-        renderState.isSlim = renderState.skin.model() == PlayerSkin.Model.SLIM;
-        renderer = renderState.isSlim ? slimRenderer : wideRenderer;
-      });
-  }
-
-  /**
-   *
-   *
-   * @param profileName
+   * @param profileName profile name.
    */
   public void copyPlayer(String profileName) {
     copyPlayer(fancySessionService().fetchProfile(profileName, false), profileName);
   }
 
   /**
+   * Copies a player from its UUID.
    *
-   *
-   * @param profileId
+   * @param profileId profile UUID.
    */
   public void copyPlayer(UUID profileId) {
     copyPlayer(fancySessionService().fetchProfile(profileId, false), profileId.toString());
   }
 
   /**
+   * Copies the player from the given profile result.
    *
-   *
-   * @param result
-   * @param source
+   * @param result profile result.
+   * @param source player identifier.
    */
-  public void copyPlayer(@Nullable ProfileResult result, String source) {
+  private void copyPlayer(@Nullable ProfileResult result, String source) {
     if (result != null) {
       copyPlayer(result.profile());
     } else {
@@ -215,17 +195,34 @@ public class FancyPlayerWidget extends AbstractWidget {
   }
 
   /**
+   * Copies a player from the specified {@link GameProfile}.
    *
-   *
-   * @param x
-   * @param y
-   * @param width
-   * @param height
-   * @param mouseX
-   * @param mouseY
-   * @param partialTick
+   * @param profile game profile.
    */
-  public void updateRenderState(int x, int y, int width, int height, int mouseX, int mouseY, float partialTick) {
+  private void copyPlayer(GameProfile profile) {
+    Minecraft.getInstance().getSkinManager().getOrLoad(profile).exceptionally(error -> {
+      Constants.LOGGER.error("Copy of player \"{}\" failed!", profile.getName(), error);
+      return Optional.of(renderState.skin);
+    }).thenAccept(skin -> {
+      renderState.name = profile.getName();
+      renderState.skin = skin.orElse(renderState.skin);
+      renderState.isSlim = renderState.skin.model() == PlayerSkin.Model.SLIM;
+      renderer = renderState.isSlim ? slimRenderer : wideRenderer;
+    });
+  }
+
+  /**
+   * Updates the global render state.
+   *
+   * @param x x coordinate of the widget.
+   * @param y y coordinate of the widget.
+   * @param width widget width.
+   * @param height widget height.
+   * @param mouseX mouse x coordinate.
+   * @param mouseY mouse y coordinate.
+   * @param partialTick partial tick.
+   */
+  private void updateRenderState(int x, int y, int width, int height, int mouseX, int mouseY, float partialTick) {
     renderState.boundingBoxWidth = width;
     renderState.boundingBoxHeight = height;
     renderState.scale = height / PLAYER_RENDER_HEIGHT;
@@ -244,9 +241,7 @@ public class FancyPlayerWidget extends AbstractWidget {
 
       // modelEye = PLAYER_RENDER_HEIGHT - Player.DEFAULT_EYE_HEIGHT
       // If baby, both the render height and the eye height are halved
-      float eyeY = renderState.isBaby ?
-        y + (height / 2F) + ((PLAYER_RENDER_HEIGHT - Player.DEFAULT_EYE_HEIGHT) * height / PLAYER_RENDER_HEIGHT) / 2 :
-        y + (PLAYER_RENDER_HEIGHT - Player.DEFAULT_EYE_HEIGHT) * height / PLAYER_RENDER_HEIGHT;
+      float eyeY = renderState.isBaby ? y + (height / 2F) + ((PLAYER_RENDER_HEIGHT - Player.DEFAULT_EYE_HEIGHT) * height / PLAYER_RENDER_HEIGHT) / 2 : y + (PLAYER_RENDER_HEIGHT - Player.DEFAULT_EYE_HEIGHT) * height / PLAYER_RENDER_HEIGHT;
 
       float eyeX = (x + width / 2F);
       double mouseXRelative = mouseX - eyeX;

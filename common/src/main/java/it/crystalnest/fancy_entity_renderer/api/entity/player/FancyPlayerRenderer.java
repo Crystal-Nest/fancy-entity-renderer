@@ -26,11 +26,11 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 
 /**
- *
+ * Custom player renderer.
  */
 public class FancyPlayerRenderer extends PlayerRenderer {
   /**
-   *
+   * Render context.
    */
   private static final EntityRendererProvider.Context RENDER_CONTEXT = new EntityRendererProvider.Context(
     Minecraft.getInstance().getEntityRenderDispatcher(),
@@ -44,18 +44,18 @@ public class FancyPlayerRenderer extends PlayerRenderer {
   );
 
   /**
-   *
+   * Adult player model.
    */
   private final FancyPlayerModel adultModel;
 
   /**
-   *
+   * Baby player model.
    */
   private final FancyPlayerModel babyModel;
 
   /**
-   * @param state
-   * @param isSlim
+   * @param state global render state.
+   * @param isSlim whether the player is slim.
    */
   public FancyPlayerRenderer(FancyPlayerRenderState state, boolean isSlim) {
     super(RENDER_CONTEXT, isSlim);
@@ -66,33 +66,37 @@ public class FancyPlayerRenderer extends PlayerRenderer {
     babyModel = new FancyPlayerModel(RENDER_CONTEXT.getModelSet(), isSlim, true);
     model = adultModel;
     reusedState = state;
-    layers.set(0, new HumanoidArmorLayer<>(
-      this,
-      new HumanoidArmorModel<>(RENDER_CONTEXT.bakeLayer(isSlim ? ModelLayers.PLAYER_SLIM_INNER_ARMOR : ModelLayers.PLAYER_INNER_ARMOR)),
-      new HumanoidArmorModel<>(RENDER_CONTEXT.bakeLayer(isSlim ? ModelLayers.PLAYER_SLIM_OUTER_ARMOR : ModelLayers.PLAYER_OUTER_ARMOR)),
-      new HumanoidArmorModel<>(FancyPlayerModel.getBabyArmorModel(true)),
-      new HumanoidArmorModel<>(FancyPlayerModel.getBabyArmorModel(false)),
-      RENDER_CONTEXT.getEquipmentRenderer()
-    ));
-    layers.replaceAll(layer -> layer instanceof CapeLayer ? new FancyCapeLayer(this, RENDER_CONTEXT.getModelSet(), RENDER_CONTEXT.getEquipmentAssets()) : layer);
+    layers.replaceAll(layer -> switch (layer) {
+      case HumanoidArmorLayer<?, ?, ?> l -> new HumanoidArmorLayer<>(
+        this,
+        new HumanoidArmorModel<>(RENDER_CONTEXT.bakeLayer(isSlim ? ModelLayers.PLAYER_SLIM_INNER_ARMOR : ModelLayers.PLAYER_INNER_ARMOR)),
+        new HumanoidArmorModel<>(RENDER_CONTEXT.bakeLayer(isSlim ? ModelLayers.PLAYER_SLIM_OUTER_ARMOR : ModelLayers.PLAYER_OUTER_ARMOR)),
+        new HumanoidArmorModel<>(FancyPlayerModel.getBabyArmorModel(true)),
+        new HumanoidArmorModel<>(FancyPlayerModel.getBabyArmorModel(false)),
+        RENDER_CONTEXT.getEquipmentRenderer()
+      );
+      case CapeLayer l -> new FancyCapeLayer(this, RENDER_CONTEXT.getModelSet(), RENDER_CONTEXT.getEquipmentAssets());
+      default -> layer;
+    });
   }
 
   /**
+   * Returns the current state as a {@link FancyPlayerRenderState}.
    *
-   *
-   * @return
+   * @return current render state.
    */
   private FancyPlayerRenderState state() {
     return (FancyPlayerRenderState) reusedState;
   }
 
   /**
+   * Renders the player model.<br>
+   * Called after {@link #render(PoseStack, MultiBufferSource, int)}.
    *
-   *
-   * @param state
-   * @param poseStack
-   * @param bufferSource
-   * @param packedLight
+   * @param state render state.
+   * @param poseStack pose stack.
+   * @param bufferSource buffer source.
+   * @param packedLight packed light.
    */
   @Override
   public void render(@NotNull PlayerRenderState state, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight) {
@@ -101,11 +105,11 @@ public class FancyPlayerRenderer extends PlayerRenderer {
   }
 
   /**
+   * Renders the player model.
    *
-   *
-   * @param poseStack
-   * @param bufferSource
-   * @param packedLight
+   * @param poseStack pose stack.
+   * @param bufferSource buffer source.
+   * @param packedLight packed light.
    */
   public void render(@NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight) {
     poseStack.rotateAround(new Quaternionf().rotateX(state().bodyRot.getX()).rotateY(-state().bodyRot.getY()).rotateZ(state().bodyRot.getZ()), 0, 0, 0);
@@ -115,13 +119,13 @@ public class FancyPlayerRenderer extends PlayerRenderer {
   }
 
   /**
+   * Renders the player name tag.
    *
-   *
-   * @param renderState
-   * @param nameTag
-   * @param poseStack
-   * @param bufferSource
-   * @param packedLight
+   * @param renderState render state.
+   * @param nameTag name tag.
+   * @param poseStack pose stack.
+   * @param bufferSource buffer source.
+   * @param packedLight packed light.
    */
   @Override
   protected void renderNameTag(@NotNull PlayerRenderState renderState, @NotNull Component nameTag, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight) {
@@ -151,11 +155,12 @@ public class FancyPlayerRenderer extends PlayerRenderer {
   }
 
   /**
+   * Updates the given render state with data from the given player.<br>
+   * Since there is no player entity for this renderer, the render state is updated from the global render state passed in the constructor and retrieved with {@link #state()}.
    *
-   *
-   * @param player
-   * @param renderState
-   * @param partialTick
+   * @param player player entity (always {@code null}).
+   * @param renderState render state to update.
+   * @param partialTick partial tick.
    */
   @Override
   public void extractRenderState(@Nullable AbstractClientPlayer player, @NotNull PlayerRenderState renderState, float partialTick) {
