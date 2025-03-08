@@ -43,7 +43,6 @@ public class FancyPlayerWidget extends AbstractWidget {
     renderState.headFollowsMouse = true;
     renderState.bodyFollowsMouse = true;
     renderState.showPlayerName = true;
-    renderState.isBaby = true;
     copyPlayer(Minecraft.getInstance().getGameProfile());
     copyPlayer("Crystal_Spider_");
 //    copyPlayer(UUID.fromString("6be8d691-9635-4468-ace3-69a05a4440b6"));
@@ -239,9 +238,9 @@ public class FancyPlayerWidget extends AbstractWidget {
     }
     renderState.rightHandHeldItem = Items.NETHERITE_SWORD;
     renderState.leftHandHeldItem = Items.OAK_TRAPDOOR;
-//    renderState.headEquipment = Items.NETHERITE_HELMET.getDefaultInstance();
+    renderState.headEquipment = Items.NETHERITE_HELMET.getDefaultInstance();
 //    renderState.chestEquipment = Items.ELYTRA.getDefaultInstance();
-//    renderState.legsEquipment = Items.LEATHER_LEGGINGS.getDefaultInstance();
+    renderState.legsEquipment = Items.LEATHER_LEGGINGS.getDefaultInstance();
 //    renderState.feetEquipment = Items.GOLDEN_BOOTS.getDefaultInstance();
   }
 }

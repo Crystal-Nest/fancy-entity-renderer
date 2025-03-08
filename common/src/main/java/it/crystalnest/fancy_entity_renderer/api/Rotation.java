@@ -1,5 +1,7 @@
 package it.crystalnest.fancy_entity_renderer.api;
 
+import org.joml.Vector3f;
+
 import java.util.Objects;
 
 /**
@@ -142,6 +144,14 @@ public class Rotation {
    */
   public void setZDeg(double z) {
     setZ(Math.toRadians(z));
+  }
+
+  public Vector3f getOffset() {
+    return new Vector3f(getX(), getY(), getZ());
+  }
+
+  public Vector3f getOffsetDeg() {
+    return new Vector3f(getXDeg(), getYDeg(), getZDeg());
   }
 
   @Override

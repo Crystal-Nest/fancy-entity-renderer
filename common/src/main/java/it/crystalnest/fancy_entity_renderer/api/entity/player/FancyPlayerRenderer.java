@@ -1,7 +1,6 @@
 package it.crystalnest.fancy_entity_renderer.api.entity.player;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
 import it.crystalnest.fancy_entity_renderer.api.entity.player.layer.FancyCapeLayer;
 import it.crystalnest.fancy_entity_renderer.api.entity.player.model.FancyPlayerModel;
 import it.crystalnest.fancy_entity_renderer.api.entity.player.state.FancyPlayerRenderState;
@@ -19,6 +18,7 @@ import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.CommonColors;
 import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
@@ -72,6 +72,7 @@ public class FancyPlayerRenderer extends PlayerRenderer {
   }
 
   public void render(@NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight) {
+    poseStack.rotateAround(new Quaternionf().rotateX(state().bodyRot.getX()).rotateY(-state().bodyRot.getY()).rotateZ(state().bodyRot.getZ()), 0, 0, 0);
     // Entity is null, but it won't get used anyway because extractRenderState was overridden.
     // noinspection DataFlowIssue
     entityRenderDispatcher.render(null, 0, 0, 0, 0, poseStack, bufferSource, packedLight, this);
@@ -88,7 +89,6 @@ public class FancyPlayerRenderer extends PlayerRenderer {
       // noinspection DataFlowIssue
       poseStack.translate(state.nameTagAttachment);
       poseStack.scale(scale, -scale, scale);
-      poseStack.mulPose(Axis.XN.rotation(state.bodyRot.getX()));
       font.drawInBatch(
         nameTag,
         -font.width(nameTag) / 2F,
@@ -113,6 +113,7 @@ public class FancyPlayerRenderer extends PlayerRenderer {
     renderState.ageInTicks = 3000;
     renderState.walkAnimationPos = 0;
     renderState.walkAnimationSpeed = 0;
+    renderState.eyeHeight = Player.DEFAULT_EYE_HEIGHT;
     renderState.isDiscrete = state.isCrouching;
     // Update properties changed externally.
     renderState.boundingBoxWidth = state.boundingBoxWidth;
@@ -151,7 +152,6 @@ public class FancyPlayerRenderer extends PlayerRenderer {
     if (state.leftHandHeldItem != null) {
       Minecraft.getInstance().getItemModelResolver().updateForTopItem(state.leftHandItem, state.leftHandHeldItem.getDefaultInstance(), ItemDisplayContext.THIRD_PERSON_LEFT_HAND, true, null, null, ItemDisplayContext.THIRD_PERSON_LEFT_HAND.ordinal());
     }
-    // TODO: Render elytra (if cape has a texture, elytra should be renderer with that texture too).
     renderState.headEquipment = state.headEquipment;
     renderState.chestEquipment = state.chestEquipment;
     renderState.legsEquipment = state.legsEquipment;
@@ -161,10 +161,8 @@ public class FancyPlayerRenderer extends PlayerRenderer {
     // TODO: Glowing effect doesn't work. The entity renders the same regardless. Could ignore this, since it was not in the original FancyManu, but it would be nice to have (not even sure this is the right property).
     renderState.appearsGlowing = state.appearsGlowing;
     renderState.displayFireAnimation = state.displayFireAnimation;
-    // TODO: Elytra seems kind of broken.
-    renderState.elytraRotX = state.bodyRot.getX();
-    renderState.elytraRotY = state.bodyRot.getY();
-    renderState.elytraRotZ = state.bodyRot.getZ();
-    renderState.capeLean = state.bodyRot.getX();
+    renderState.elytraRotX = (float) (Math.PI / 16);
+//    renderState.elytraRotY = (float) (Math.PI / 2);
+    renderState.elytraRotZ = (float) (Math.PI / 10);
   }
 }
