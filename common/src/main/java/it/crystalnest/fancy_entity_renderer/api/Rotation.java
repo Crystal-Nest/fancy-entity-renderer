@@ -146,10 +146,20 @@ public class Rotation {
     setZ(Math.toRadians(z));
   }
 
+  /**
+   * Returns a vector describing this rotation as an offset rotation.
+   *
+   * @return this rotation as a vector.
+   */
   public Vector3f getOffset() {
     return new Vector3f(getX(), getY(), getZ());
   }
 
+  /**
+   * Returns a vector describing this rotation as an offset rotation in degrees.
+   *
+   * @return this rotation as a vector.
+   */
   public Vector3f getOffsetDeg() {
     return new Vector3f(getXDeg(), getYDeg(), getZDeg());
   }

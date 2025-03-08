@@ -24,7 +24,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
- *
+ * Injects into {@link YggdrasilMinecraftSessionService} to cache a map of profile names to UUIDs.
  */
 @Mixin(YggdrasilMinecraftSessionService.class)
 public abstract class YggdrasilMinecraftSessionServiceMixin implements FancySessionService {

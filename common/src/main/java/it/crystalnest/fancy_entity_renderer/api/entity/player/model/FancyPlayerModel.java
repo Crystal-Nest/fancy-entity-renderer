@@ -12,11 +12,27 @@ import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Custom player model.
+ */
 public class FancyPlayerModel extends PlayerModel {
+  /**
+   * @param modelSet entity model set.
+   * @param isSlim whether the player is slim.
+   * @param isBaby whether the player is baby.
+   */
   public FancyPlayerModel(EntityModelSet modelSet, boolean isSlim, boolean isBaby) {
     super(getModelPart(modelSet, isSlim, isBaby), isSlim);
   }
 
+  /**
+   * Returns the correct {@link ModelPart} depending on whether the player is slim and/or baby.
+   *
+   * @param modelSet entity model set.
+   * @param isSlim whether the player is slim.
+   * @param isBaby whether the player is baby.
+   * @return correct model part.
+   */
   private static ModelPart getModelPart(EntityModelSet modelSet, boolean isSlim, boolean isBaby) {
     LayerDefinition layerDefinition = modelSet.roots.get(isSlim ? ModelLayers.PLAYER_SLIM : ModelLayers.PLAYER);
     if (isBaby) {
@@ -25,16 +41,32 @@ public class FancyPlayerModel extends PlayerModel {
     return layerDefinition.bakeRoot();
   }
 
+  /**
+   * Returns the {@link ModelPart} for a baby player armor model.
+   *
+   * @param isInner whether the armor layer is inner.
+   * @return correct armor model part.
+   */
   public static ModelPart getBabyArmorModel(boolean isInner) {
     return LayerDefinition.create(HumanoidArmorModel.createBodyLayer(isInner ? LayerDefinitions.INNER_ARMOR_DEFORMATION : LayerDefinitions.OUTER_ARMOR_DEFORMATION), 64, 32).apply(HumanoidModel.BABY_TRANSFORMER).bakeRoot();
   }
 
+  /**
+   * Sets up the model animation pose.
+   *
+   * @param state render state.
+   */
   @Override
   public void setupAnim(@NotNull PlayerRenderState state) {
     super.setupAnim(state);
     update((FancyPlayerRenderState) state);
   }
 
+  /**
+   * Updates the animation pose with the render state rotations for single body parts.
+   *
+   * @param state render state.
+   */
   private void update(@NotNull FancyPlayerRenderState state) {
     leftArm.offsetRotation(state.leftArmRot.getOffset());
     rightArm.offsetRotation(state.rightArmRot.getOffset());

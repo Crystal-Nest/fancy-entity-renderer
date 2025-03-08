@@ -25,8 +25,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 
+/**
+ *
+ */
 public class FancyPlayerRenderer extends PlayerRenderer {
-  public static final EntityRendererProvider.Context RENDER_CONTEXT = new EntityRendererProvider.Context(
+  /**
+   *
+   */
+  private static final EntityRendererProvider.Context RENDER_CONTEXT = new EntityRendererProvider.Context(
     Minecraft.getInstance().getEntityRenderDispatcher(),
     Minecraft.getInstance().getItemModelResolver(),
     Minecraft.getInstance().getMapRenderer(),
@@ -37,10 +43,20 @@ public class FancyPlayerRenderer extends PlayerRenderer {
     Minecraft.getInstance().font
   );
 
+  /**
+   *
+   */
   private final FancyPlayerModel adultModel;
 
+  /**
+   *
+   */
   private final FancyPlayerModel babyModel;
 
+  /**
+   * @param state
+   * @param isSlim
+   */
   public FancyPlayerRenderer(FancyPlayerRenderState state, boolean isSlim) {
     super(RENDER_CONTEXT, isSlim);
     entityRenderDispatcher.overrideCameraOrientation(new Quaternionf());
@@ -61,16 +77,36 @@ public class FancyPlayerRenderer extends PlayerRenderer {
     layers.replaceAll(layer -> layer instanceof CapeLayer ? new FancyCapeLayer(this, RENDER_CONTEXT.getModelSet(), RENDER_CONTEXT.getEquipmentAssets()) : layer);
   }
 
-  public FancyPlayerRenderState state() {
+  /**
+   *
+   *
+   * @return
+   */
+  private FancyPlayerRenderState state() {
     return (FancyPlayerRenderState) reusedState;
   }
 
+  /**
+   *
+   *
+   * @param state
+   * @param poseStack
+   * @param bufferSource
+   * @param packedLight
+   */
   @Override
   public void render(@NotNull PlayerRenderState state, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight) {
     model = state.isBaby ? babyModel : adultModel;
     super.render(state, poseStack, bufferSource, packedLight);
   }
 
+  /**
+   *
+   *
+   * @param poseStack
+   * @param bufferSource
+   * @param packedLight
+   */
   public void render(@NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight) {
     poseStack.rotateAround(new Quaternionf().rotateX(state().bodyRot.getX()).rotateY(-state().bodyRot.getY()).rotateZ(state().bodyRot.getZ()), 0, 0, 0);
     // Entity is null, but it won't get used anyway because extractRenderState was overridden.
@@ -78,6 +114,15 @@ public class FancyPlayerRenderer extends PlayerRenderer {
     entityRenderDispatcher.render(null, 0, 0, 0, 0, poseStack, bufferSource, packedLight, this);
   }
 
+  /**
+   *
+   *
+   * @param renderState
+   * @param nameTag
+   * @param poseStack
+   * @param bufferSource
+   * @param packedLight
+   */
   @Override
   protected void renderNameTag(@NotNull PlayerRenderState renderState, @NotNull Component nameTag, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight) {
     FancyPlayerRenderState state = state();
@@ -105,11 +150,18 @@ public class FancyPlayerRenderer extends PlayerRenderer {
     }
   }
 
+  /**
+   *
+   *
+   * @param player
+   * @param renderState
+   * @param partialTick
+   */
   @Override
   public void extractRenderState(@Nullable AbstractClientPlayer player, @NotNull PlayerRenderState renderState, float partialTick) {
     FancyPlayerRenderState state = state();
     // Update fixed properties.
-//    renderState.ageInTicks += 1; // To use if we implement dynamic player movements. TODO: Check if it stops after some time.
+//    renderState.ageInTicks += 1; // To use if we implement dynamic player movements.
     renderState.ageInTicks = 3000;
     renderState.walkAnimationPos = 0;
     renderState.walkAnimationSpeed = 0;

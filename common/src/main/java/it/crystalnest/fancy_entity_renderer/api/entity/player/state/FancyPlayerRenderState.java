@@ -73,7 +73,8 @@ public class FancyPlayerRenderState extends PlayerRenderState {
   @Nullable
   public Item leftHandHeldItem = null;
 
+  /**
+   * Whether to show the player's name.
+   */
   public boolean showPlayerName = false;
-
-  public FancyPlayerRenderState() {}
 }
