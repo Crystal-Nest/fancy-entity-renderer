@@ -10,8 +10,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.server.Services;
 import net.minecraft.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.UUID;
