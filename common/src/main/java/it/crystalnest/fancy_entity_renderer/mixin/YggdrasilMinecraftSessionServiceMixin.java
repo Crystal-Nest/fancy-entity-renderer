@@ -13,7 +13,6 @@ import it.crystalnest.fancy_entity_renderer.api.FancySessionService;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -31,8 +30,9 @@ public abstract class YggdrasilMinecraftSessionServiceMixin implements FancySess
   /**
    * Shadowed {@link YggdrasilMinecraftSessionService#LOGGER}.
    */
+  @Final
   @Shadow
-  private static final Logger LOGGER = LoggerFactory.getLogger(YggdrasilMinecraftSessionService.class);
+  private static Logger LOGGER;
 
   /**
    * Shadowed {@link YggdrasilMinecraftSessionService#client}.
