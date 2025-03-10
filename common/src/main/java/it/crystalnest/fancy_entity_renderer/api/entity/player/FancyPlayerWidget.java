@@ -1,11 +1,9 @@
 package it.crystalnest.fancy_entity_renderer.api.entity.player;
 
 import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.yggdrasil.ProfileResult;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.math.Axis;
 import it.crystalnest.fancy_entity_renderer.Constants;
-import it.crystalnest.fancy_entity_renderer.api.FancySessionService;
 import it.crystalnest.fancy_entity_renderer.api.entity.player.state.FancyPlayerRenderState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -18,10 +16,10 @@ import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Custom player widget.
@@ -63,15 +61,6 @@ public class FancyPlayerWidget extends AbstractWidget {
     renderer = renderState.isSlim ? slimRenderer : wideRenderer;
     // TODO: Flames are too wide, tall, and "in front".
 //    renderState.displayFireAnimation = true;
-  }
-
-  /**
-   * Retrieves the session service for skin caching.
-   *
-   * @return session service.
-   */
-  private static FancySessionService fancySessionService() {
-    return (FancySessionService) Minecraft.getInstance().getMinecraftSessionService();
   }
 
   /**
@@ -181,7 +170,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @param profileName profile name.
    */
   public void copyPlayer(String profileName) {
-    copyPlayer(fancySessionService().fetchProfile(profileName, false), profileName);
+    copyPlayer(FancyProfileFetcher.fetchProfile(profileName), profileName);
   }
 
   /**
@@ -190,7 +179,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @param profileId profile UUID.
    */
   public void copyPlayer(UUID profileId) {
-    copyPlayer(fancySessionService().fetchProfile(profileId, false), profileId.toString());
+    copyPlayer(FancyProfileFetcher.fetchProfile(profileId), profileId.toString());
   }
 
   /**
@@ -199,12 +188,8 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @param result profile result.
    * @param source player identifier.
    */
-  private void copyPlayer(@Nullable ProfileResult result, String source) {
-    if (result != null) {
-      copyPlayer(result.profile());
-    } else {
-      Constants.LOGGER.error("Copy of player {} failed!", source);
-    }
+  private void copyPlayer(CompletableFuture<Optional<GameProfile>> result, String source) {
+    result.exceptionally(this::handlePlayerCopyError).thenAccept(profile -> profile.ifPresentOrElse(this::copyPlayer, () -> handlePlayerCopyError(source)));
   }
 
   /**
@@ -213,15 +198,33 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @param profile game profile.
    */
   private void copyPlayer(GameProfile profile) {
-    Minecraft.getInstance().getSkinManager().getOrLoad(profile).exceptionally(error -> {
-      Constants.LOGGER.error("Copy of player \"{}\" failed!", profile.getName(), error);
-      return Optional.of(renderState.skin);
-    }).thenAccept(skin -> {
+    Minecraft.getInstance().getSkinManager().getOrLoad(profile).exceptionally(this::handlePlayerCopyError).thenAccept(skin -> {
       renderState.name = profile.getName();
-      renderState.skin = skin.orElse(renderState.skin);
+      skin.ifPresentOrElse(value -> renderState.skin = value, () -> handlePlayerCopyError(renderState.name));
       renderState.isSlim = renderState.skin.model() == PlayerSkin.Model.SLIM;
       renderer = renderState.isSlim ? slimRenderer : wideRenderer;
     });
+  }
+
+  /**
+   * Handles errors happening when trying to fetch user profiles.
+   *
+   * @param error error.
+   * @return {@link Optional#empty()} to delegate value handling to the caller.
+   * @param <T> expected return value type.
+   */
+  private <T> Optional<T> handlePlayerCopyError(Throwable error) {
+    Constants.LOGGER.error("Copy of player failed with error!", error);
+    return Optional.empty();
+  }
+
+  /**
+   * Handles errors happening when trying to copy user profiles.
+   *
+   * @param source user source (name or UUID).
+   */
+  private static void handlePlayerCopyError(String source) {
+    Constants.LOGGER.error("Failed to copy player \"{}\"", source);
   }
 
   /**

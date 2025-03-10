@@ -1,5 +1,6 @@
 package it.crystalnest.fancy_entity_renderer;
 
+import it.crystalnest.fancy_entity_renderer.api.entity.player.FancyProfileFetcher;
 import org.jetbrains.annotations.ApiStatus;
 
 /**
@@ -12,5 +13,7 @@ public final class CommonModLoader {
   /**
    * Initialize common operations across loaders.
    */
-  public static void init() {}
+  public static void init() {
+    FancyProfileFetcher.setup();
+  }
 }

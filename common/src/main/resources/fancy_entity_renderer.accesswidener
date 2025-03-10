@@ -8,3 +8,4 @@ accessible field net/minecraft/client/model/geom/LayerDefinitions OUTER_ARMOR_DE
 accessible field net/minecraft/client/model/geom/LayerDefinitions INNER_ARMOR_DEFORMATION Lnet/minecraft/client/model/geom/builders/CubeDeformation;
 accessible field net/minecraft/world/entity/player/Player POSES Ljava/util/Map;
 accessible field net/minecraft/client/model/geom/EntityModelSet roots Ljava/util/Map;
+accessible field net/minecraft/client/Minecraft authenticationService Lcom/mojang/authlib/yggdrasil/YggdrasilAuthenticationService;
