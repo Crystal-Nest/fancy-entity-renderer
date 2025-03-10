@@ -5,7 +5,6 @@ plugins {
 }
 
 mixin {
-//  add(sourceSets.main, "${mod_id}.refmap.json")
   config("${mod_id}.mixins.json")
   config("${mod_id}.forge.mixins.json")
 }
@@ -32,12 +31,9 @@ minecraft {
       workingDirectory file("run/client")
       ideaModule "${rootProject.name}.${project.name}.main"
       taskName "Client"
-//      property "mixin.env.remapRefMap", 'true'
-//      property "mixin.env.refMapRemappingFile", "${projectDir}/build/createSrgToMcp/output.srg"
       mods {
         modClientRun {
           source sourceSets.main
-//          source project(":common").sourceSets.main
         }
       }
     }
@@ -45,12 +41,9 @@ minecraft {
       workingDirectory file("run/server")
       ideaModule "${rootProject.name}.${project.name}.main"
       taskName "Server"
-//      property "mixin.env.remapRefMap", "true"
-//      property "mixin.env.refMapRemappingFile", "${projectDir}/build/createSrgToMcp/output.srg"
       mods {
         modServerRun {
           source sourceSets.main
-//          source project(":common").sourceSets.main
         }
       }
     }
@@ -59,12 +52,9 @@ minecraft {
       ideaModule "${rootProject.name}.${project.name}.main"
       args "--mod", mod_id, "--all", "--output", file("src/generated/resources/"), "--existing", file("src/main/resources/")
       taskName "Data"
-//      property "mixin.env.remapRefMap", "true"
-//      property "mixin.env.refMapRemappingFile", "${projectDir}/build/createSrgToMcp/output.srg"
       mods {
         modDataRun {
           source sourceSets.main
-//          source project(":common").sourceSets.main
         }
       }
     }
@@ -82,9 +72,6 @@ dependencies {
   }
   implementation("net.sf.jopt-simple:jopt-simple:5.0.4") { version { strictly "5.0.4" } }
 }
-
-//jar.finalizedBy("configureReobfTaskForReobfJar")
-//jar.finalizedBy("reobfJar")
 
 // Task seems bugged, breaks build because of mod dependencies in the Common project, with no apparent workaround.
 tasks.named("compileTestJava").get().setEnabled(false)
