@@ -165,14 +165,15 @@ public class FancyPlayerRenderer extends PlayerRenderer {
   @Override
   public void extractRenderState(@Nullable AbstractClientPlayer player, @NotNull PlayerRenderState renderState, float partialTick) {
     FancyPlayerRenderState state = state();
-    // Update fixed properties.
-//    renderState.ageInTicks += 1; // To use if we implement dynamic player movements.
-    renderState.ageInTicks = 3000;
     renderState.walkAnimationPos = 0;
     renderState.walkAnimationSpeed = 0;
     renderState.eyeHeight = Player.DEFAULT_EYE_HEIGHT;
     renderState.isDiscrete = state.isCrouching;
-    // Update properties changed externally.
+    if (state.isMoving) {
+      renderState.ageInTicks += 1;
+    } else {
+      renderState.ageInTicks = 3000;
+    }
     renderState.boundingBoxWidth = state.boundingBoxWidth;
     renderState.boundingBoxHeight = state.boundingBoxHeight;
     renderState.scale = state.scale;
@@ -184,7 +185,7 @@ public class FancyPlayerRenderer extends PlayerRenderer {
     //  SPIN_ATTACK is to be blacklisted (if we won't support dynamic player movements).
     //  CROUCHING is fine.
     //  LONG_JUMPING is for Frog, Goat, and Breeze only.
-    //  DYING is not doing anything (to be blacklisted).
+    //  DYING is not doing anything (to be blacklisted?).
     //  CROAKING is for Frog only.
     //  USING_TONGUE is for Frog only.
     //  SITTING is for Camel only.
@@ -195,10 +196,10 @@ public class FancyPlayerRenderer extends PlayerRenderer {
     //  SLIDING is for Breeze only.
     //  SHOOTING is for Breeze only.
     //  INHALING is for Breeze only.
+    //  We should check (with dynamic movements) whether poses for other entities do something nice for the player too.
     renderState.pose = Pose.STANDING;
     renderState.nameTag = Component.literal(state.name);
     renderState.nameTagAttachment = new Vec3(0, 0.5F * state.scale, 0);
-    // TODO: Implement choosing local texture files (both skin and cape), as well as choosing the texture from a player's name/uuid.
     renderState.skin = state.skin;
     renderState.parrotOnLeftShoulder = state.parrotOnLeftShoulder;
     renderState.parrotOnRightShoulder = state.parrotOnRightShoulder;

@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.math.Axis;
 import it.crystalnest.fancy_entity_renderer.Constants;
+import it.crystalnest.fancy_entity_renderer.api.Rotation;
 import it.crystalnest.fancy_entity_renderer.api.entity.player.state.FancyPlayerRenderState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -14,8 +15,13 @@ import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.world.entity.animal.Parrot;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -48,7 +54,9 @@ public class FancyPlayerWidget extends AbstractWidget {
   /**
    * Current player renderer.
    */
-  private FancyPlayerRenderer renderer;
+  private FancyPlayerRenderer renderer = renderState.isSlim ? slimRenderer : wideRenderer;
+
+  private final OverridableProperties properties = new OverridableProperties(renderState.name);
 
   /**
    * @param x x coordinate on the screen.
@@ -58,9 +66,27 @@ public class FancyPlayerWidget extends AbstractWidget {
    */
   public FancyPlayerWidget(int x, int y, int width, int height) {
     super(x, y, width, height, CommonComponents.EMPTY);
-    renderer = renderState.isSlim ? slimRenderer : wideRenderer;
-    // TODO: Flames are too wide, tall, and "in front".
-//    renderState.displayFireAnimation = true;
+  }
+
+  /**
+   * Handles errors happening when trying to copy user profiles.
+   *
+   * @param source user source (name or UUID).
+   */
+  private static void handlePlayerCopyError(String source) {
+    Constants.LOGGER.error("Failed to copy player \"{}\"", source);
+  }
+
+  /**
+   * Handles errors happening when trying to fetch user profiles.
+   *
+   * @param error error.
+   * @param <T> expected return value type.
+   * @return {@link Optional#empty()} to delegate value handling to the caller.
+   */
+  private static <T> Optional<T> handlePlayerCopyError(Throwable error) {
+    Constants.LOGGER.error("Copy of player failed with error!", error);
+    return Optional.empty();
   }
 
   /**
@@ -84,17 +110,6 @@ public class FancyPlayerWidget extends AbstractWidget {
     gfx.pose().popPose();
   }
 
-  @Override
-  public boolean mouseClicked(double mouseX, double mouseY, int button) {
-    // TODO: Remove.
-    if (button == 0) {
-      setSlim(!renderState.isSlim);
-    } else {
-      renderState.isBaby = !renderState.isBaby;
-    }
-    return super.mouseClicked(mouseX, mouseY, button);
-  }
-
   /**
    * Plays a sound when the widget is pressed.<br>
    * Here no sound is played.
@@ -107,16 +122,6 @@ public class FancyPlayerWidget extends AbstractWidget {
   }
 
   /**
-   * Returns whether the widget is active.
-   *
-   * @return whether the widget is active.
-   */
-  @Override
-  public boolean isActive() {
-    return false;
-  }
-
-  /**
    * Updates the narrator narration for this widget.
    *
    * @param output narration element output.
@@ -126,17 +131,102 @@ public class FancyPlayerWidget extends AbstractWidget {
     // TODO: Maybe add narration for when the player name is visible (what about when the name is visible and the player is crouching?).
   }
 
+  public FancyPlayerWidget setBodyFollowsMouse(boolean followsMouse) {
+    renderState.bodyFollowsMouse = followsMouse;
+    if (followsMouse) {
+      properties.bodyRot.copy(renderState.bodyRot);
+    } else {
+      renderState.bodyRot.copy(properties.bodyRot);
+    }
+    return this;
+  }
+
+  public FancyPlayerWidget setHeadFollowsMouse(boolean followsMouse) {
+    renderState.headFollowsMouse = followsMouse;
+    if (followsMouse) {
+      properties.headRot.copy(renderState.headRot);
+    } else {
+      renderState.headRot.copy(properties.headRot);
+    }
+    return this;
+  }
+
+  public FancyPlayerWidget setHeadRotation(Rotation rotation) {
+    properties.headRot.copy(rotation);
+    renderState.headRot.copy(rotation);
+    return this;
+  }
+
+  public FancyPlayerWidget setHeadRotation(float x, float y, float z) {
+    properties.headRot.updateDeg(x, y, z);
+    renderState.headRot.updateDeg(x, y, z);
+    return this;
+  }
+
+  public FancyPlayerWidget setBodyRotation(Rotation rotation) {
+    properties.bodyRot.copy(rotation);
+    renderState.bodyRot.copy(rotation);
+    return this;
+  }
+
+  public FancyPlayerWidget setBodyRotation(float x, float y, float z) {
+    properties.bodyRot.updateDeg(x, y, z);
+    renderState.bodyRot.updateDeg(x, y, z);
+    return this;
+  }
+
+  public FancyPlayerWidget setLeftArmRotation(Rotation rotation) {
+    renderState.leftArmRot.copy(rotation);
+    return this;
+  }
+
+  public FancyPlayerWidget setLeftArmRotation(float x, float y, float z) {
+    renderState.leftArmRot.updateDeg(x, y, z);
+    return this;
+  }
+
+  public FancyPlayerWidget setRightArmRotation(Rotation rotation) {
+    renderState.rightArmRot.copy(rotation);
+    return this;
+  }
+
+  public FancyPlayerWidget setRightArmRotation(float x, float y, float z) {
+    renderState.rightArmRot.updateDeg(x, y, z);
+    return this;
+  }
+
+  public FancyPlayerWidget setLeftLegRotation(Rotation rotation) {
+    renderState.leftLegRot.copy(rotation);
+    return this;
+  }
+
+  public FancyPlayerWidget setLeftLegRotation(float x, float y, float z) {
+    renderState.leftLegRot.updateDeg(x, y, z);
+    return this;
+  }
+
+  public FancyPlayerWidget setRightLegRotation(Rotation rotation) {
+    renderState.rightLegRot.copy(rotation);
+    return this;
+  }
+
+  public FancyPlayerWidget setRightLegRotation(float x, float y, float z) {
+    renderState.rightLegRot.updateDeg(x, y, z);
+    return this;
+  }
+
   /**
    * Makes the player slim or wide.
    *
    * @param isSlim whether the player should be slim.
    */
-  public void setSlim(boolean isSlim) {
-    if (!renderState.copyLocalPlayer) {
-      renderState.isSlim = isSlim;
-      renderState.skin = DefaultPlayerSkin.DEFAULT_SKINS[(int) (Math.random() * 9) + (renderState.isSlim ? 0 : 9)];
-      renderer = renderState.isSlim ? slimRenderer : wideRenderer;
+  public FancyPlayerWidget setSlim(boolean isSlim) {
+    properties.isSlim = isSlim;
+    if (!renderState.copyLocalPlayer && properties.skin == null) {
+      updateIsSlim(properties.isSlim);
+      renderer = isSlim ? slimRenderer : wideRenderer;
     }
+    return this;
   }
 
   /**
@@ -144,12 +234,12 @@ public class FancyPlayerWidget extends AbstractWidget {
    *
    * @param skin {@link PlayerSkin}.
    */
-  public void setSkin(PlayerSkin skin) {
+  public FancyPlayerWidget setSkin(@Nullable PlayerSkin skin) {
+    properties.skin = skin;
     if (!renderState.copyLocalPlayer) {
-      renderState.isSlim = skin.model() == PlayerSkin.Model.SLIM;
-      renderState.skin = skin;
-      renderer = renderState.isSlim ? slimRenderer : wideRenderer;
+      updateSkin(skin);
     }
+    return this;
   }
 
   /**
@@ -157,12 +247,133 @@ public class FancyPlayerWidget extends AbstractWidget {
    *
    * @param copyLocalPlayer whether to copy the local player.
    */
-  public void setCopyLocalPlayer(boolean copyLocalPlayer) {
+  public FancyPlayerWidget setCopyLocalPlayer(boolean copyLocalPlayer) {
     renderState.copyLocalPlayer = copyLocalPlayer;
     if (copyLocalPlayer) {
       copyPlayer(Minecraft.getInstance().getGameProfile());
+    } else {
+      updateSkin(properties.skin);
+      renderState.name = properties.name;
     }
+    return this;
   }
+
+  public FancyPlayerWidget setName(String name) {
+    properties.name = name;
+    if (!renderState.copyLocalPlayer) {
+      renderState.name = name;
+    }
+    return this;
+  }
+
+  public FancyPlayerWidget setShowName(boolean showName) {
+    renderState.showPlayerName = showName;
+    return this;
+  }
+
+  public FancyPlayerWidget setUpsideDown(boolean isUpsideDown) {
+    renderState.isUpsideDown = isUpsideDown;
+    return this;
+  }
+
+  public FancyPlayerWidget setSpectator(boolean isSpectator) {
+    renderState.isSpectator = isSpectator;
+    return this;
+  }
+
+  public FancyPlayerWidget setGlowing(boolean isGlowing) {
+    renderState.appearsGlowing = isGlowing;
+    return this;
+  }
+
+  public FancyPlayerWidget setMoving(boolean isMoving) {
+    renderState.isMoving = isMoving;
+    return this;
+  }
+
+  @ApiStatus.Experimental
+  public FancyPlayerWidget setOnFire(boolean onFire) {
+    // TODO: Flames are too wide, tall, and "in front".
+    renderState.displayFireAnimation = onFire;
+    return this;
+  }
+
+  public FancyPlayerWidget setBaby(boolean isBaby) {
+    renderState.isBaby = isBaby;
+    return this;
+  }
+
+  public FancyPlayerWidget setCrouching(boolean isCrouching) {
+    renderState.isCrouching = isCrouching;
+    return this;
+  }
+
+  public FancyPlayerWidget setRightHandItem(@Nullable Item item) {
+    renderState.rightHandHeldItem = item;
+    return this;
+  }
+
+  public FancyPlayerWidget setLeftHandItem(@Nullable Item item) {
+    renderState.leftHandHeldItem = item;
+    return this;
+  }
+
+  public FancyPlayerWidget setHeadWearable(@Nullable Item item) {
+    renderState.headEquipment = item == null ? ItemStack.EMPTY : item.getDefaultInstance();
+    return this;
+  }
+
+  public FancyPlayerWidget setChestWearable(@Nullable Item item) {
+    renderState.chestEquipment = item == null ? ItemStack.EMPTY : item.getDefaultInstance();
+    return this;
+  }
+
+  public FancyPlayerWidget setLegsWearable(@Nullable Item item) {
+    renderState.legsEquipment = item == null ? ItemStack.EMPTY : item.getDefaultInstance();
+    return this;
+  }
+
+  public FancyPlayerWidget setFeetWearable(@Nullable Item item) {
+    renderState.feetEquipment = item == null ? ItemStack.EMPTY : item.getDefaultInstance();
+    return this;
+  }
+
+  public FancyPlayerWidget setHeadWearable(@Nullable ItemStack item) {
+    renderState.headEquipment = item == null ? ItemStack.EMPTY : item;
+    return this;
+  }
+
+  public FancyPlayerWidget setChestWearable(@Nullable ItemStack item) {
+    renderState.chestEquipment = item == null ? ItemStack.EMPTY : item;
+    return this;
+  }
+
+  public FancyPlayerWidget setLegsWearable(@Nullable ItemStack item) {
+    renderState.legsEquipment = item == null ? ItemStack.EMPTY : item;
+    return this;
+  }
+
+  public FancyPlayerWidget setFeetWearable(@Nullable ItemStack item) {
+    renderState.feetEquipment = item == null ? ItemStack.EMPTY : item;
+    return this;
+  }
+
+  private void updateSkin(@Nullable PlayerSkin skin) {
+    if (skin != null) {
+      renderState.isSlim = skin.model() == PlayerSkin.Model.SLIM;
+      renderState.skin = skin;
+    } else {
+      updateIsSlim(properties.isSlim);
+    }
+    renderer = renderState.isSlim ? slimRenderer : wideRenderer;
+  }
+
+  private void updateIsSlim(boolean isSlim) {
+    renderState.isSlim = isSlim;
+    renderState.skin = DefaultPlayerSkin.DEFAULT_SKINS[(int) (Math.random() * 9) + (isSlim ? 0 : 9)];
+  }
+
+  // TODO: Handle properties correctly when copying a player that is not the local one.
 
   /**
    * Copies a player from its profile name.
@@ -189,7 +400,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @param source player identifier.
    */
   private void copyPlayer(CompletableFuture<Optional<GameProfile>> result, String source) {
-    result.exceptionally(this::handlePlayerCopyError).thenAccept(profile -> profile.ifPresentOrElse(this::copyPlayer, () -> handlePlayerCopyError(source)));
+    result.exceptionally(FancyPlayerWidget::handlePlayerCopyError).thenAccept(profile -> profile.ifPresentOrElse(this::copyPlayer, () -> handlePlayerCopyError(source)));
   }
 
   /**
@@ -198,33 +409,12 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @param profile game profile.
    */
   private void copyPlayer(GameProfile profile) {
-    Minecraft.getInstance().getSkinManager().getOrLoad(profile).exceptionally(this::handlePlayerCopyError).thenAccept(skin -> {
+    Minecraft.getInstance().getSkinManager().getOrLoad(profile).exceptionally(FancyPlayerWidget::handlePlayerCopyError).thenAccept(skin -> {
       renderState.name = profile.getName();
       skin.ifPresentOrElse(value -> renderState.skin = value, () -> handlePlayerCopyError(renderState.name));
       renderState.isSlim = renderState.skin.model() == PlayerSkin.Model.SLIM;
       renderer = renderState.isSlim ? slimRenderer : wideRenderer;
     });
-  }
-
-  /**
-   * Handles errors happening when trying to fetch user profiles.
-   *
-   * @param error error.
-   * @return {@link Optional#empty()} to delegate value handling to the caller.
-   * @param <T> expected return value type.
-   */
-  private <T> Optional<T> handlePlayerCopyError(Throwable error) {
-    Constants.LOGGER.error("Copy of player failed with error!", error);
-    return Optional.empty();
-  }
-
-  /**
-   * Handles errors happening when trying to copy user profiles.
-   *
-   * @param source user source (name or UUID).
-   */
-  private static void handlePlayerCopyError(String source) {
-    Constants.LOGGER.error("Failed to copy player \"{}\"", source);
   }
 
   /**
@@ -258,13 +448,11 @@ public class FancyPlayerWidget extends AbstractWidget {
       // modelEye = PLAYER_RENDER_HEIGHT - Player.DEFAULT_EYE_HEIGHT
       // If baby, both the render height and the eye height are halved
       float eyeY = renderState.isBaby ? y + (height / 2F) + ((PLAYER_RENDER_HEIGHT - Player.DEFAULT_EYE_HEIGHT) * height / PLAYER_RENDER_HEIGHT) / 2 : y + (PLAYER_RENDER_HEIGHT - Player.DEFAULT_EYE_HEIGHT) * height / PLAYER_RENDER_HEIGHT;
-
       float eyeX = (x + width / 2F);
       double mouseXRelative = mouseX - eyeX;
       double mouseYRelative = mouseY - eyeY;
       double xRot = Math.atan(mouseYRelative / 40F) * 20;
       double yRot = -Math.atan(mouseXRelative / 40F) * 20;
-
       if (renderState.isUpsideDown) {
         xRot = -xRot;
         yRot = -yRot;
@@ -273,26 +461,40 @@ public class FancyPlayerWidget extends AbstractWidget {
         renderState.bodyRot.setXDeg(xRot);
         renderState.bodyRot.setYDeg(yRot);
         renderState.bodyRot.setZ(0);
-      } else {
-//      renderState.bodyRot.setXDeg(RotationDegreesSetByTheUser);
-//      renderState.bodyRot.setYDeg(RotationDegreesSetByTheUser);
-//      renderState.bodyRot.setZDeg(RotationDegreesSetByTheUser);
       }
       if (renderState.headFollowsMouse) {
         renderState.headRot.setXDeg(xRot);
         renderState.headRot.setYDeg(yRot);
         renderState.headRot.setZ(0);
-      } else {
-//      renderState.headRot.setXDeg(RotationDegreesSetByTheUser);
-//      renderState.headRot.setYDeg(RotationDegreesSetByTheUser);
-//      renderState.headRot.setZDeg(RotationDegreesSetByTheUser);
       }
     }
-//    renderState.rightHandHeldItem = Items.NETHERITE_SWORD;
-//    renderState.leftHandHeldItem = Items.OAK_TRAPDOOR;
-//    renderState.headEquipment = Items.NETHERITE_HELMET.getDefaultInstance();
-//    renderState.chestEquipment = Items.ELYTRA.getDefaultInstance();
-//    renderState.legsEquipment = Items.LEATHER_LEGGINGS.getDefaultInstance();
-//    renderState.feetEquipment = Items.GOLDEN_BOOTS.getDefaultInstance();
+  }
+
+  /**
+   * Small dataclass to handle persistence of render state properties that would otherwise be irreversibly overridden by other properties.
+   */
+  private static final class OverridableProperties {
+    final Rotation headRot = new Rotation();
+
+    final Rotation bodyRot = new Rotation();
+
+    boolean isSlim;
+
+    @NotNull
+    String name;
+
+    @Nullable
+    PlayerSkin skin;
+
+    // TODO: Handle correctly when player is baby, and choose whether to add flags to show the parrots or use their nullability instead.
+    @Nullable
+    Parrot.Variant parrotOnLeftShoulder;
+
+    @Nullable
+    Parrot.Variant parrotOnRightShoulder;
+
+    private OverridableProperties(@NotNull String name) {
+      this.name = name;
+    }
   }
 }

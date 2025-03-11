@@ -24,6 +24,30 @@ public class Rotation {
   private float z;
 
   /**
+   * Creates a new rotation from the given radians of rotations.
+   *
+   * @param x {@link #x} in radians.
+   * @param y {@link #y} in radians.
+   * @param z {@link #z} in radians.
+   * @return new rotation.
+   */
+  public static Rotation createFromRad(float x, float y, float z) {
+    return new Rotation(x, y, z);
+  }
+
+  /**
+   * Creates a new rotation from the given degrees of rotations.
+   *
+   * @param x {@link #x} in degrees.
+   * @param y {@link #y} in degrees.
+   * @param z {@link #z} in degrees.
+   * @return new rotation.
+   */
+  public static Rotation createFromDeg(float x, float y, float z) {
+    return new Rotation().setXDeg(x).setYDeg(y).setZDeg(z);
+  }
+
+  /**
    * @param x {@link #x}.
    * @param y {@link #y}.
    * @param z {@link #z}.
@@ -60,18 +84,22 @@ public class Rotation {
    * Sets the value for the {@link #x} component.
    *
    * @param x {@link #x} component.
+   * @return this rotation.
    */
-  public void setX(double x) {
+  public Rotation setX(double x) {
     this.x = (float) x;
+    return this;
   }
 
   /**
    * Sets the value for the {@link #x} component in degrees.
    *
    * @param x {@link #x} component in degrees.
+   * @return this rotation.
    */
-  public void setXDeg(double x) {
+  public Rotation setXDeg(double x) {
     setX(Math.toRadians(x));
+    return this;
   }
 
   /**
@@ -96,18 +124,22 @@ public class Rotation {
    * Sets the value for the {@link #y} component.
    *
    * @param y {@link #y} component.
+   * @return this rotation.
    */
-  public void setY(double y) {
+  public Rotation setY(double y) {
     this.y = (float) y;
+    return this;
   }
 
   /**
    * Sets the value for the {@link #y} component in degrees.
    *
    * @param y {@link #y} component in degrees.
+   * @return this rotation.
    */
-  public void setYDeg(double y) {
+  public Rotation setYDeg(double y) {
     setY(Math.toRadians(y));
+    return this;
   }
 
   /**
@@ -132,18 +164,22 @@ public class Rotation {
    * Sets the value for the {@link #z} component.
    *
    * @param z {@link #z} component.
+   * @return this rotation.
    */
-  public void setZ(double z) {
+  public Rotation setZ(double z) {
     this.z = (float) z;
+    return this;
   }
 
   /**
    * Sets the value for the {@link #z} component in degrees.
    *
    * @param z {@link #z} component in degrees.
+   * @return this rotation.
    */
-  public void setZDeg(double z) {
+  public Rotation setZDeg(double z) {
     setZ(Math.toRadians(z));
+    return this;
   }
 
   /**
@@ -164,6 +200,40 @@ public class Rotation {
     return new Vector3f(getXDeg(), getYDeg(), getZDeg());
   }
 
+  /**
+   * Updates this rotation to match the given rotation.
+   *
+   * @param rotation rotation to copy.
+   * @return this rotation.
+   */
+  public Rotation copy(Rotation rotation) {
+    return setX(rotation.getX()).setY(rotation.getY()).setZ(rotation.getZ());
+  }
+
+  /**
+   * Updates this rotation with the provided values.
+   *
+   * @param x {@link #x} in radians.
+   * @param y {@link #y} in radians.
+   * @param z {@link #z} in radians.
+   * @return this rotation.
+   */
+  public Rotation update(float x, float y, float z) {
+    return setX(x).setY(y).setZ(z);
+  }
+
+  /**
+   * Updates this rotation with the provided values.
+   *
+   * @param x {@link #x} in degrees.
+   * @param y {@link #y} in degrees.
+   * @param z {@link #z} in degrees.
+   * @return this rotation.
+   */
+  public Rotation updateDeg(float x, float y, float z) {
+    return setXDeg(x).setYDeg(y).setZDeg(z);
+  }
+
   @Override
   public int hashCode() {
     return Objects.hash(x, y, z);
@@ -182,6 +252,6 @@ public class Rotation {
 
   @Override
   public String toString() {
-    return "Rotation{x=" + x + ", y=" + y + ", z=" + z + "}";
+    return "Rotation{xr=" + getX() + ", yr=" + getY() + ", zr=" + getZ() + ", xd=" + getXDeg() + ", yd=" + getYDeg() + ", zd=" + getZDeg() + "}";
   }
 }

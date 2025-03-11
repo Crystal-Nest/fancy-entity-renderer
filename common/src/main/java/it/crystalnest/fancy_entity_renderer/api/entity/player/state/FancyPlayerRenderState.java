@@ -42,39 +42,44 @@ public class FancyPlayerRenderState extends PlayerRenderState {
   /**
    * Whether the whole model should rotate to follow the mouse.
    */
-  public boolean bodyFollowsMouse = false;
+  public boolean bodyFollowsMouse;
 
   /**
    * Whether the head should rotate to follow the mouse.
    */
-  public boolean headFollowsMouse = false;
+  public boolean headFollowsMouse;
 
   /**
    * Whether to mimic the local player.
    */
-  public boolean copyLocalPlayer = false;
+  public boolean copyLocalPlayer;
 
   /**
    * Whether the model is slim or wide.
    */
-  public boolean isSlim = false;
+  public boolean isSlim;
+
+  /**
+   * Whether the player should move.
+   */
+  public boolean isMoving;
 
   /**
    * Item held in the right hand.<br>
    * {@code null} if none.
    */
   @Nullable
-  public Item rightHandHeldItem = null;
+  public Item rightHandHeldItem;
 
   /**
    * Item held in the left hand.<br>
    * {@code null} if none.
    */
   @Nullable
-  public Item leftHandHeldItem = null;
+  public Item leftHandHeldItem;
 
   /**
    * Whether to show the player's name.
    */
-  public boolean showPlayerName = false;
+  public boolean showPlayerName;
 }
