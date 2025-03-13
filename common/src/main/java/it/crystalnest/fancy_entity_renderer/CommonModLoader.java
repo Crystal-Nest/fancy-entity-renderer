@@ -14,6 +14,8 @@ public final class CommonModLoader {
    * Initialize common operations across loaders.
    */
   public static void init() {
+    // TODO: Check if the widget works only on screen or on GUIs too.
+    // TODO: Avoid crashes when the mod is installed server-side.
     FancyProfileFetcher.setup();
   }
 }

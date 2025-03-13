@@ -4,7 +4,7 @@
 
 ![Minecraft](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/minecraft/minecraft.svg "Minecraft")[![1.21.4](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/minecraft/1-21-4.svg "1.21.4")](https://modrinth.com/mod/fancy-entity-renderer/versions?g=1.21.4)
 
-![Loader](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/loader/loader.svg "Loader")[![NeoForge](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/loader/neoforge.svg "NeoForge")](https://modrinth.com/mod/fancy-entity-renderer/versions?l=neoforge)![Separator](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/separator.svg)[![Fabric](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/loader/fabric.svg "Fabric")](https://modrinth.com/mod/fancy-entity-renderer/versions?l=fabric)
+![Loader](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/loader/loader.svg "Loader")[![NeoForge](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/loader/neoforge.svg "NeoForge")](https://modrinth.com/mod/fancy-entity-renderer/versions?l=neoforge)![Separator](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/separator.svg)[![Forge](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/loader/forge.svg "Forge")](https://modrinth.com/mod/fancy-entity-renderer/versions?l=forge)![Separator](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/separator.svg)[![Fabric](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/loader/fabric.svg "Fabric")](https://modrinth.com/mod/fancy-entity-renderer/versions?l=fabric)
 
 ![Overlay](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/side/client.svg)
 
@@ -14,36 +14,11 @@
 
 ## **Description**
 
-Multiloader skeleton for Minecraft mods!  
-Built on [Jared's MultiLoaderTemplate](https://github.com/jaredlll08/MultiLoader-Template), with the addition of:
-
-- Tasks to publish on Maven, GitHub, Modrinth, and CurseForge.
-- [Cobweb](https://modrinth.com/mod/cobweb) API dependency.
-- A little bit more Javadoc.
-- Code style changes.
-
-***Note: the intended use of this template is to create a repository from it, and then update each branch with the content built by our [official generator](https://crystalnest.it/#/generator).***
-
-## **Setup completion**
-
-To complete the setup:
-
-- Change the [Support us](#support-us) section and the banner link.
-- Add your project CurseForge ID in the `gradle.properties`.
-- Check out the configuration example.
-- Update the changelog with proper release notes.
-
-## Removing Platforms and Loaders
-
-While this template includes support for Fabric and NeoForge, you can easily remove support for the ones you don't need.  
-This can be done by deleting the subproject folder and then removing it from the associated `include` in the `settings.gradle` file, along with deleting the related gradle properties.
-
-The same thing applies for the different publishing platforms, Maven, GitHub, Modrinth, and CurseForge.  
-To remove support for the ones you don't need just remove the section and properties regarding them.
+Fancy Entity Renderer is a mod API that allows to easily draw entities in any screen or GUI.
 
 ## **License and right of use**
 
-Feel free to use this mod template for any mod, just be sure to give credit and possibly link [here](https://github.com/crystal-nest/fancy-entity-renderer#readme).  
+Feel free to use this mod for any mod, modpack, or video, just be sure to give credit and possibly link [here](https://github.com/crystal-nest/fancy-entity-renderer#readme).  
 This project is published under the [GNU General Public License v3.0](https://github.com/crystal-nest/fancy-entity-renderer/blob/master/LICENSE).
 
 ## **Support us**
