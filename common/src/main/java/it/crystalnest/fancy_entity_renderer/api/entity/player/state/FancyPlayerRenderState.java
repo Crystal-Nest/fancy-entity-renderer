@@ -50,9 +50,9 @@ public class FancyPlayerRenderState extends PlayerRenderState {
   public boolean headFollowsMouse;
 
   /**
-   * Whether to mimic the local player.
+   * Whether to mimic a player.
    */
-  public boolean copyLocalPlayer;
+  public boolean copyingPlayer;
 
   /**
    * Whether the model is slim or wide.

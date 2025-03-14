@@ -23,4 +23,14 @@ public final class ForgePlatformHelper implements PlatformHelper {
   public boolean isDevEnv() {
     return !FMLLoader.isProduction();
   }
+
+  @Override
+  public boolean isClient() {
+    return FMLLoader.getDist().isClient();
+  }
+
+  @Override
+  public boolean isServer() {
+    return FMLLoader.getDist().isDedicatedServer();
+  }
 }

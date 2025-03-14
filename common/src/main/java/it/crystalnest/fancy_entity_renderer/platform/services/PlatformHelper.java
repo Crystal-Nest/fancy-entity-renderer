@@ -23,11 +23,25 @@ public interface PlatformHelper {
   boolean isModLoaded(String modId);
 
   /**
-   * Check if the game is currently in a development environment.
+   * Checks if the game is currently in a development environment.
    *
    * @return True if in a development environment, false otherwise.
    */
   boolean isDevEnv();
+
+  /**
+   * Checks if the mod is loaded in a client environment.
+   *
+   * @return True if in a client environment, false otherwise.
+   */
+  boolean isClient();
+
+  /**
+   * Checks if the mod is loaded in a server environment.
+   *
+   * @return True if in a server environment, false otherwise.
+   */
+  boolean isServer();
 
   /**
    * Gets the name of the environment type as a string.

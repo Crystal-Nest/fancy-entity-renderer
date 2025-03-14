@@ -14,7 +14,7 @@
 
 ## **Description**
 
-Fancy Entity Renderer is a mod API that allows to easily draw entities in any screen or GUI.
+Fancy Entity Renderer is a mod API that allows to easily draw entities in any Screen, GUI, or HUD.
 
 ## **License and right of use**
 

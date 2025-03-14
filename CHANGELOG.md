@@ -9,11 +9,11 @@ and this project adheres to [Crystal Nest Semantic Versioning](https://crystalne
 
 - Nothing new.
 
-## [v1.0.0] - yyyy/mm/dd
+## [v0.1.0] - 2025/03/dd
 
 - Release notes...
 
 [Unreleased]: https://github.com/crystal-nest/fancy-entity-renderer
 [README]: https://github.com/crystal-nest/fancy-entity-renderer#readme
 
-[v1.0.0]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=1.0.0
+[v0.1.0]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.1.0
