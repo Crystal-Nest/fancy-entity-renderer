@@ -11,7 +11,27 @@ and this project adheres to [Crystal Nest Semantic Versioning](https://crystalne
 
 ## [v0.1.0] - 2025/03/dd
 
-- Release notes...
+- Add `FancyPlayerWidget` to render player entities in any Screen, Menu, GUI, or HUD.
+- Add `Rotation` class to the API to easily handle 3-axis rotations in either radians or degrees.
+- It's possible to render the player widget at any x, y coordinates and with any width or height.
+- It's possible to set custom, single model parts (arms, legs, head) rotations.
+- It's possible to make the head and/or the whole model follow the mouse cursor.
+- It's possible to render the player as a baby.
+- It's possible to add any parrot variant to either shoulders.
+- It's possible to set any custom name and toggle its visibility.
+- It's possible to choose whether to use the slim or wide model.
+- It's possible to set any custom skin.
+- It's possible to set cape visibility.
+- It's possible to copy the local player.
+- It's possible to copy a remote player from its UUID or username.
+- It's possible to set items in either hands.
+- It's possible to set wearable items in any body part.
+- It's possible to render the model upside-down.
+- It's possible to choose whether the player is crouching (**planned for removal** in future versions in favor of a more powerful pose system setting).
+- It's possible to set the player on fire (**experimental**, doesn't look that good currently).
+- It's possible to make the player move idly (**experimental**, has not been tested with custom rotations).
+- It's possible to make the player have the glowing effect (**experimental**, does not work as of now).
+- It's possible to render the player as in spectator mode (**experimental**, currently it only makes the player a floating head).
 
 [Unreleased]: https://github.com/crystal-nest/fancy-entity-renderer
 [README]: https://github.com/crystal-nest/fancy-entity-renderer#readme

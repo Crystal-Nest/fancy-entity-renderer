@@ -56,6 +56,9 @@ public class FancyPlayerWidget extends AbstractWidget {
    */
   private FancyPlayerRenderer renderer = renderState.isSlim ? slimRenderer : wideRenderer;
 
+  /**
+   * Memory for overridable render state properties.
+   */
   private final OverridableProperties properties = new OverridableProperties(renderState.name);
 
   /**
