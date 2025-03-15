@@ -24,6 +24,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
+import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -489,6 +490,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * Sets whether the player is crouching.<br>
    * Will probably be removed in the future in favor of a more general method to set default player poses.
    *
+   * @deprecated
    * @param isCrouching whether the player is crouching.
    * @return {@code this}.
    */
@@ -715,7 +717,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    */
   private void updateIsSlim(boolean isSlim) {
     renderState.isSlim = isSlim;
-    renderState.skin = DefaultPlayerSkin.DEFAULT_SKINS[(int) (Math.random() * 9) + (isSlim ? 0 : 9)];
+    renderState.skin = DefaultPlayerSkin.DEFAULT_SKINS[new Random().nextInt(9) + (isSlim ? 0 : 9)];
   }
 
   /**
@@ -734,20 +736,15 @@ public class FancyPlayerWidget extends AbstractWidget {
     renderState.boundingBoxHeight = height;
     renderState.scale = height / PLAYER_RENDER_HEIGHT;
     if (renderState.bodyFollowsMouse || renderState.headFollowsMouse) {
-      // float adultHeight = PLAYER_RENDER_HEIGHT; // Height of an adult player
-      // float adultEyeHeight = Player.DEFAULT_EYE_HEIGHT; // Eye level for an adult (when standing)
-      // baby values are simply halved.
-
-      // 1.62 = Player.DEFAULT_EYE_HEIGHT;
-      // 0.6 = Player.SWIMMING_BB_HEIGHT;
-      // 1.5 = Player.CROUCH_BB_HEIGHT;
-      // 0.6 = Player.SWIMMING_BB_WIDTH;
-      // 1.8 = Entity.DEFAULT_BB_HEIGHT;
-      // 0.6 = Entity.DEFAULT_BB_WIDTH;
-      // Player.POSES; // From poses we can get the eye level for each different pose.
-
+      // 1.62 = Player.DEFAULT_EYE_HEIGHT
+      // 0.6 = Player.SWIMMING_BB_HEIGHT
+      // 1.5 = Player.CROUCH_BB_HEIGHT
+      // 0.6 = Player.SWIMMING_BB_WIDTH
+      // 1.8 = Entity.DEFAULT_BB_HEIGHT
+      // 0.6 = Entity.DEFAULT_BB_WIDTH
+      // Player.POSES // From poses we can get the eye level for each different pose.
       // modelEye = PLAYER_RENDER_HEIGHT - Player.DEFAULT_EYE_HEIGHT
-      // If baby, both the render height and the eye height are halved
+      // If baby, values are halved.
       float eyeY = renderState.isBaby ? y + (height / 2F) + ((PLAYER_RENDER_HEIGHT - Player.DEFAULT_EYE_HEIGHT) * height / PLAYER_RENDER_HEIGHT) / 2 : y + (PLAYER_RENDER_HEIGHT - Player.DEFAULT_EYE_HEIGHT) * height / PLAYER_RENDER_HEIGHT;
       float eyeX = (x + width / 2F);
       double mouseXRelative = mouseX - eyeX;

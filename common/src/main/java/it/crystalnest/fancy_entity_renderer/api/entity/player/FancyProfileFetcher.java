@@ -34,6 +34,8 @@ public class FancyProfileFetcher {
   @Nullable
   private static LoadingCache<UUID, CompletableFuture<Optional<GameProfile>>> profileCacheById;
 
+  private FancyProfileFetcher() {}
+
   /**
    * Sets up the profile caches and prepares the services for fetching profiles.
    */

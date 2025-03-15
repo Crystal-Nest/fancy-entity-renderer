@@ -220,7 +220,6 @@ public class FancyPlayerRenderer extends PlayerRenderer {
     renderState.appearsGlowing = state.appearsGlowing;
     renderState.displayFireAnimation = state.displayFireAnimation;
     renderState.elytraRotX = (float) (Math.PI / 16);
-//    renderState.elytraRotY = (float) (Math.PI / 2);
     renderState.elytraRotZ = (float) (Math.PI / 10);
   }
 }
