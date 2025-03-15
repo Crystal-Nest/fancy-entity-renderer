@@ -1,6 +1,7 @@
 package it.crystalnest.fancy_entity_renderer.api.entity.player;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import it.crystalnest.fancy_entity_renderer.api.RenderConstants;
 import it.crystalnest.fancy_entity_renderer.api.entity.player.layer.FancyCapeLayer;
 import it.crystalnest.fancy_entity_renderer.api.entity.player.model.FancyPlayerModel;
 import it.crystalnest.fancy_entity_renderer.api.entity.player.state.FancyPlayerRenderState;
@@ -10,7 +11,6 @@ import net.minecraft.client.model.HumanoidArmorModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.layers.CapeLayer;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
@@ -30,20 +30,6 @@ import org.joml.Quaternionf;
  */
 public class FancyPlayerRenderer extends PlayerRenderer {
   /**
-   * Render context.
-   */
-  private static final EntityRendererProvider.Context RENDER_CONTEXT = new EntityRendererProvider.Context(
-    Minecraft.getInstance().getEntityRenderDispatcher(),
-    Minecraft.getInstance().getItemModelResolver(),
-    Minecraft.getInstance().getMapRenderer(),
-    Minecraft.getInstance().getBlockRenderer(),
-    Minecraft.getInstance().getResourceManager(),
-    Minecraft.getInstance().getEntityModels(),
-    Minecraft.getInstance().getEntityRenderDispatcher().equipmentAssets,
-    Minecraft.getInstance().font
-  );
-
-  /**
    * Adult player model.
    */
   private final FancyPlayerModel adultModel;
@@ -58,24 +44,24 @@ public class FancyPlayerRenderer extends PlayerRenderer {
    * @param isSlim whether the player is slim.
    */
   public FancyPlayerRenderer(FancyPlayerRenderState state, boolean isSlim) {
-    super(RENDER_CONTEXT, isSlim);
+    super(RenderConstants.RENDER_CONTEXT, isSlim);
     entityRenderDispatcher.overrideCameraOrientation(new Quaternionf());
     entityRenderDispatcher.setRenderShadow(false);
     entityRenderDispatcher.setRenderHitBoxes(false);
-    adultModel = new FancyPlayerModel(RENDER_CONTEXT.getModelSet(), isSlim, false);
-    babyModel = new FancyPlayerModel(RENDER_CONTEXT.getModelSet(), isSlim, true);
+    adultModel = new FancyPlayerModel(RenderConstants.RENDER_CONTEXT.getModelSet(), isSlim, false);
+    babyModel = new FancyPlayerModel(RenderConstants.RENDER_CONTEXT.getModelSet(), isSlim, true);
     model = adultModel;
     reusedState = state;
     layers.replaceAll(layer -> switch (layer) {
       case HumanoidArmorLayer<?, ?, ?> l -> new HumanoidArmorLayer<>(
         this,
-        new HumanoidArmorModel<>(RENDER_CONTEXT.bakeLayer(isSlim ? ModelLayers.PLAYER_SLIM_INNER_ARMOR : ModelLayers.PLAYER_INNER_ARMOR)),
-        new HumanoidArmorModel<>(RENDER_CONTEXT.bakeLayer(isSlim ? ModelLayers.PLAYER_SLIM_OUTER_ARMOR : ModelLayers.PLAYER_OUTER_ARMOR)),
+        new HumanoidArmorModel<>(RenderConstants.RENDER_CONTEXT.bakeLayer(isSlim ? ModelLayers.PLAYER_SLIM_INNER_ARMOR : ModelLayers.PLAYER_INNER_ARMOR)),
+        new HumanoidArmorModel<>(RenderConstants.RENDER_CONTEXT.bakeLayer(isSlim ? ModelLayers.PLAYER_SLIM_OUTER_ARMOR : ModelLayers.PLAYER_OUTER_ARMOR)),
         new HumanoidArmorModel<>(FancyPlayerModel.getBabyArmorModel(true)),
         new HumanoidArmorModel<>(FancyPlayerModel.getBabyArmorModel(false)),
-        RENDER_CONTEXT.getEquipmentRenderer()
+        RenderConstants.RENDER_CONTEXT.getEquipmentRenderer()
       );
-      case CapeLayer l -> new FancyCapeLayer(this, RENDER_CONTEXT.getModelSet(), RENDER_CONTEXT.getEquipmentAssets());
+      case CapeLayer l -> new FancyCapeLayer(this, RenderConstants.RENDER_CONTEXT.getModelSet(), RenderConstants.RENDER_CONTEXT.getEquipmentAssets());
       default -> layer;
     });
   }
