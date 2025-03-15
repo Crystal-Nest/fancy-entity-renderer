@@ -63,6 +63,11 @@ public class FancyPlayerWidget extends AbstractWidget {
   private final OverridableProperties properties = new OverridableProperties(renderState.name);
 
   /**
+   * Random source.
+   */
+  private final Random random = new Random();
+
+  /**
    * @param x x coordinate on the screen.
    * @param y y coordinate on the screen.
    * @param width widget width.
@@ -717,7 +722,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    */
   private void updateIsSlim(boolean isSlim) {
     renderState.isSlim = isSlim;
-    renderState.skin = DefaultPlayerSkin.DEFAULT_SKINS[new Random().nextInt(9) + (isSlim ? 0 : 9)];
+    renderState.skin = DefaultPlayerSkin.DEFAULT_SKINS[random.nextInt(9) + (isSlim ? 0 : 9)];
   }
 
   /**
