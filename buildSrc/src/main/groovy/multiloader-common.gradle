@@ -194,7 +194,7 @@ publisher {
   setGameVersions(minecraft_version)
   setDisplayName("[$loader - $minecraft_version] $mod_title v$mod_version")
   setJavaVersions([JavaVersion.VERSION_21]) // Remember to update this to match java_version gradle property.
-  setCurseEnvironment("both") // "server", "client" or "both".
+  setCurseEnvironment("client") // "server", "client" or "both".
   github {
     repo = "$github_user/$mod_id_kebab"
     tag = "v${project.version}"
