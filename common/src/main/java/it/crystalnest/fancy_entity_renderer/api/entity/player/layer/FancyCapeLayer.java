@@ -14,10 +14,14 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.EquipmentAssetManager;
 import net.minecraft.client.resources.model.EquipmentClientInfo;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.equipment.EquipmentAsset;
 import net.minecraft.world.item.equipment.Equippable;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Optional;
 
 /**
  * Custom cape layer.
@@ -59,7 +63,11 @@ public class FancyCapeLayer extends RenderLayer<PlayerRenderState, PlayerModel> 
    */
   private boolean hasLayer(ItemStack stack, EquipmentClientInfo.LayerType layer) {
     Equippable equippable = stack.get(DataComponents.EQUIPPABLE);
-    return equippable != null && equippable.assetId().isPresent() && !equipmentAssets.get(equippable.assetId().get()).getLayers(layer).isEmpty();
+    if (equippable != null) {
+      Optional<ResourceKey<EquipmentAsset>> assetId = equippable.assetId();
+      return assetId.isPresent() && !equipmentAssets.get(assetId.get()).getLayers(layer).isEmpty();
+    }
+    return false;
   }
 
   /**
