@@ -9,7 +9,7 @@ and this project adheres to [Crystal Nest Semantic Versioning](https://crystalne
 
 - Nothing new.
 
-## [v0.1.0] - 2025/03/dd
+## [v0.1.0] - 2025/03/17
 
 - Add `FancyPlayerWidget` to render player entities in any Screen, Menu, GUI, or HUD.
 - Add `Rotation` class to the API to easily handle 3-axis rotations in either radians or degrees.
