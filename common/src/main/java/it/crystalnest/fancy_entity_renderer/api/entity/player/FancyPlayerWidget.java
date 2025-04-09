@@ -423,16 +423,15 @@ public class FancyPlayerWidget extends AbstractWidget {
   }
 
   /**
-   * Sets whether the player is rendered as in spectator mode.<p>
-   * <b>WARNING: Experimental!</b><br>
-   * Currently, it only makes the player a floating head.
+   * Sets whether the player is rendered as in spectator mode.
    *
    * @param isSpectator whether the player is rendered as in spectator mode.
    * @return {@code this}.
    */
-  @ApiStatus.Experimental
   public FancyPlayerWidget setSpectator(boolean isSpectator) {
     renderState.isSpectator = isSpectator;
+    renderState.isInvisible = isSpectator;
+    renderState.isInvisibleToPlayer = !isSpectator;
     return this;
   }
 
