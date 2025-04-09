@@ -2,6 +2,8 @@ package it.crystalnest.fancy_entity_renderer.api.entity.player;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.brigadier.StringReader;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.math.Axis;
 import it.crystalnest.fancy_entity_renderer.Constants;
 import it.crystalnest.fancy_entity_renderer.api.Rotation;
@@ -14,11 +16,15 @@ import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.client.sounds.SoundManager;
+import net.minecraft.commands.arguments.item.ItemInput;
+import net.minecraft.commands.arguments.item.ItemParser;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.world.entity.animal.Parrot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -27,6 +33,7 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 
 /**
  * Custom player widget.
@@ -495,9 +502,9 @@ public class FancyPlayerWidget extends AbstractWidget {
    * Sets whether the player is crouching.<br>
    * Will probably be removed in the future in favor of a more general method to set default player poses.
    *
-   * @deprecated
    * @param isCrouching whether the player is crouching.
    * @return {@code this}.
+   * @deprecated
    */
   @Deprecated(since = "0.1.0", forRemoval = true)
   public FancyPlayerWidget setCrouching(boolean isCrouching) {
@@ -531,53 +538,101 @@ public class FancyPlayerWidget extends AbstractWidget {
 
   /**
    * Sets the item the player is wearing on its head.<br>
-   * Pass a valid item to set it, pass {@code null} to remove it.<br>
-   * If you want more customization on the item properties (e.g., armor trim), use {@link #setHeadWearable(ItemStack)} instead.
+   * Pass a valid item string to set it, pass {@code null} to remove it.
    *
-   * @param item item to wear on the head.
+   * @param item item string, in the same format as for the command {@code /give}.
+   * @param provider {@link HolderLookup.Provider} for registry access, for example from {@link Level#registryAccess()}.
    * @return {@code this}.
    */
-  public FancyPlayerWidget setHeadWearable(@Nullable Item item) {
-    renderState.headEquipment = item == null ? ItemStack.EMPTY : item.getDefaultInstance();
+  public FancyPlayerWidget setHeadWearable(@Nullable String item, HolderLookup.Provider provider) {
+    renderState.headEquipment = getWearableItem(item, i -> parseItem(i, provider));
     return this;
   }
 
   /**
    * Sets the item the player is wearing on its chest.<br>
-   * Pass a valid item to set it, pass {@code null} to remove it.<br>
-   * If you want more customization on the item properties (e.g., armor trim), use {@link #setChestWearable(ItemStack)} instead.
+   * Pass a valid item to set it, pass {@code null} to remove it.
    *
-   * @param item item to wear on the chest.
+   * @param item item string, in the same format as for the command {@code /give}.
+   * @param provider {@link HolderLookup.Provider} for registry access, for example from {@link Level#registryAccess()}.
    * @return {@code this}.
    */
-  public FancyPlayerWidget setChestWearable(@Nullable Item item) {
-    renderState.chestEquipment = item == null ? ItemStack.EMPTY : item.getDefaultInstance();
+  public FancyPlayerWidget setChestWearable(@Nullable String item, HolderLookup.Provider provider) {
+    renderState.chestEquipment = getWearableItem(item, i -> parseItem(i, provider));
     return this;
   }
 
   /**
    * Sets the item the player is wearing on its legs.<br>
-   * Pass a valid item to set it, pass {@code null} to remove it.<br>
-   * If you want more customization on the item properties (e.g., armor trim), use {@link #setLegsWearable(ItemStack)} instead.
+   * Pass a valid item to set it, pass {@code null} to remove it.
    *
-   * @param item item to wear on the legs.
+   * @param item item string, in the same format as for the command {@code /give}.
+   * @param provider {@link HolderLookup.Provider} for registry access, for example from {@link Level#registryAccess()}.
    * @return {@code this}.
    */
-  public FancyPlayerWidget setLegsWearable(@Nullable Item item) {
-    renderState.legsEquipment = item == null ? ItemStack.EMPTY : item.getDefaultInstance();
+  public FancyPlayerWidget setLegsWearable(@Nullable String item, HolderLookup.Provider provider) {
+    renderState.legsEquipment = getWearableItem(item, i -> parseItem(i, provider));
     return this;
   }
 
   /**
    * Sets the item the player is wearing on its feet.<br>
-   * Pass a valid item to set it, pass {@code null} to remove it.<br>
-   * If you want more customization on the item properties (e.g., armor trim), use {@link #setFeetWearable(ItemStack)} instead.
+   * Pass a valid item to set it, pass {@code null} to remove it.
+   *
+   * @param item item string, in the same format as for the command {@code /give}.
+   * @param provider {@link HolderLookup.Provider} for registry access, for example from {@link Level#registryAccess()}.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setFeetWearable(@Nullable String item, HolderLookup.Provider provider) {
+    renderState.feetEquipment = getWearableItem(item, i -> parseItem(i, provider));
+    return this;
+  }
+
+  /**
+   * Sets the item the player is wearing on its head.<br>
+   * Pass a valid item to set it, pass {@code null} to remove it.
+   *
+   * @param item item to wear on the head.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setHeadWearable(@Nullable Item item) {
+    renderState.headEquipment = getWearableItem(item, Item::getDefaultInstance);
+    return this;
+  }
+
+  /**
+   * Sets the item the player is wearing on its chest.<br>
+   * Pass a valid item to set it, pass {@code null} to remove it.
+   *
+   * @param item item to wear on the chest.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setChestWearable(@Nullable Item item) {
+    renderState.chestEquipment = getWearableItem(item, Item::getDefaultInstance);
+    return this;
+  }
+
+  /**
+   * Sets the item the player is wearing on its legs.<br>
+   * Pass a valid item to set it, pass {@code null} to remove it.
+   *
+   * @param item item to wear on the legs.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setLegsWearable(@Nullable Item item) {
+    renderState.legsEquipment = getWearableItem(item, Item::getDefaultInstance);
+    return this;
+  }
+
+  /**
+   * Sets the item the player is wearing on its feet.<br>
+   * Pass a valid item to set it, pass {@code null} to remove it.
    *
    * @param item item to wear on the feet.
    * @return {@code this}.
    */
   public FancyPlayerWidget setFeetWearable(@Nullable Item item) {
-    renderState.feetEquipment = item == null ? ItemStack.EMPTY : item.getDefaultInstance();
+    renderState.feetEquipment = getWearableItem(item, Item::getDefaultInstance);
     return this;
   }
 
@@ -589,7 +644,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setHeadWearable(@Nullable ItemStack item) {
-    renderState.headEquipment = item == null ? ItemStack.EMPTY : item;
+    renderState.headEquipment = getWearableItem(item, i -> i);
     return this;
   }
 
@@ -601,7 +656,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setChestWearable(@Nullable ItemStack item) {
-    renderState.chestEquipment = item == null ? ItemStack.EMPTY : item;
+    renderState.chestEquipment = getWearableItem(item, i -> i);
     return this;
   }
 
@@ -613,7 +668,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setLegsWearable(@Nullable ItemStack item) {
-    renderState.legsEquipment = item == null ? ItemStack.EMPTY : item;
+    renderState.legsEquipment = getWearableItem(item, i -> i);
     return this;
   }
 
@@ -625,8 +680,37 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setFeetWearable(@Nullable ItemStack item) {
-    renderState.feetEquipment = item == null ? ItemStack.EMPTY : item;
+    renderState.feetEquipment = getWearableItem(item, i -> i);
     return this;
+  }
+
+  /**
+   * Safely checks and returns the {@link ItemStack} to use as wearable.
+   *
+   * @param item item data.
+   * @param getter item data parser.
+   * @param <T> type of the item data.
+   * @return {@link ItemStack} to use as wearable.
+   */
+  private <T> ItemStack getWearableItem(T item, Function<T, ItemStack> getter) {
+    return item == null ? ItemStack.EMPTY : getter.apply(item);
+  }
+
+  /**
+   * Parses an item string into an {@link ItemStack} using the given provider.
+   *
+   * @param item item string, in the same format as for the command {@code /give}.
+   * @param provider {@link HolderLookup.Provider} for registry access, for example from {@link Level#registryAccess()}.
+   * @return {@link ItemStack} to use as wearable.
+   */
+  private ItemStack parseItem(String item, HolderLookup.Provider provider) {
+    try {
+      ItemParser.ItemResult result = new ItemParser(provider).parse(new StringReader(item));
+      return new ItemInput(result.item(), result.components()).createItemStack(1, false);
+    } catch (CommandSyntaxException e) {
+      Constants.LOGGER.error("Error parsing {}", item, e);
+      return ItemStack.EMPTY;
+    }
   }
 
   /**
