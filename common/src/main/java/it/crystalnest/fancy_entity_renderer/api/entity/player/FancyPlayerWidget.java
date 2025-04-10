@@ -45,6 +45,11 @@ public class FancyPlayerWidget extends AbstractWidget {
   public static final float PLAYER_RENDER_HEIGHT = 1.875F;
 
   /**
+   * Ratio of a player's height to its width.
+   */
+  public static final float PLAYER_SIZE_RATIO = Player.DEFAULT_BB_HEIGHT / Player.DEFAULT_BB_WIDTH;
+
+  /**
    * Global render state.
    */
   private final FancyPlayerRenderState renderState = new FancyPlayerRenderState();
@@ -204,8 +209,8 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setHeadRotation(float x, float y, float z) {
-    properties.headRot.updateDeg(x, y, z);
-    renderState.headRot.updateDeg(x, y, z);
+    properties.headRot.setDeg(x, y, z);
+    renderState.headRot.setDeg(x, y, z);
     return this;
   }
 
@@ -232,8 +237,8 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setBodyRotation(float x, float y, float z) {
-    properties.bodyRot.updateDeg(x, y, z);
-    renderState.bodyRot.updateDeg(x, y, z);
+    properties.bodyRot.setDeg(x, y, z);
+    renderState.bodyRot.setDeg(x, y, z);
     return this;
   }
 
@@ -259,7 +264,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setLeftArmRotation(float x, float y, float z) {
-    renderState.leftArmRot.updateDeg(x, y, z);
+    renderState.leftArmRot.setDeg(x, y, z);
     return this;
   }
 
@@ -285,7 +290,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setRightArmRotation(float x, float y, float z) {
-    renderState.rightArmRot.updateDeg(x, y, z);
+    renderState.rightArmRot.setDeg(x, y, z);
     return this;
   }
 
@@ -311,7 +316,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setLeftLegRotation(float x, float y, float z) {
-    renderState.leftLegRot.updateDeg(x, y, z);
+    renderState.leftLegRot.setDeg(x, y, z);
     return this;
   }
 
@@ -337,7 +342,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setRightLegRotation(float x, float y, float z) {
-    renderState.rightLegRot.updateDeg(x, y, z);
+    renderState.rightLegRot.setDeg(x, y, z);
     return this;
   }
 
@@ -464,16 +469,12 @@ public class FancyPlayerWidget extends AbstractWidget {
   }
 
   /**
-   * Sets whether the player is on fire.<p>
-   * <b>WARNING: Experimental!</b><br>
-   * Currently, it works, but doesn't look that good.
+   * Sets whether the player is on fire.
    *
    * @param onFire whether the player is on fire.
    * @return {@code this}.
    */
-  @ApiStatus.Experimental
   public FancyPlayerWidget setOnFire(boolean onFire) {
-    // TODO: Flames are too wide, tall, and "in front".
     renderState.displayFireAnimation = onFire;
     return this;
   }
@@ -820,7 +821,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @param partialTick partial tick.
    */
   private void updateRenderState(int x, int y, int width, int height, int mouseX, int mouseY, float partialTick) {
-    renderState.boundingBoxWidth = width;
+    renderState.boundingBoxWidth = height / PLAYER_SIZE_RATIO;
     renderState.boundingBoxHeight = height;
     renderState.scale = height / PLAYER_RENDER_HEIGHT;
     if (renderState.bodyFollowsMouse || renderState.headFollowsMouse) {

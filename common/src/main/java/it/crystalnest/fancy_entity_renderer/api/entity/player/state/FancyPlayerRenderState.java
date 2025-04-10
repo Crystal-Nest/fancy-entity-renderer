@@ -57,7 +57,7 @@ public class FancyPlayerRenderState extends PlayerRenderState {
   /**
    * Whether the model is slim or wide.
    */
-  public boolean isSlim;
+  public boolean isSlim = true;
 
   /**
    * Whether the player should move.

@@ -218,7 +218,7 @@ public class Rotation {
    * @param z {@link #z} in radians.
    * @return this rotation.
    */
-  public Rotation update(float x, float y, float z) {
+  public Rotation set(double x, double y, double z) {
     return setX(x).setY(y).setZ(z);
   }
 
@@ -230,7 +230,7 @@ public class Rotation {
    * @param z {@link #z} in degrees.
    * @return this rotation.
    */
-  public Rotation updateDeg(float x, float y, float z) {
+  public Rotation setDeg(double x, double y, double z) {
     return setXDeg(x).setYDeg(y).setZDeg(z);
   }
 

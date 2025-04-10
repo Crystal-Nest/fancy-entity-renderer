@@ -113,6 +113,7 @@ public class FancyPlayerRenderer extends PlayerRenderer {
    */
   public void render(@NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight) {
     poseStack.rotateAround(new Quaternionf().rotateX(state().bodyRot.getX()).rotateY(-state().bodyRot.getY()).rotateZ(state().bodyRot.getZ()), 0, 0, 0);
+    entityRenderDispatcher.overrideCameraOrientation(new Quaternionf().rotateX(-state().bodyRot.getX()).rotateY(state().bodyRot.getY()).rotateZ(-state().bodyRot.getZ()));
     // Entity is null, but it won't get used anyway because extractRenderState was overridden.
     // noinspection DataFlowIssue
     entityRenderDispatcher.render(null, 0, 0, 0, 0, poseStack, bufferSource, packedLight, this);
@@ -134,7 +135,7 @@ public class FancyPlayerRenderer extends PlayerRenderer {
       float scale = state.scale * NAMETAG_SCALE;
       Font font = getFont();
       poseStack.pushPose();
-      // nameTagAttachment can't be null, its value is always update in extractRenderState.
+      // nameTagAttachment can't be null, its value is always updated in extractRenderState.
       // noinspection DataFlowIssue
       poseStack.translate(state.nameTagAttachment);
       poseStack.scale(scale, -scale, scale);
