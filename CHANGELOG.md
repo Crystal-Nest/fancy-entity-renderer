@@ -9,6 +9,15 @@ and this project adheres to [Crystal Nest Semantic Versioning](https://crystalne
 
 - Nothing new.
 
+## [v0.2.0] - 2025/04/11
+
+- The default player model is now slim.
+- Implemented [#3](https://github.com/Crystal-Nest/fancy-entity-renderer/issues/3), parsing of item strings to set wearable items.
+- Implemented [#4](https://github.com/Crystal-Nest/fancy-entity-renderer/issues/4), improved rendering of entities on fire.
+- Implemented [#5](https://github.com/Crystal-Nest/fancy-entity-renderer/issues/5), fixed spectator rendering.
+- Implemented [#14](https://github.com/Crystal-Nest/fancy-entity-renderer/issues/14), compatibility with Soul Fire'd when rendering entities on fire.
+- Minimum NeoForge version for Minecraft 1.21.4 is now v21.4.87-beta.
+
 ## [v0.1.0] - 2025/03/17
 
 - Add `FancyPlayerWidget` to render player entities in any Screen, Menu, GUI, or HUD.
@@ -36,4 +45,5 @@ and this project adheres to [Crystal Nest Semantic Versioning](https://crystalne
 [Unreleased]: https://github.com/crystal-nest/fancy-entity-renderer
 [README]: https://github.com/crystal-nest/fancy-entity-renderer#readme
 
+[v0.2.0]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.2.0
 [v0.1.0]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.1.0
