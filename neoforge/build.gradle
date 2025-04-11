@@ -3,6 +3,10 @@ plugins {
   id "net.neoforged.moddev"
 }
 
+dependencies {
+  implementation "it.crystalnest:soul-fire-d-neoforge:$minecraft_version-$soul_fire_d_version"
+}
+
 neoForge {
   version = neoforge_version
   def at = project(":common").file("src/main/resources/META-INF/accesstransformer.cfg")

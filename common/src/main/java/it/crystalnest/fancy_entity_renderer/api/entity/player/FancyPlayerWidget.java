@@ -8,6 +8,7 @@ import com.mojang.math.Axis;
 import it.crystalnest.fancy_entity_renderer.Constants;
 import it.crystalnest.fancy_entity_renderer.api.Rotation;
 import it.crystalnest.fancy_entity_renderer.api.entity.player.state.FancyPlayerRenderState;
+import it.crystalnest.fancy_entity_renderer.platform.Services;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -20,6 +21,7 @@ import net.minecraft.commands.arguments.item.ItemInput;
 import net.minecraft.commands.arguments.item.ItemParser;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.animal.Parrot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -469,7 +471,8 @@ public class FancyPlayerWidget extends AbstractWidget {
   }
 
   /**
-   * Sets whether the player is on fire.
+   * Sets whether the player is on fire.<br>
+   * If Soul Fire'd is installed, you can use {@link #setOnFire(boolean, ResourceLocation)} to specify the kind of fire.
    *
    * @param onFire whether the player is on fire.
    * @return {@code this}.
@@ -477,6 +480,21 @@ public class FancyPlayerWidget extends AbstractWidget {
   public FancyPlayerWidget setOnFire(boolean onFire) {
     renderState.displayFireAnimation = onFire;
     return this;
+  }
+
+  /**
+   * Sets whether the player is on fire and what kind of fire it is.<br>
+   * Effective only when Soul Fire'd is installed too.
+   *
+   * @param onFire whether the player is on fire.
+   * @param fireType Soul Fire'd fire type.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setOnFire(boolean onFire, ResourceLocation fireType) {
+    if (Services.PLATFORM.isModLoaded("soul_fire_d")) {
+      Services.COMPAT.setOnFire(renderState, fireType);
+    }
+    return setOnFire(onFire);
   }
 
   /**
