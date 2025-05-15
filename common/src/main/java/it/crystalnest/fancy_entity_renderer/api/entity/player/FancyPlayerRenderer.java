@@ -112,10 +112,8 @@ public class FancyPlayerRenderer extends PlayerRenderer {
    * @param packedLight packed light.
    */
   public void render(@NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight) {
-    poseStack.rotateAround(new Quaternionf().rotateX(state().bodyRot.getX()).rotateY(-state().bodyRot.getY()).rotateZ(state().bodyRot.getZ()), 0, 0, 0);
-    entityRenderDispatcher.overrideCameraOrientation(new Quaternionf().rotateX(-state().bodyRot.getX()).rotateY(state().bodyRot.getY()).rotateZ(-state().bodyRot.getZ()));
-    // Entity is null, but it won't get used anyway because extractRenderState was overridden.
-    // noinspection DataFlowIssue
+    entityRenderDispatcher.overrideCameraOrientation(new Quaternionf().rotateXYZ(-state().bodyRot.getX(), state().bodyRot.getY(), -state().bodyRot.getZ()));
+    // noinspection DataFlowIssue Entity is null, but it won't get used anyway because extractRenderState was overridden.
     entityRenderDispatcher.render(null, 0, 0, 0, 0, poseStack, bufferSource, packedLight, this);
   }
 
@@ -217,7 +215,6 @@ public class FancyPlayerRenderer extends PlayerRenderer {
     renderState.feetEquipment = state.feetEquipment;
     // TODO: Only makes the body disappear, but maybe it should also make the head transparent. It might be nice to have a flag to choose between "no body, solid head" and "no body, transparent head".
     renderState.isSpectator = state.isSpectator;
-    // TODO: Glowing effect doesn't work. The entity renders the same regardless. Could ignore this, since it was not in the original FancyManu, but it would be nice to have (not even sure this is the right property).
     renderState.appearsGlowing = state.appearsGlowing;
     renderState.displayFireAnimation = state.displayFireAnimation;
     renderState.elytraRotX = (float) (Math.PI / 16);

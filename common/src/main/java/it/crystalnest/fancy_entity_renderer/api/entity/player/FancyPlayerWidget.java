@@ -7,6 +7,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.math.Axis;
 import it.crystalnest.fancy_entity_renderer.Constants;
 import it.crystalnest.fancy_entity_renderer.api.Rotation;
+import it.crystalnest.fancy_entity_renderer.api.entity.RenderMode;
 import it.crystalnest.fancy_entity_renderer.api.entity.player.state.FancyPlayerRenderState;
 import it.crystalnest.fancy_entity_renderer.platform.Services;
 import net.minecraft.client.Minecraft;
@@ -30,6 +31,7 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Quaternionf;
 
 import java.util.Optional;
 import java.util.Random;
@@ -124,10 +126,11 @@ public class FancyPlayerWidget extends AbstractWidget {
   protected void renderWidget(GuiGraphics gfx, int mouseX, int mouseY, float partialTick) {
     updateRenderState(getX(), getY(), getWidth(), getHeight(), mouseX, mouseY, partialTick);
     gfx.pose().pushPose();
-    gfx.pose().translate(getX() + getWidth() / 2F, (float) getY() + getHeight(), 100);
+    gfx.pose().translate(getX() + getWidth() / 2F, getY() + getHeight(), 100);
     gfx.flush();
     gfx.pose().scale(1, -1, 1);
     Lighting.setupForEntityInInventory(Axis.XP.rotationDegrees(renderState.bodyRot.getX()));
+    gfx.pose().rotateAround(new Quaternionf().rotateXYZ(renderState.bodyRot.getX(), -renderState.bodyRot.getY(), renderState.bodyRot.getZ()), 0, 0, 0);
     gfx.drawSpecial(bufferSource -> renderer.render(gfx.pose(), bufferSource, LightTexture.FULL_BRIGHT));
     gfx.flush();
     gfx.pose().popPose();
@@ -151,7 +154,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    */
   @Override
   protected void updateWidgetNarration(@NotNull NarrationElementOutput output) {
-    // TODO: Maybe add narration for when the player name is visible (what about when the name is visible and the player is crouching?).
+    // No narration.
   }
 
   /**
@@ -430,15 +433,34 @@ public class FancyPlayerWidget extends AbstractWidget {
   }
 
   /**
-   * Sets whether the player is rendered as in spectator mode.
+   * Sets the player render mode.
    *
-   * @param isSpectator whether the player is rendered as in spectator mode.
+   * @param mode {@link RenderMode}.
    * @return {@code this}.
    */
-  public FancyPlayerWidget setSpectator(boolean isSpectator) {
-    renderState.isSpectator = isSpectator;
-    renderState.isInvisible = isSpectator;
-    renderState.isInvisibleToPlayer = !isSpectator;
+  public FancyPlayerWidget setRenderMode(RenderMode mode) {
+    switch (mode) {
+      case NORMAL -> {
+        renderState.isSpectator = false;
+        renderState.isInvisible = false;
+        renderState.isInvisibleToPlayer = false;
+      }
+      case INVISIBLE -> {
+        renderState.isSpectator = false;
+        renderState.isInvisible = true;
+        renderState.isInvisibleToPlayer = true;
+      }
+      case SPECTATOR -> {
+        renderState.isSpectator = true;
+        renderState.isInvisible = true;
+        renderState.isInvisibleToPlayer = false;
+      }
+      case GHOST -> {
+        renderState.isSpectator = false;
+        renderState.isInvisible = true;
+        renderState.isInvisibleToPlayer = false;
+      }
+    }
     return this;
   }
 

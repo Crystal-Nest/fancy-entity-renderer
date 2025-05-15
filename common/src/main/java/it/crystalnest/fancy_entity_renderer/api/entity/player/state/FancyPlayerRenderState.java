@@ -65,6 +65,11 @@ public class FancyPlayerRenderState extends PlayerRenderState {
   public boolean isMoving;
 
   /**
+   * Whether to show the player's name.
+   */
+  public boolean showPlayerName;
+
+  /**
    * Item held in the right hand.<br>
    * {@code null} if none.
    */
@@ -77,9 +82,4 @@ public class FancyPlayerRenderState extends PlayerRenderState {
    */
   @Nullable
   public Item leftHandHeldItem;
-
-  /**
-   * Whether to show the player's name.
-   */
-  public boolean showPlayerName;
 }
