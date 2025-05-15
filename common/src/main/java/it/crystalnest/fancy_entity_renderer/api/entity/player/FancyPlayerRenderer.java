@@ -129,7 +129,7 @@ public class FancyPlayerRenderer extends PlayerRenderer {
   @Override
   protected void renderNameTag(@NotNull PlayerRenderState renderState, @NotNull Component nameTag, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight) {
     FancyPlayerRenderState state = state();
-    if (state.showPlayerName) {
+    if (state.showPlayerName && !state.isInvisibleToPlayer) {
       float scale = state.scale * NAMETAG_SCALE;
       Font font = getFont();
       poseStack.pushPose();
@@ -167,15 +167,12 @@ public class FancyPlayerRenderer extends PlayerRenderer {
     renderState.walkAnimationPos = 0;
     renderState.walkAnimationSpeed = 0;
     renderState.eyeHeight = Player.DEFAULT_EYE_HEIGHT;
-    renderState.isDiscrete = state.isCrouching;
+    renderState.isDiscrete = state.isCrouching || state.isInvisible;
     if (state.isMoving) {
       renderState.ageInTicks += 1;
     } else {
       renderState.ageInTicks = 3000;
     }
-    renderState.boundingBoxWidth = state.boundingBoxWidth;
-    renderState.boundingBoxHeight = state.boundingBoxHeight;
-    renderState.scale = state.scale;
     // TODO:
     //  STANDING is fine.
     //  FALL_FLYING is to be blacklisted.
@@ -199,24 +196,12 @@ public class FancyPlayerRenderer extends PlayerRenderer {
     renderState.pose = Pose.STANDING;
     renderState.nameTag = Component.literal(state.name);
     renderState.nameTagAttachment = new Vec3(0, 0.5F * state.scale, 0);
-    renderState.skin = state.skin;
-    renderState.parrotOnLeftShoulder = state.parrotOnLeftShoulder;
-    renderState.parrotOnRightShoulder = state.parrotOnRightShoulder;
-    renderState.isBaby = state.isBaby;
     if (state.rightHandHeldItem != null) {
       Minecraft.getInstance().getItemModelResolver().updateForTopItem(state.rightHandItem, state.rightHandHeldItem.getDefaultInstance(), ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, false, null, null, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND.ordinal());
     }
     if (state.leftHandHeldItem != null) {
       Minecraft.getInstance().getItemModelResolver().updateForTopItem(state.leftHandItem, state.leftHandHeldItem.getDefaultInstance(), ItemDisplayContext.THIRD_PERSON_LEFT_HAND, true, null, null, ItemDisplayContext.THIRD_PERSON_LEFT_HAND.ordinal());
     }
-    renderState.headEquipment = state.headEquipment;
-    renderState.chestEquipment = state.chestEquipment;
-    renderState.legsEquipment = state.legsEquipment;
-    renderState.feetEquipment = state.feetEquipment;
-    // TODO: Only makes the body disappear, but maybe it should also make the head transparent. It might be nice to have a flag to choose between "no body, solid head" and "no body, transparent head".
-    renderState.isSpectator = state.isSpectator;
-    renderState.appearsGlowing = state.appearsGlowing;
-    renderState.displayFireAnimation = state.displayFireAnimation;
     renderState.elytraRotX = (float) (Math.PI / 16);
     renderState.elytraRotZ = (float) (Math.PI / 10);
   }

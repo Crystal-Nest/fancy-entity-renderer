@@ -520,6 +520,57 @@ public class FancyPlayerWidget extends AbstractWidget {
   }
 
   /**
+   * Sets the parrot on the left shoulder.<br>
+   * Set to {@code null} to remove.
+   *
+   * @param parrot {@link Parrot.Variant parrot variant}.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setLeftParrot(@Nullable Parrot.Variant parrot) {
+    if (renderState.isBaby) {
+      properties.parrotOnLeftShoulder = parrot;
+    } else {
+      renderState.parrotOnLeftShoulder = parrot;
+    }
+    return this;
+  }
+
+  /**
+   * Sets the parrot on the right shoulder.<br>
+   * Set to {@code null} to remove.
+   *
+   * @param parrot {@link Parrot.Variant parrot variant}.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setRightParrot(@Nullable Parrot.Variant parrot) {
+    if (renderState.isBaby) {
+      properties.parrotOnRightShoulder = parrot;
+    } else {
+      renderState.parrotOnRightShoulder = parrot;
+    }
+    return this;
+  }
+
+  /**
+   * Sets the parrots on each shoulder.<br>
+   * Set to {@code null} to remove one.
+   *
+   * @param left left shoulder {@link Parrot.Variant parrot variant}.
+   * @param right right shoulder {@link Parrot.Variant parrot variant}.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setParrots(@Nullable Parrot.Variant left, @Nullable Parrot.Variant right) {
+    if (renderState.isBaby) {
+      properties.parrotOnLeftShoulder = left;
+      properties.parrotOnRightShoulder = right;
+    } else {
+      renderState.parrotOnLeftShoulder = left;
+      renderState.parrotOnRightShoulder = right;
+    }
+    return this;
+  }
+
+  /**
    * Sets whether the player is a baby.<br>
    * Overrides the visibility of the left and right parrots. If {@code true}, the parrots will be hidden. If {@code false}, any previously hidden parrots will be restored.
    *

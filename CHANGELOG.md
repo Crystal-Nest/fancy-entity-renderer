@@ -9,6 +9,7 @@ and this project adheres to [Crystal Nest Semantic Versioning](https://crystalne
 
 - Removed spectator setting in favor of the new `RenderMode`.
 - Add new `RenderMode` to choose between normal mode, invisible mode, spectator mode, and ghost mode.
+- It's now possible to set parrots for either shoulders.
 
 ## [v0.2.0] - 2025/04/11
 
