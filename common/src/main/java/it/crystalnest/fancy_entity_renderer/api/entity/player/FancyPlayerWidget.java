@@ -1,7 +1,15 @@
 package it.crystalnest.fancy_entity_renderer.api.entity.player;
 
 import com.mojang.authlib.GameProfile;
+import com.mojang.blaze3d.framegraph.FrameGraphBuilder;
+import com.mojang.blaze3d.framegraph.FramePass;
+import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.pipeline.TextureTarget;
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.blaze3d.resource.CrossFrameResourcePool;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.math.Axis;
@@ -13,7 +21,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.renderer.LevelTargetBundle;
 import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.OutlineBufferSource;
+import net.minecraft.client.renderer.PostChain;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.client.sounds.SoundManager;
@@ -22,6 +34,7 @@ import net.minecraft.commands.arguments.item.ItemParser;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ARGB;
 import net.minecraft.world.entity.animal.Parrot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -30,6 +43,7 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Quaternionf;
 
 import java.util.Optional;
 import java.util.Random;
@@ -81,6 +95,10 @@ public class FancyPlayerWidget extends AbstractWidget {
    */
   private final Random random = new Random();
 
+  private final RenderTarget entityOutlineTarget;
+  private final LevelTargetBundle targets = new LevelTargetBundle();
+  public final CrossFrameResourcePool resourcePool = new CrossFrameResourcePool(3);
+
   /**
    * @param x x coordinate on the screen.
    * @param y y coordinate on the screen.
@@ -89,6 +107,11 @@ public class FancyPlayerWidget extends AbstractWidget {
    */
   public FancyPlayerWidget(int x, int y, int width, int height) {
     super(x, y, width, height, CommonComponents.EMPTY);
+    setGlowing(true);
+    setBodyFollowsMouse(true);
+    setHeadFollowsMouse(true);
+    entityOutlineTarget = new TextureTarget(Minecraft.getInstance().getWindow().getWidth(), Minecraft.getInstance().getWindow().getHeight(), true);
+    entityOutlineTarget.setClearColor(0, 0, 0, 0);
   }
 
   /**
@@ -124,13 +147,86 @@ public class FancyPlayerWidget extends AbstractWidget {
   protected void renderWidget(GuiGraphics gfx, int mouseX, int mouseY, float partialTick) {
     updateRenderState(getX(), getY(), getWidth(), getHeight(), mouseX, mouseY, partialTick);
     gfx.pose().pushPose();
-    gfx.pose().translate(getX() + getWidth() / 2F, (float) getY() + getHeight(), 100);
+    gfx.pose().translate(getX() + getWidth() / 2F, getY() + getHeight(), 100);
     gfx.flush();
     gfx.pose().scale(1, -1, 1);
     Lighting.setupForEntityInInventory(Axis.XP.rotationDegrees(renderState.bodyRot.getX()));
-    gfx.drawSpecial(bufferSource -> renderer.render(gfx.pose(), bufferSource, LightTexture.FULL_BRIGHT));
+    gfx.pose().rotateAround(new Quaternionf().rotateXYZ(renderState.bodyRot.getX(), -renderState.bodyRot.getY(), renderState.bodyRot.getZ()), 0, 0, 0);
+//    gfx.drawSpecial(bufferSource -> renderer.render(gfx.pose(), bufferSource, LightTexture.FULL_BRIGHT));
+
+    renderLevel(gfx, gfx.pose());
+//    doEntityOutline();
+
+//    gfx.flush();
+
+    resourcePool.endFrame();
+    Minecraft.getInstance().getMainRenderTarget().unbindWrite();
+    Minecraft.getInstance().getMainRenderTarget().blitToScreen(Minecraft.getInstance().getWindow().getWidth(), Minecraft.getInstance().getWindow().getHeight());
     gfx.flush();
+
     gfx.pose().popPose();
+  }
+
+  private void renderLevel(GuiGraphics gfx, PoseStack poseStack) {
+    Minecraft.getInstance().getMainRenderTarget().bindWrite(true);
+    FrameGraphBuilder frameGraphBuilder = new FrameGraphBuilder();
+    targets.main = frameGraphBuilder.importExternal(LevelTargetBundle.MAIN_TARGET_ID.getPath(), Minecraft.getInstance().getMainRenderTarget());
+    targets.entityOutline = frameGraphBuilder.importExternal(LevelTargetBundle.ENTITY_OUTLINE_TARGET_ID.getPath(), entityOutlineTarget);
+    addMainPass(poseStack, frameGraphBuilder);
+    PostChain postChain = Minecraft.getInstance().getShaderManager().getPostChain(LevelTargetBundle.ENTITY_OUTLINE_TARGET_ID, LevelTargetBundle.OUTLINE_TARGETS);
+    if (postChain != null) {
+      postChain.addToFrame(frameGraphBuilder, Minecraft.getInstance().getMainRenderTarget().width, Minecraft.getInstance().getMainRenderTarget().height, targets);
+    }
+    frameGraphBuilder.execute(resourcePool);
+//    Minecraft.getInstance().getMainRenderTarget().bindWrite(false);
+//    targets.clear();
+//    RenderSystem.depthMask(true);
+//    RenderSystem.disableBlend();
+//    RenderSystem.setShaderFog(FogParameters.NO_FOG);
+  }
+
+  private void addMainPass(PoseStack poseStack, FrameGraphBuilder frameGraphBuilder) {
+    FramePass framepass = frameGraphBuilder.addPass(LevelTargetBundle.MAIN_TARGET_ID.getPath());
+//    targets.main = framepass.readsAndWrites(targets.main);
+    if (targets.entityOutline != null) {
+      targets.entityOutline = framepass.readsAndWrites(targets.entityOutline);
+    }
+    framepass.executes(() -> {
+//      if (targets.entityOutline != null) {
+//        targets.entityOutline.get().setClearColor(0, 0, 0, 0);
+//        targets.entityOutline.get().clear();
+//        targets.main.get().bindWrite(false);
+//      }
+      MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
+      renderEntities(poseStack, bufferSource);
+      bufferSource.endLastBatch();
+      Minecraft.getInstance().renderBuffers().outlineBufferSource().endOutlineBatch();
+      bufferSource.endBatch();
+    });
+  }
+
+  private void renderEntities(PoseStack poseStack, MultiBufferSource.BufferSource bufferSource) {
+    MultiBufferSource multibuffersource;
+    if (renderState.appearsGlowing) {
+      OutlineBufferSource outlinebuffersource = Minecraft.getInstance().renderBuffers().outlineBufferSource();
+      multibuffersource = outlinebuffersource;
+      outlinebuffersource.setColor(renderState.glowR, renderState.glowG, renderState.glowB, 255);
+    } else {
+      multibuffersource = bufferSource;
+    }
+    renderEntity(poseStack, multibuffersource);
+  }
+
+  private void renderEntity(PoseStack poseStack, MultiBufferSource bufferSource) {
+    renderer.render(poseStack, bufferSource, LightTexture.FULL_BRIGHT);
+  }
+
+  private void doEntityOutline() {
+    RenderSystem.enableBlend();
+    RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE);
+    entityOutlineTarget.blitAndBlendToScreen(Minecraft.getInstance().getWindow().getWidth(), Minecraft.getInstance().getWindow().getHeight());
+    RenderSystem.disableBlend();
+    RenderSystem.defaultBlendFunc();
   }
 
   /**
@@ -443,16 +539,41 @@ public class FancyPlayerWidget extends AbstractWidget {
   }
 
   /**
-   * Sets whether the player should glow.<p>
-   * <b>WARNING: Experimental!</b><br>
-   * Currently, it has no effect.
+   * Sets whether the player should glow.
    *
    * @param isGlowing whether the player should glow.
    * @return {@code this}.
    */
-  @ApiStatus.Experimental
   public FancyPlayerWidget setGlowing(boolean isGlowing) {
     renderState.appearsGlowing = isGlowing;
+    return this;
+  }
+
+  /**
+   * Sets the RGB color for the glow effect.
+   *
+   * @param color RGB color.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setGlowColor(int color) {
+    renderState.glowR = ARGB.red(color);
+    renderState.glowG = ARGB.green(color);
+    renderState.glowB = ARGB.blue(color);
+    return this;
+  }
+
+  /**
+   * Sets the RGB color for the glow effect.
+   *
+   * @param red Color's red channel.
+   * @param green Color's green channel.
+   * @param blue Color's blue channel.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setGlowColor(int red, int green, int blue) {
+    renderState.glowR = red;
+    renderState.glowG = green;
+    renderState.glowB = blue;
     return this;
   }
 

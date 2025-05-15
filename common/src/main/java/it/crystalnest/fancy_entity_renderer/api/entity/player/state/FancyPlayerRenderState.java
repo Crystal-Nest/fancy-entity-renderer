@@ -82,4 +82,19 @@ public class FancyPlayerRenderState extends PlayerRenderState {
    * Whether to show the player's name.
    */
   public boolean showPlayerName;
+
+  /**
+   * Red channel of the glow color.
+   */
+  public int glowR = 255;
+
+  /**
+   * Green channel of the glow color.
+   */
+  public int glowG = 255;
+
+  /**
+   * Blue channel of the glow color.
+   */
+  public int glowB = 255;
 }

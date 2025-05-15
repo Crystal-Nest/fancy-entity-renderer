@@ -112,10 +112,8 @@ public class FancyPlayerRenderer extends PlayerRenderer {
    * @param packedLight packed light.
    */
   public void render(@NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight) {
-    poseStack.rotateAround(new Quaternionf().rotateX(state().bodyRot.getX()).rotateY(-state().bodyRot.getY()).rotateZ(state().bodyRot.getZ()), 0, 0, 0);
-    entityRenderDispatcher.overrideCameraOrientation(new Quaternionf().rotateX(-state().bodyRot.getX()).rotateY(state().bodyRot.getY()).rotateZ(-state().bodyRot.getZ()));
-    // Entity is null, but it won't get used anyway because extractRenderState was overridden.
-    // noinspection DataFlowIssue
+    entityRenderDispatcher.overrideCameraOrientation(new Quaternionf().rotateXYZ(-state().bodyRot.getX(), state().bodyRot.getY(), -state().bodyRot.getZ()));
+    // noinspection DataFlowIssue Entity is null, but it won't get used anyway because extractRenderState was overridden.
     entityRenderDispatcher.render(null, 0, 0, 0, 0, poseStack, bufferSource, packedLight, this);
   }
 
