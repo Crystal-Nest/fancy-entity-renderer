@@ -234,6 +234,39 @@ public class Rotation {
     return setXDeg(x).setYDeg(y).setZDeg(z);
   }
 
+  /**
+   * Adds the given rotation amounts.
+   *
+   * @param x {@link #x} in radians.
+   * @param y {@link #y} in radians.
+   * @param z {@link #z} in radians.
+   * @return this rotation.
+   */
+  public Rotation add(double x, double y, double z) {
+    return set(getX() + x, getY() + y, getZ() + z);
+  }
+  /**
+   * Adds the given rotation amounts.
+   *
+   * @param x {@link #x} in degrees.
+   * @param y {@link #y} in degrees.
+   * @param z {@link #z} in degrees.
+   * @return this rotation.
+   */
+  public Rotation addDegrees(double x, double y, double z) {
+    return set(getX() + x, getY() + y, getZ() + z);
+  }
+
+  /**
+   * Add the given {@link Rotation}.
+   *
+   * @param rotation {@link Rotation} to add.
+   * @return this rotation.
+   */
+  public Rotation add(Rotation rotation) {
+    return set(getX() + rotation.getX(), getY() + rotation.getY(), getZ() + rotation.getZ());
+  }
+
   @Override
   public int hashCode() {
     return Objects.hash(x, y, z);

@@ -23,6 +23,7 @@ import net.minecraft.commands.arguments.item.ItemParser;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.animal.Parrot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -47,6 +48,11 @@ public class FancyPlayerWidget extends AbstractWidget {
    * Player render height.
    */
   public static final float PLAYER_RENDER_HEIGHT = 1.875F;
+
+  /**
+   * Player eye height when crouching.
+   */
+  public static final float PLAYER_CROUCHING_EYE_HEIGHT = Player.POSES.get(Pose.CROUCHING).eyeHeight();
 
   /**
    * Ratio of a player's height to its width.
@@ -125,8 +131,20 @@ public class FancyPlayerWidget extends AbstractWidget {
   @Override
   protected void renderWidget(GuiGraphics gfx, int mouseX, int mouseY, float partialTick) {
     updateRenderState(getX(), getY(), getWidth(), getHeight(), mouseX, mouseY, partialTick);
+    gfx.renderOutline(getX(), getY(), getWidth(), getHeight(), -6250336);
     gfx.pose().pushPose();
-    gfx.pose().translate(getX() + getWidth() / 2F, getY() + getHeight(), 100);
+    float offsetX = 0;
+    float offsetY = (float) renderer.getRenderOffset(renderState).y;
+    if (renderState.pose == Pose.SLEEPING) {
+      offsetX += PLAYER_RENDER_HEIGHT * renderState.scale / 2;
+      offsetY -= 0.25F * renderState.scale;
+      if (renderState.isBaby) {
+        // TODO: Why these values?
+        offsetX /= 1.75F;
+        offsetY /= 1.5F;
+      }
+    }
+    gfx.pose().translate(getX() + getWidth() / 2F + offsetX, getY() + getHeight() + offsetY, 100);
     gfx.flush();
     gfx.pose().scale(1, -1, 1);
     Lighting.setupForEntityInInventory(Axis.XP.rotationDegrees(renderState.bodyRot.getX()));
@@ -165,11 +183,15 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setBodyFollowsMouse(boolean followsMouse) {
-    renderState.bodyFollowsMouse = followsMouse;
-    if (followsMouse) {
-      properties.bodyRot.copy(renderState.bodyRot);
+    if (renderState.pose == Pose.STANDING || renderState.pose == Pose.CROUCHING || renderState.pose == Pose.SPIN_ATTACK) {
+      renderState.bodyFollowsMouse = followsMouse;
+      if (followsMouse) {
+        properties.bodyRot.copy(renderState.bodyRot);
+      } else {
+        renderState.bodyRot.copy(properties.bodyRot);
+      }
     } else {
-      renderState.bodyRot.copy(properties.bodyRot);
+      properties.bodyFollowsMouse = followsMouse;
     }
     return this;
   }
@@ -182,11 +204,15 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setHeadFollowsMouse(boolean followsMouse) {
-    renderState.headFollowsMouse = followsMouse;
-    if (followsMouse) {
-      properties.headRot.copy(renderState.headRot);
+    if (renderState.pose == Pose.STANDING || renderState.pose == Pose.CROUCHING || renderState.pose == Pose.SPIN_ATTACK) {
+      renderState.headFollowsMouse = followsMouse;
+      if (followsMouse) {
+        properties.headRot.copy(renderState.headRot);
+      } else {
+        renderState.headRot.copy(properties.headRot);
+      }
     } else {
-      renderState.headRot.copy(properties.headRot);
+      properties.headFollowsMouse = followsMouse;
     }
     return this;
   }
@@ -422,6 +448,20 @@ public class FancyPlayerWidget extends AbstractWidget {
   }
 
   /**
+   * Sets whether to pin the player's name at the top of the bounding box.<p>
+   * <b>WARNING: Experimental!</b><br>
+   * Currently, it has no effect.
+   *
+   * @param pinName whether to pin the player's name at the top of the bounding box.
+   * @return {@code this}.
+   */
+  @ApiStatus.Experimental
+  public FancyPlayerWidget setPinName(boolean pinName) {
+    renderState.pinName = pinName;
+    return this;
+  }
+
+  /**
    * Sets whether the player is rendered upside-down.
    *
    * @param isUpsideDown whether to render the player's upside-down.
@@ -439,28 +479,9 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setRenderMode(RenderMode mode) {
-    switch (mode) {
-      case NORMAL -> {
-        renderState.isSpectator = false;
-        renderState.isInvisible = false;
-        renderState.isInvisibleToPlayer = false;
-      }
-      case INVISIBLE -> {
-        renderState.isSpectator = false;
-        renderState.isInvisible = true;
-        renderState.isInvisibleToPlayer = true;
-      }
-      case SPECTATOR -> {
-        renderState.isSpectator = true;
-        renderState.isInvisible = true;
-        renderState.isInvisibleToPlayer = false;
-      }
-      case GHOST -> {
-        renderState.isSpectator = false;
-        renderState.isInvisible = true;
-        renderState.isInvisibleToPlayer = false;
-      }
-    }
+    renderState.isSpectator = RenderMode.SPECTATOR == mode;
+    renderState.isInvisible = RenderMode.NORMAL != mode;
+    renderState.isInvisibleToPlayer = RenderMode.INVISIBLE == mode;
     return this;
   }
 
@@ -479,14 +500,11 @@ public class FancyPlayerWidget extends AbstractWidget {
   }
 
   /**
-   * Sets whether the player should be moving.<p>
-   * <b>WARNING: Experimental!</b><br>
-   * Currently, it just makes the player's arms move idly and has not been tested with custom arm rotations.
+   * Sets whether the player should be moving.
    *
    * @param isMoving whether the player should be moving.
    * @return {@code this}.
    */
-  @ApiStatus.Experimental
   public FancyPlayerWidget setMoving(boolean isMoving) {
     renderState.isMoving = isMoving;
     return this;
@@ -500,7 +518,11 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setOnFire(boolean onFire) {
-    renderState.displayFireAnimation = onFire;
+    if (renderState.pose == Pose.STANDING || renderState.pose == Pose.CROUCHING) {
+      renderState.displayFireAnimation = onFire;
+    } else {
+      properties.displayFireAnimation = onFire;
+    }
     return this;
   }
 
@@ -560,7 +582,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setParrots(@Nullable Parrot.Variant left, @Nullable Parrot.Variant right) {
-    if (renderState.isBaby) {
+    if (renderState.isBaby || renderState.pose == Pose.SWIMMING) {
       properties.parrotOnLeftShoulder = left;
       properties.parrotOnRightShoulder = right;
     } else {
@@ -590,16 +612,50 @@ public class FancyPlayerWidget extends AbstractWidget {
   }
 
   /**
-   * Sets whether the player is crouching.<br>
-   * Will probably be removed in the future in favor of a more general method to set default player poses.
+   * Sets the player pose.
    *
-   * @param isCrouching whether the player is crouching.
+   * @param pose {@link Pose}.
    * @return {@code this}.
-   * @deprecated
    */
-  @Deprecated(since = "0.1.0", forRemoval = true)
-  public FancyPlayerWidget setCrouching(boolean isCrouching) {
-    renderState.isCrouching = isCrouching;
+  public FancyPlayerWidget setPose(Pose pose) {
+    if (Player.POSES.containsKey(pose) && pose != Pose.FALL_FLYING) {
+      renderState.pose = pose;
+      renderState.isAutoSpinAttack = pose == Pose.SPIN_ATTACK;
+      renderState.isCrouching = pose == Pose.CROUCHING;
+      renderState.isVisuallySwimming = pose == Pose.SWIMMING;
+      renderState.swimAmount = renderState.isVisuallySwimming ? 1 : 0;
+      renderState.hasRedOverlay = pose == Pose.DYING;
+      renderState.deathTime = renderState.hasRedOverlay ? 5 : 0;
+      if (pose == Pose.STANDING || pose == Pose.CROUCHING) {
+        renderState.displayFireAnimation = properties.displayFireAnimation;
+      } else {
+        properties.displayFireAnimation = renderState.displayFireAnimation;
+        renderState.displayFireAnimation = false;
+      }
+      if (pose == Pose.STANDING || pose == Pose.CROUCHING || pose == Pose.SPIN_ATTACK) {
+        renderState.headFollowsMouse = properties.headFollowsMouse;
+        renderState.bodyFollowsMouse = properties.bodyFollowsMouse;
+      } else {
+        properties.headFollowsMouse = renderState.headFollowsMouse;
+        properties.bodyFollowsMouse = renderState.bodyFollowsMouse;
+        renderState.headFollowsMouse = false;
+        renderState.bodyFollowsMouse = false;
+      }
+    } else {
+      Constants.LOGGER.warn("Pose {} is not supported for Player entity!", pose);
+    }
+    return this;
+  }
+
+  /**
+   * Sets the movement speed.<br>
+   * Effective only when the player is moving (see {@link #setMoving(boolean)}.
+   *
+   * @param speed speed value.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setMovementSpeed(float speed) {
+    renderState.speedValue = speed;
     return this;
   }
 
@@ -916,16 +972,10 @@ public class FancyPlayerWidget extends AbstractWidget {
     renderState.boundingBoxHeight = height;
     renderState.scale = height / PLAYER_RENDER_HEIGHT;
     if (renderState.bodyFollowsMouse || renderState.headFollowsMouse) {
-      // 1.62 = Player.DEFAULT_EYE_HEIGHT
-      // 0.6 = Player.SWIMMING_BB_HEIGHT
-      // 1.5 = Player.CROUCH_BB_HEIGHT
-      // 0.6 = Player.SWIMMING_BB_WIDTH
-      // 1.8 = Entity.DEFAULT_BB_HEIGHT
-      // 0.6 = Entity.DEFAULT_BB_WIDTH
-      // Player.POSES // From poses we can get the eye level for each different pose.
-      // modelEye = PLAYER_RENDER_HEIGHT - Player.DEFAULT_EYE_HEIGHT
-      // If baby, values are halved.
-      float eyeY = renderState.isBaby ? y + (height / 2F) + ((PLAYER_RENDER_HEIGHT - Player.DEFAULT_EYE_HEIGHT) * height / PLAYER_RENDER_HEIGHT) / 2 : y + (PLAYER_RENDER_HEIGHT - Player.DEFAULT_EYE_HEIGHT) * height / PLAYER_RENDER_HEIGHT;
+      float renderHeight = renderState.pose == Pose.CROUCHING ? Player.CROUCH_BB_HEIGHT : PLAYER_RENDER_HEIGHT;
+      float eyeHeight = renderState.pose == Pose.CROUCHING ? PLAYER_CROUCHING_EYE_HEIGHT : Player.DEFAULT_EYE_HEIGHT;
+      float adultEyeY = (renderHeight - eyeHeight) * height / renderHeight;
+      float eyeY = y + (renderState.isBaby ? (height + adultEyeY) * Player.DEFAULT_BABY_SCALE : adultEyeY);
       float eyeX = (x + width / 2F);
       double mouseXRelative = mouseX - eyeX;
       double mouseYRelative = mouseY - eyeY;
@@ -997,6 +1047,24 @@ public class FancyPlayerWidget extends AbstractWidget {
      */
     @Nullable
     Parrot.Variant parrotOnRightShoulder;
+
+    /**
+     * Whether to display the fire animation.<br>
+     * Overridable by {@link FancyPlayerRenderState#pose}.
+     */
+    boolean displayFireAnimation;
+
+    /**
+     * Whether the whole model should rotate to follow the mouse.<br>
+     * Overridable by {@link FancyPlayerRenderState#pose}.
+     */
+    public boolean bodyFollowsMouse;
+
+    /**
+     * Whether the head should rotate to follow the mouse.<br>
+     * Overridable by {@link FancyPlayerRenderState#pose}.
+     */
+    public boolean headFollowsMouse;
 
     /**
      * @param name {@link FancyPlayerRenderState#name name}.

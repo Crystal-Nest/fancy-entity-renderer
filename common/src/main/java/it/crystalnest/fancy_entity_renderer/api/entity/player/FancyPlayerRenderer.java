@@ -1,6 +1,7 @@
 package it.crystalnest.fancy_entity_renderer.api.entity.player;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import it.crystalnest.fancy_entity_renderer.api.entity.player.layer.FancyCapeLayer;
 import it.crystalnest.fancy_entity_renderer.api.entity.player.model.FancyPlayerModel;
 import it.crystalnest.fancy_entity_renderer.api.entity.player.state.FancyPlayerRenderState;
@@ -9,6 +10,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.model.HumanoidArmorModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.layers.CapeLayer;
@@ -16,7 +18,7 @@ import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.CommonColors;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -90,6 +92,30 @@ public class FancyPlayerRenderer extends PlayerRenderer {
   }
 
   /**
+   * Sets up the model rotations depending on the pose.
+   *
+   * @param state render state.
+   * @param poseStack pose stack.
+   * @param bodyRot body rotation around the Y axis.
+   * @param scale render scale.
+   */
+  @Override
+  protected void setupRotations(@NotNull PlayerRenderState state, @NotNull PoseStack poseStack, float bodyRot, float scale) {
+    if (state.pose == Pose.SPIN_ATTACK) {
+      poseStack.mulPose(Axis.XN.rotationDegrees(90));
+    }
+    super.setupRotations(state, poseStack, bodyRot, scale);
+    if (state.isUpsideDown) {
+      if (state.pose == Pose.DYING || state.pose == Pose.SPIN_ATTACK) {
+        poseStack.translate(0.0F, (state.boundingBoxHeight + 0.1F) / scale, 0.0F);
+        poseStack.mulPose(Axis.ZP.rotationDegrees(180.0F));
+      } else if (state.pose == Pose.SLEEPING) {
+        poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
+      }
+    }
+  }
+
+  /**
    * Renders the player model.<br>
    * Called after {@link #render(PoseStack, MultiBufferSource, int)}.
    *
@@ -113,7 +139,7 @@ public class FancyPlayerRenderer extends PlayerRenderer {
    */
   public void render(@NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight) {
     entityRenderDispatcher.overrideCameraOrientation(new Quaternionf().rotateXYZ(-state().bodyRot.getX(), state().bodyRot.getY(), -state().bodyRot.getZ()));
-    // noinspection DataFlowIssue Entity is null, but it won't get used anyway because extractRenderState was overridden.
+    // noinspection DataFlowIssue: Entity is null, but it won't get used anyway because extractRenderState was overridden.
     entityRenderDispatcher.render(null, 0, 0, 0, 0, poseStack, bufferSource, packedLight, this);
   }
 
@@ -133,22 +159,20 @@ public class FancyPlayerRenderer extends PlayerRenderer {
       float scale = state.scale * NAMETAG_SCALE;
       Font font = getFont();
       poseStack.pushPose();
-      // nameTagAttachment can't be null, its value is always updated in extractRenderState.
-      // noinspection DataFlowIssue
-      poseStack.translate(state.nameTagAttachment);
+      float height = renderState.isBaby && renderState.pose != Pose.SPIN_ATTACK ? state.boundingBoxHeight * Player.DEFAULT_BABY_SCALE : state.boundingBoxHeight;
+      // noinspection DataFlowIssue: nameTagAttachment can't be null, its value is always updated in extractRenderState.
+      float offsetY = (state.pose == Pose.SLEEPING || state.pose == Pose.SWIMMING ? state.boundingBoxWidth : height) / scale + (float) state.nameTagAttachment.y;
+      float offsetX = state.pose == Pose.SLEEPING ? - (float) state.nameTagAttachment.x : font.width(nameTag) / 2F;
       poseStack.scale(scale, -scale, scale);
-      font.drawInBatch(
-        nameTag,
-        -font.width(nameTag) / 2F,
-        -state.boundingBoxHeight / scale,
-        state.isDiscrete ? -2130706433 : CommonColors.WHITE,
-        false,
-        poseStack.last().pose(),
-        bufferSource,
-        Font.DisplayMode.NORMAL,
-        (int) (Minecraft.getInstance().options.getBackgroundOpacity(0.25F) * 255) << 24,
-        packedLight
-      );
+      poseStack.translate(-offsetX, -offsetY, 0);
+      if (renderState.isUpsideDown) {
+        poseStack.scale(1, -1, 1);
+      }
+      if (renderState.deathTime > 1) {
+        poseStack.rotateAround(Axis.ZP.rotationDegrees(Math.min(Mth.sqrt((renderState.deathTime - 1) / 20F * 1.6F), 1) * getFlipDegrees()), offsetX, offsetY, 0);
+      }
+      font.drawInBatch(nameTag, 0, 0, -2130706433, false, poseStack.last().pose(), bufferSource, Font.DisplayMode.SEE_THROUGH, (int) (Minecraft.getInstance().options.getBackgroundOpacity(0.25F) * 255) << 24, packedLight);
+      font.drawInBatch(nameTag, 0, 0, renderState.isDiscrete ? -2130706433 : -1, false, poseStack.last().pose(), bufferSource, Font.DisplayMode.NORMAL, 0, LightTexture.lightCoordsWithEmission(packedLight, 2));
       poseStack.popPose();
     }
   }
@@ -164,38 +188,22 @@ public class FancyPlayerRenderer extends PlayerRenderer {
   @Override
   public void extractRenderState(@Nullable AbstractClientPlayer player, @NotNull PlayerRenderState renderState, float partialTick) {
     FancyPlayerRenderState state = state();
-    renderState.walkAnimationPos = 0;
-    renderState.walkAnimationSpeed = 0;
-    renderState.eyeHeight = Player.DEFAULT_EYE_HEIGHT;
+    renderState.eyeHeight = Player.POSES.get(state.pose).eyeHeight();
     renderState.isDiscrete = state.isCrouching || state.isInvisible;
-    if (state.isMoving) {
-      renderState.ageInTicks += 1;
+    if (state.isMoving && state.pose != Pose.DYING) {
+      float step = renderState.speedValue * 0.33F;
+      renderState.ageInTicks += step;
+      renderState.walkAnimationPos += step;
     } else {
       renderState.ageInTicks = 3000;
+      renderState.walkAnimationPos = 0;
     }
-    // TODO:
-    //  STANDING is fine.
-    //  FALL_FLYING is to be blacklisted.
-    //  SLEEPING needs to be adjusted to center the body, and probably scale depending on width rather than height.
-    //  SWIMMING is not doing anything (to be blacklisted if we won't support dynamic player movements).
-    //  SPIN_ATTACK is to be blacklisted (if we won't support dynamic player movements).
-    //  CROUCHING is fine.
-    //  LONG_JUMPING is for Frog, Goat, and Breeze only.
-    //  DYING is not doing anything (to be blacklisted?).
-    //  CROAKING is for Frog only.
-    //  USING_TONGUE is for Frog only.
-    //  SITTING is for Camel only.
-    //  ROARING is for Warden only.
-    //  SNIFFING is for Warden and Sniffer only.
-    //  EMERGING is for Warden only.
-    //  DIGGING is for Warden only.
-    //  SLIDING is for Breeze only.
-    //  SHOOTING is for Breeze only.
-    //  INHALING is for Breeze only.
-    //  We should check (with dynamic movements) whether poses for other entities do something nice for the player too.
-    renderState.pose = Pose.STANDING;
     renderState.nameTag = Component.literal(state.name);
-    renderState.nameTagAttachment = new Vec3(0, 0.5F * state.scale, 0);
+    if (state.pose == Pose.SLEEPING) {
+      renderState.nameTagAttachment = new Vec3(Player.POSES.get(state.pose).eyeHeight() * state.scale - state.boundingBoxHeight / 1.35F,0, 0);
+    } else {
+      renderState.nameTagAttachment = new Vec3(0, 0.25F * state.scale, 0);
+    }
     if (state.rightHandHeldItem != null) {
       Minecraft.getInstance().getItemModelResolver().updateForTopItem(state.rightHandItem, state.rightHandHeldItem.getDefaultInstance(), ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, false, null, null, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND.ordinal());
     }

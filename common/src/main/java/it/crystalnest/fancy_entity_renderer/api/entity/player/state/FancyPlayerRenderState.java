@@ -70,6 +70,11 @@ public class FancyPlayerRenderState extends PlayerRenderState {
   public boolean showPlayerName;
 
   /**
+   * Whether to pin the player's name at the top of the bounding box.
+   */
+  public boolean pinName;
+
+  /**
    * Item held in the right hand.<br>
    * {@code null} if none.
    */
