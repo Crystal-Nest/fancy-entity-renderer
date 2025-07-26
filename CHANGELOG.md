@@ -7,9 +7,17 @@ and this project adheres to [Crystal Nest Semantic Versioning](https://crystalne
 
 ## [Unreleased]
 
+- Nothing new.
+
+## [v0.3.0] - 2025/07/26
+
 - Removed spectator setting in favor of the new `RenderMode`.
 - Add new `RenderMode` to choose between normal mode, invisible mode, spectator mode, and ghost mode.
 - It's now possible to set parrots for either shoulders.
+- Removed crouching setting in favor of the new `Pose` based system [#7](https://github.com/Crystal-Nest/fancy-entity-renderer/issues/7).
+- Added support for arms poses.
+- Added support for dynamic movements [#13](https://github.com/Crystal-Nest/fancy-entity-renderer/issues/13).
+- Fixed name tag breaking the Minecraft title rendering.
 
 ## [v0.2.0] - 2025/04/11
 
@@ -47,5 +55,6 @@ and this project adheres to [Crystal Nest Semantic Versioning](https://crystalne
 [Unreleased]: https://github.com/crystal-nest/fancy-entity-renderer
 [README]: https://github.com/crystal-nest/fancy-entity-renderer#readme
 
+[v0.3.0]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.3.0
 [v0.2.0]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.2.0
 [v0.1.0]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.1.0

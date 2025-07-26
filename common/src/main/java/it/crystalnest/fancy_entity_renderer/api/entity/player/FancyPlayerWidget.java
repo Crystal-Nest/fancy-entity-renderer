@@ -14,6 +14,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.client.resources.PlayerSkin;
@@ -644,6 +645,30 @@ public class FancyPlayerWidget extends AbstractWidget {
     } else {
       Constants.LOGGER.warn("Pose {} is not supported for Player entity!", pose);
     }
+    return this;
+  }
+
+  /**
+   * Sets the right arm pose.<br>
+   * {@link HumanoidModel.ArmPose#EMPTY} to remove.
+   *
+   * @param pose {@link HumanoidModel.ArmPose}.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setRightArmPose(HumanoidModel.ArmPose pose) {
+    renderState.rightArmPose = pose;
+    return this;
+  }
+
+  /**
+   * Sets the left arm pose.<br>
+   * {@link HumanoidModel.ArmPose#EMPTY} to remove.
+   *
+   * @param pose {@link HumanoidModel.ArmPose}.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setLeftArmPose(HumanoidModel.ArmPose pose) {
+    renderState.leftArmPose = pose;
     return this;
   }
 
