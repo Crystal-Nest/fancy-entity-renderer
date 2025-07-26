@@ -1015,6 +1015,18 @@ public class FancyPlayerWidget extends AbstractWidget {
     final Rotation bodyRot = new Rotation();
 
     /**
+     * Whether the whole model should rotate to follow the mouse.<br>
+     * Overridable by {@link FancyPlayerRenderState#pose}.
+     */
+    public boolean bodyFollowsMouse;
+
+    /**
+     * Whether the head should rotate to follow the mouse.<br>
+     * Overridable by {@link FancyPlayerRenderState#pose}.
+     */
+    public boolean headFollowsMouse;
+
+    /**
      * Whether the model is slim or wide.<br>
      * Overridable by {@link FancyPlayerRenderState#skin skin} or when copying a player.
      */
@@ -1053,18 +1065,6 @@ public class FancyPlayerWidget extends AbstractWidget {
      * Overridable by {@link FancyPlayerRenderState#pose}.
      */
     boolean displayFireAnimation;
-
-    /**
-     * Whether the whole model should rotate to follow the mouse.<br>
-     * Overridable by {@link FancyPlayerRenderState#pose}.
-     */
-    public boolean bodyFollowsMouse;
-
-    /**
-     * Whether the head should rotate to follow the mouse.<br>
-     * Overridable by {@link FancyPlayerRenderState#pose}.
-     */
-    public boolean headFollowsMouse;
 
     /**
      * @param name {@link FancyPlayerRenderState#name name}.

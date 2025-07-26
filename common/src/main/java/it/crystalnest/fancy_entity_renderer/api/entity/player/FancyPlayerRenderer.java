@@ -92,30 +92,6 @@ public class FancyPlayerRenderer extends PlayerRenderer {
   }
 
   /**
-   * Sets up the model rotations depending on the pose.
-   *
-   * @param state render state.
-   * @param poseStack pose stack.
-   * @param bodyRot body rotation around the Y axis.
-   * @param scale render scale.
-   */
-  @Override
-  protected void setupRotations(@NotNull PlayerRenderState state, @NotNull PoseStack poseStack, float bodyRot, float scale) {
-    if (state.pose == Pose.SPIN_ATTACK) {
-      poseStack.mulPose(Axis.XN.rotationDegrees(90));
-    }
-    super.setupRotations(state, poseStack, bodyRot, scale);
-    if (state.isUpsideDown) {
-      if (state.pose == Pose.DYING || state.pose == Pose.SPIN_ATTACK) {
-        poseStack.translate(0.0F, (state.boundingBoxHeight + 0.1F) / scale, 0.0F);
-        poseStack.mulPose(Axis.ZP.rotationDegrees(180.0F));
-      } else if (state.pose == Pose.SLEEPING) {
-        poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
-      }
-    }
-  }
-
-  /**
    * Renders the player model.<br>
    * Called after {@link #render(PoseStack, MultiBufferSource, int)}.
    *
@@ -162,7 +138,7 @@ public class FancyPlayerRenderer extends PlayerRenderer {
       float height = renderState.isBaby && renderState.pose != Pose.SPIN_ATTACK ? state.boundingBoxHeight * Player.DEFAULT_BABY_SCALE : state.boundingBoxHeight;
       // noinspection DataFlowIssue: nameTagAttachment can't be null, its value is always updated in extractRenderState.
       float offsetY = (state.pose == Pose.SLEEPING || state.pose == Pose.SWIMMING ? state.boundingBoxWidth : height) / scale + (float) state.nameTagAttachment.y;
-      float offsetX = state.pose == Pose.SLEEPING ? - (float) state.nameTagAttachment.x : font.width(nameTag) / 2F;
+      float offsetX = state.pose == Pose.SLEEPING ? -(float) state.nameTagAttachment.x : font.width(nameTag) / 2F;
       poseStack.scale(scale, -scale, scale);
       poseStack.translate(-offsetX, -offsetY, 0);
       if (renderState.isUpsideDown) {
@@ -200,7 +176,7 @@ public class FancyPlayerRenderer extends PlayerRenderer {
     }
     renderState.nameTag = Component.literal(state.name);
     if (state.pose == Pose.SLEEPING) {
-      renderState.nameTagAttachment = new Vec3(Player.POSES.get(state.pose).eyeHeight() * state.scale - state.boundingBoxHeight / 1.35F,0, 0);
+      renderState.nameTagAttachment = new Vec3(Player.POSES.get(state.pose).eyeHeight() * state.scale - state.boundingBoxHeight / 1.35F, 0, 0);
     } else {
       renderState.nameTagAttachment = new Vec3(0, 0.25F * state.scale, 0);
     }
@@ -212,5 +188,29 @@ public class FancyPlayerRenderer extends PlayerRenderer {
     }
     renderState.elytraRotX = (float) (Math.PI / 16);
     renderState.elytraRotZ = (float) (Math.PI / 10);
+  }
+
+  /**
+   * Sets up the model rotations depending on the pose.
+   *
+   * @param state render state.
+   * @param poseStack pose stack.
+   * @param bodyRot body rotation around the Y axis.
+   * @param scale render scale.
+   */
+  @Override
+  protected void setupRotations(@NotNull PlayerRenderState state, @NotNull PoseStack poseStack, float bodyRot, float scale) {
+    if (state.pose == Pose.SPIN_ATTACK) {
+      poseStack.mulPose(Axis.XN.rotationDegrees(90));
+    }
+    super.setupRotations(state, poseStack, bodyRot, scale);
+    if (state.isUpsideDown) {
+      if (state.pose == Pose.DYING || state.pose == Pose.SPIN_ATTACK) {
+        poseStack.translate(0.0F, (state.boundingBoxHeight + 0.1F) / scale, 0.0F);
+        poseStack.mulPose(Axis.ZP.rotationDegrees(180.0F));
+      } else if (state.pose == Pose.SLEEPING) {
+        poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
+      }
+    }
   }
 }
