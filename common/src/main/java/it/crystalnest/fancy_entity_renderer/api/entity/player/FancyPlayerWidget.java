@@ -132,7 +132,6 @@ public class FancyPlayerWidget extends AbstractWidget {
   @Override
   protected void renderWidget(GuiGraphics gfx, int mouseX, int mouseY, float partialTick) {
     updateRenderState(getX(), getY(), getWidth(), getHeight(), mouseX, mouseY, partialTick);
-    gfx.renderOutline(getX(), getY(), getWidth(), getHeight(), -6250336);
     gfx.pose().pushPose();
     float offsetX = 0;
     float offsetY = (float) renderer.getRenderOffset(renderState).y;
@@ -550,7 +549,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setLeftParrot(@Nullable Parrot.Variant parrot) {
-    if (renderState.isBaby) {
+    if (renderState.isBaby || renderState.pose == Pose.SWIMMING) {
       properties.parrotOnLeftShoulder = parrot;
     } else {
       renderState.parrotOnLeftShoulder = parrot;
@@ -566,7 +565,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setRightParrot(@Nullable Parrot.Variant parrot) {
-    if (renderState.isBaby) {
+    if (renderState.isBaby || renderState.pose == Pose.SWIMMING) {
       properties.parrotOnRightShoulder = parrot;
     } else {
       renderState.parrotOnRightShoulder = parrot;
@@ -641,6 +640,15 @@ public class FancyPlayerWidget extends AbstractWidget {
         properties.bodyFollowsMouse = renderState.bodyFollowsMouse;
         renderState.headFollowsMouse = false;
         renderState.bodyFollowsMouse = false;
+      }
+      if (pose == Pose.SWIMMING) {
+        properties.parrotOnLeftShoulder = renderState.parrotOnLeftShoulder;
+        properties.parrotOnRightShoulder = renderState.parrotOnRightShoulder;
+        renderState.parrotOnLeftShoulder = null;
+        renderState.parrotOnRightShoulder = null;
+      } else {
+        renderState.parrotOnLeftShoulder = properties.parrotOnLeftShoulder;
+        renderState.parrotOnRightShoulder = properties.parrotOnRightShoulder;
       }
     } else {
       Constants.LOGGER.warn("Pose {} is not supported for Player entity!", pose);

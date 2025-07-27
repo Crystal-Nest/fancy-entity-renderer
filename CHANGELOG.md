@@ -9,10 +9,15 @@ and this project adheres to [Crystal Nest Semantic Versioning](https://crystalne
 
 - Nothing new.
 
+## [v0.3.1] - 2025/07/27
+
+- Removed leftover debug outline.
+- Fixed interaction between swimming pose and parrots.
+
 ## [v0.3.0] - 2025/07/26
 
 - Removed spectator setting in favor of the new `RenderMode`.
-- Add new `RenderMode` to choose between normal mode, invisible mode, spectator mode, and ghost mode.
+- Added new `RenderMode` to choose between normal mode, invisible mode, spectator mode, and ghost mode.
 - It's now possible to set parrots for either shoulders.
 - Removed crouching setting in favor of the new `Pose` based system [#7](https://github.com/Crystal-Nest/fancy-entity-renderer/issues/7).
 - Added support for arms poses.
@@ -30,8 +35,8 @@ and this project adheres to [Crystal Nest Semantic Versioning](https://crystalne
 
 ## [v0.1.0] - 2025/03/17
 
-- Add `FancyPlayerWidget` to render player entities in any Screen, Menu, GUI, or HUD.
-- Add `Rotation` class to the API to easily handle 3-axis rotations in either radians or degrees.
+- Added `FancyPlayerWidget` to render player entities in any Screen, Menu, GUI, or HUD.
+- Added `Rotation` class to the API to easily handle 3-axis rotations in either radians or degrees.
 - It's possible to render the player widget at any x, y coordinates and with any width or height.
 - It's possible to set custom, single model parts (arms, legs, head) rotations.
 - It's possible to make the head and/or the whole model follow the mouse cursor.
@@ -55,6 +60,7 @@ and this project adheres to [Crystal Nest Semantic Versioning](https://crystalne
 [Unreleased]: https://github.com/crystal-nest/fancy-entity-renderer
 [README]: https://github.com/crystal-nest/fancy-entity-renderer#readme
 
+[v0.3.1]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.3.1
 [v0.3.0]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.3.0
 [v0.2.0]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.2.0
 [v0.1.0]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.1.0
