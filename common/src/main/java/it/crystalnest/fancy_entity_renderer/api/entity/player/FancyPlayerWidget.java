@@ -696,11 +696,37 @@ public class FancyPlayerWidget extends AbstractWidget {
    * Sets the item the player is holding in its right hand.<br>
    * Pass a valid item to set it, pass {@code null} to empty the hand.
    *
+   * @param item item string, in the same format as for the command {@code /give}.
+   * @param provider {@link HolderLookup.Provider} for registry access, for example from {@link Level#registryAccess()}.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setRightHandItem(@Nullable String item, HolderLookup.Provider provider) {
+    renderState.rightHandHeldItem = getNullableItem(item, i -> parseItem(i, provider));
+    return this;
+  }
+
+  /**
+   * Sets the item the player is holding in its left hand.<br>
+   * Pass a valid item to set it, pass {@code null} to empty the hand.
+   *
+   * @param item item string, in the same format as for the command {@code /give}.
+   * @param provider {@link HolderLookup.Provider} for registry access, for example from {@link Level#registryAccess()}.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setLeftHandItem(@Nullable String item, HolderLookup.Provider provider) {
+    renderState.leftHandHeldItem = getNullableItem(item, i -> parseItem(i, provider));
+    return this;
+  }
+
+  /**
+   * Sets the item the player is holding in its right hand.<br>
+   * Pass a valid item to set it, pass {@code null} to empty the hand.
+   *
    * @param item item to set or {@code null}.
    * @return {@code this}.
    */
   public FancyPlayerWidget setRightHandItem(@Nullable Item item) {
-    renderState.rightHandHeldItem = item;
+    renderState.rightHandHeldItem = getNullableItem(item, Item::getDefaultInstance);
     return this;
   }
 
@@ -712,7 +738,31 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setLeftHandItem(@Nullable Item item) {
-    renderState.leftHandHeldItem = item;
+    renderState.leftHandHeldItem = getNullableItem(item, Item::getDefaultInstance);
+    return this;
+  }
+
+  /**
+   * Sets the item the player is holding in its right hand.<br>
+   * Pass a valid item to set it, pass {@code null} to empty the hand.
+   *
+   * @param item item to set or {@code null}.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setRightHandItem(@Nullable ItemStack item) {
+    renderState.rightHandHeldItem = getNullableItem(item, i -> i);
+    return this;
+  }
+
+  /**
+   * Sets the item the player is holding in its left hand.<br>
+   * Pass a valid item to set it, pass {@code null} to empty the hand.
+   *
+   * @param item item to set or {@code null}.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setLeftHandItem(@Nullable ItemStack item) {
+    renderState.leftHandHeldItem = getNullableItem(item, i -> i);
     return this;
   }
 
@@ -725,7 +775,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setHeadWearable(@Nullable String item, HolderLookup.Provider provider) {
-    renderState.headEquipment = getWearableItem(item, i -> parseItem(i, provider));
+    renderState.headEquipment = getNullableItem(item, i -> parseItem(i, provider));
     return this;
   }
 
@@ -738,7 +788,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setChestWearable(@Nullable String item, HolderLookup.Provider provider) {
-    renderState.chestEquipment = getWearableItem(item, i -> parseItem(i, provider));
+    renderState.chestEquipment = getNullableItem(item, i -> parseItem(i, provider));
     return this;
   }
 
@@ -751,7 +801,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setLegsWearable(@Nullable String item, HolderLookup.Provider provider) {
-    renderState.legsEquipment = getWearableItem(item, i -> parseItem(i, provider));
+    renderState.legsEquipment = getNullableItem(item, i -> parseItem(i, provider));
     return this;
   }
 
@@ -764,7 +814,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setFeetWearable(@Nullable String item, HolderLookup.Provider provider) {
-    renderState.feetEquipment = getWearableItem(item, i -> parseItem(i, provider));
+    renderState.feetEquipment = getNullableItem(item, i -> parseItem(i, provider));
     return this;
   }
 
@@ -776,7 +826,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setHeadWearable(@Nullable Item item) {
-    renderState.headEquipment = getWearableItem(item, Item::getDefaultInstance);
+    renderState.headEquipment = getNullableItem(item, Item::getDefaultInstance);
     return this;
   }
 
@@ -788,7 +838,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setChestWearable(@Nullable Item item) {
-    renderState.chestEquipment = getWearableItem(item, Item::getDefaultInstance);
+    renderState.chestEquipment = getNullableItem(item, Item::getDefaultInstance);
     return this;
   }
 
@@ -800,7 +850,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setLegsWearable(@Nullable Item item) {
-    renderState.legsEquipment = getWearableItem(item, Item::getDefaultInstance);
+    renderState.legsEquipment = getNullableItem(item, Item::getDefaultInstance);
     return this;
   }
 
@@ -812,7 +862,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setFeetWearable(@Nullable Item item) {
-    renderState.feetEquipment = getWearableItem(item, Item::getDefaultInstance);
+    renderState.feetEquipment = getNullableItem(item, Item::getDefaultInstance);
     return this;
   }
 
@@ -824,7 +874,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setHeadWearable(@Nullable ItemStack item) {
-    renderState.headEquipment = getWearableItem(item, i -> i);
+    renderState.headEquipment = getNullableItem(item, i -> i);
     return this;
   }
 
@@ -836,7 +886,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setChestWearable(@Nullable ItemStack item) {
-    renderState.chestEquipment = getWearableItem(item, i -> i);
+    renderState.chestEquipment = getNullableItem(item, i -> i);
     return this;
   }
 
@@ -848,7 +898,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setLegsWearable(@Nullable ItemStack item) {
-    renderState.legsEquipment = getWearableItem(item, i -> i);
+    renderState.legsEquipment = getNullableItem(item, i -> i);
     return this;
   }
 
@@ -860,7 +910,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setFeetWearable(@Nullable ItemStack item) {
-    renderState.feetEquipment = getWearableItem(item, i -> i);
+    renderState.feetEquipment = getNullableItem(item, i -> i);
     return this;
   }
 
@@ -872,7 +922,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @param <T> type of the item data.
    * @return {@link ItemStack} to use as wearable.
    */
-  private <T> ItemStack getWearableItem(T item, Function<T, ItemStack> getter) {
+  private <T> ItemStack getNullableItem(T item, Function<T, ItemStack> getter) {
     return item == null ? ItemStack.EMPTY : getter.apply(item);
   }
 

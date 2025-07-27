@@ -2,7 +2,7 @@ package it.crystalnest.fancy_entity_renderer.api.entity.player.state;
 
 import it.crystalnest.fancy_entity_renderer.api.Rotation;
 import net.minecraft.client.renderer.entity.state.PlayerRenderState;
-import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -79,12 +79,12 @@ public class FancyPlayerRenderState extends PlayerRenderState {
    * {@code null} if none.
    */
   @Nullable
-  public Item rightHandHeldItem;
+  public ItemStack rightHandHeldItem;
 
   /**
    * Item held in the left hand.<br>
    * {@code null} if none.
    */
   @Nullable
-  public Item leftHandHeldItem;
+  public ItemStack leftHandHeldItem;
 }

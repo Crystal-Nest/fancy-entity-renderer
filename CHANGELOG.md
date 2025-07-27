@@ -9,6 +9,10 @@ and this project adheres to [Crystal Nest Semantic Versioning](https://crystalne
 
 - Nothing new.
 
+## [v0.3.2] - 2025/07/27
+
+- `ItemStack`s can now be used to set arm items too, parity with wearables.
+
 ## [v0.3.1] - 2025/07/27
 
 - Removed leftover debug outline.
