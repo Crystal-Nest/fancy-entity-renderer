@@ -4,7 +4,7 @@ plugins {
 }
 
 dependencies {
-  implementation "it.crystalnest:soul-fire-d-neoforge:$minecraft_version-$soul_fire_d_version"
+  implementation "it.crystalnest:soul-fire-d-$name:$minecraft_version-$soul_fire_d_version"
 }
 
 neoForge {

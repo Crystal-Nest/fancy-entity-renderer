@@ -114,9 +114,7 @@ processResources {
     "fabric_version"               : fabric_version,
     "fabric_loader_version"        : fabric_loader_version,
     "neoforge_version"             : neoforge_version,
-    "neoforge_loader_version_range": neoforge_loader_version_range,
-    "forge_version"                : forge_version,
-    "forge_loader_version_range"   : forge_loader_version_range
+    "neoforge_loader_version_range": neoforge_loader_version_range
   ]
   filesMatching(["pack.mcmeta", "fabric.mod.json", "META-INF/neoforge.mods.toml", "META-INF/mods.toml", "*.mixins.json"]) {
     expand expandProps
@@ -134,9 +132,6 @@ switch (name) {
     break
   case "neoforge":
     loader = "NeoForge"
-    break
-  case "forge":
-    loader = "Forge"
     break
 }
 
@@ -223,8 +218,6 @@ publisher {
         break
       case "NeoForge":
         break
-      case "Forge":
-        break
     }
   }
   curseDepends {
@@ -233,8 +226,6 @@ publisher {
         required "fabric-api"
         break
       case "NeoForge":
-        break
-      case "Forge":
         break
     }
   }
