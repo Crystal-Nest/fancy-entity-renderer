@@ -78,7 +78,7 @@ public class FancyProfileFetcher {
    * @return game profile.
    */
   static CompletableFuture<Optional<GameProfile>> fetchProfile(UUID id, Services services, BooleanSupplier cacheUninitialized) {
-    return CompletableFuture.supplyAsync(() -> cacheUninitialized.getAsBoolean() ? Optional.empty() : Optional.ofNullable(services.sessionService().fetchProfile(id, true)).map(ProfileResult::profile), Util.backgroundExecutor().forName("fetchProfile"));
+    return CompletableFuture.supplyAsync(() -> cacheUninitialized.getAsBoolean() ? Optional.empty() : Optional.ofNullable(services.sessionService().fetchProfile(id, true)).map(ProfileResult::profile), Util.backgroundExecutor());
   }
 
   /**

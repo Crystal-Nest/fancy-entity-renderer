@@ -5,12 +5,12 @@ import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
-import net.minecraft.client.renderer.entity.state.PlayerRenderState;
+import net.minecraft.client.player.AbstractClientPlayer;
 
 /**
  * Custom player cape model.
  */
-public class FancyPlayerCapeModel extends HumanoidModel<PlayerRenderState> {
+public class FancyPlayerCapeModel extends HumanoidModel<AbstractClientPlayer> {
   /**
    * @param modelSet entity model set.
    * @param isBaby whether the player is baby.

@@ -8,8 +8,10 @@ import com.mojang.math.Axis;
 import it.crystalnest.fancy_entity_renderer.Constants;
 import it.crystalnest.fancy_entity_renderer.api.Rotation;
 import it.crystalnest.fancy_entity_renderer.api.entity.RenderMode;
-import it.crystalnest.fancy_entity_renderer.api.entity.player.state.FancyPlayerRenderState;
+import it.crystalnest.fancy_entity_renderer.api.entity.player.mock.FancyPlayerMock;
+import it.crystalnest.fancy_entity_renderer.imixin.SpecialDrawer;
 import it.crystalnest.fancy_entity_renderer.platform.Services;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -63,17 +65,17 @@ public class FancyPlayerWidget extends AbstractWidget {
   /**
    * Global render state.
    */
-  private final FancyPlayerRenderState renderState = new FancyPlayerRenderState();
+  private final FancyPlayerMock renderState = new FancyPlayerMock(new GameProfile(Util.NIL_UUID, "Steve"));
 
   /**
    * Renderer for the wide player model.
    */
-  private final FancyPlayerRenderer wideRenderer = new FancyPlayerRenderer(renderState, false);
+  private final FancyPlayerRenderer wideRenderer = new FancyPlayerRenderer(false);
 
   /**
    * Renderer for the slim player model.
    */
-  private final FancyPlayerRenderer slimRenderer = new FancyPlayerRenderer(renderState, true);
+  private final FancyPlayerRenderer slimRenderer = new FancyPlayerRenderer(true);
 
   /**
    * Current player renderer.
@@ -134,7 +136,7 @@ public class FancyPlayerWidget extends AbstractWidget {
     updateRenderState(getX(), getY(), getWidth(), getHeight(), mouseX, mouseY, partialTick);
     gfx.pose().pushPose();
     float offsetX = 0;
-    float offsetY = (float) renderer.getRenderOffset(renderState).y;
+    float offsetY = (float) renderer.getRenderOffset(renderState, 0).y;
     if (renderState.pose == Pose.SLEEPING) {
       offsetX += PLAYER_RENDER_HEIGHT * renderState.scale / 2;
       offsetY -= 0.25F * renderState.scale;
@@ -149,7 +151,7 @@ public class FancyPlayerWidget extends AbstractWidget {
     gfx.pose().scale(1, -1, 1);
     Lighting.setupForEntityInInventory(Axis.XP.rotationDegrees(renderState.bodyRot.getX()));
     gfx.pose().rotateAround(new Quaternionf().rotateXYZ(renderState.bodyRot.getX(), -renderState.bodyRot.getY(), renderState.bodyRot.getZ()), 0, 0, 0);
-    gfx.drawSpecial(bufferSource -> renderer.render(gfx.pose(), bufferSource, LightTexture.FULL_BRIGHT));
+    ((SpecialDrawer) gfx).drawSpecial(bufferSource -> renderer.render(renderState, gfx.pose(), bufferSource, LightTexture.FULL_BRIGHT));
     gfx.flush();
     gfx.pose().popPose();
   }
@@ -1005,11 +1007,15 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   private FancyPlayerWidget copyPlayer(GameProfile profile) {
-    Minecraft.getInstance().getSkinManager().getOrLoad(profile).exceptionally(FancyPlayerWidget::handlePlayerCopyError).thenAccept(skin -> {
+    Minecraft.getInstance().getSkinManager().getOrLoad(profile).exceptionally(throwable -> (PlayerSkin) FancyPlayerWidget.handlePlayerCopyError(throwable).orElse(null)).thenAccept(skin -> {
       renderState.copyingPlayer = true;
       properties.name = renderState.name;
       renderState.name = profile.getName();
-      skin.ifPresentOrElse(this::updateSkin, () -> handlePlayerCopyError(renderState.name));
+      if (skin != null) {
+        this.updateSkin(skin);
+      } else {
+        handlePlayerCopyError(renderState.name);
+      }
     });
     return this;
   }

@@ -1,6 +1,6 @@
 package it.crystalnest.fancy_entity_renderer.api.entity.player.model;
 
-import it.crystalnest.fancy_entity_renderer.api.entity.player.state.FancyPlayerRenderState;
+import it.crystalnest.fancy_entity_renderer.api.entity.player.mock.FancyPlayerMock;
 import net.minecraft.client.model.HumanoidArmorModel;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
@@ -9,13 +9,13 @@ import net.minecraft.client.model.geom.LayerDefinitions;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
-import net.minecraft.client.renderer.entity.state.PlayerRenderState;
+import net.minecraft.client.player.AbstractClientPlayer;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * Custom player model.
  */
-public class FancyPlayerModel extends PlayerModel {
+public class FancyPlayerModel extends PlayerModel<AbstractClientPlayer> {
   /**
    * @param modelSet entity model set.
    * @param isSlim whether the player is slim.
@@ -54,24 +54,29 @@ public class FancyPlayerModel extends PlayerModel {
   /**
    * Sets up the model animation pose.
    *
-   * @param state render state.
+   * @param entity entity to render.
+   * @param limbSwing
+   * @param limbSwingAmount
+   * @param ageInTicks
+   * @param netHeadYaw
+   * @param headPitch
    */
   @Override
-  public void setupAnim(@NotNull PlayerRenderState state) {
-    super.setupAnim(state);
-    update((FancyPlayerRenderState) state);
+  public void setupAnim(@NotNull AbstractClientPlayer entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+    super.setupAnim(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
+    update((FancyPlayerMock) entity);
   }
 
   /**
    * Updates the animation pose with the render state rotations for single body parts.
    *
-   * @param state render state.
+   * @param player player to render.
    */
-  private void update(@NotNull FancyPlayerRenderState state) {
-    leftArm.offsetRotation(state.leftArmRot.getOffset());
-    rightArm.offsetRotation(state.rightArmRot.getOffset());
-    leftLeg.offsetRotation(state.leftLegRot.getOffset());
-    rightLeg.offsetRotation(state.rightLegRot.getOffset());
-    head.offsetRotation(state.headRot.getOffset());
+  private void update(@NotNull FancyPlayerMock player) {
+    leftArm.offsetRotation(player.leftArmRot.getOffset());
+    rightArm.offsetRotation(player.rightArmRot.getOffset());
+    leftLeg.offsetRotation(player.leftLegRot.getOffset());
+    rightLeg.offsetRotation(player.rightLegRot.getOffset());
+    head.offsetRotation(player.headRot.getOffset());
   }
 }
