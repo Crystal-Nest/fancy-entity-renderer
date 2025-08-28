@@ -15,6 +15,7 @@ and this project adheres to [Crystal Nest Semantic Versioning](https://crystalne
 - Port to 1.21.5.
 - Fix [#15](https://github.com/Crystal-Nest/fancy-entity-renderer/issues/15), Soul Fire'd dependency dragging along on Maven.
 - Fix Soul Fire'd declared dependency in mod loaders and mod publishing platforms.
+- Dropped support for Forge.
 
 ## [v0.3.2] - 2025/07/27
 
