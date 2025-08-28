@@ -7,8 +7,7 @@
   "mixins": [],
   "client": [
     "client.EntityRenderDispatcherMixin",
-    "client.GuiGraphicsMixin",
-    "client.TitleScreenMixin"
+    "client.GuiGraphicsMixin"
   ],
   "server": [],
   "injectors": {
