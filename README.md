@@ -2,7 +2,7 @@
 
 ---
 
-![Minecraft](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/minecraft/minecraft.svg "Minecraft")[![1.21.5](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/minecraft/1-21-5.svg "1.21.5")](https://modrinth.com/mod/fancy-entity-renderer/versions?g=1.21.5)![Separator](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/separator.svg)[![1.21.4](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/minecraft/1-21-4.svg "1.21.4")](https://modrinth.com/mod/fancy-entity-renderer/versions?g=1.21.4)![Separator](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/separator.svg)[![1.21.1](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/minecraft/1-21-1.svg "1.21.1")](https://modrinth.com/mod/fancy-entity-renderer/versions?g=1.21.1)![Separator](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/separator.svg)[![1.21](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/minecraft/1-21.svg "1.21")](https://modrinth.com/mod/fancy-entity-renderer/versions?g=1.21)
+![Minecraft](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/minecraft/minecraft.svg "Minecraft")[![1.21.5](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/minecraft/1-21-5.svg "1.21.5")](https://modrinth.com/mod/fancy-entity-renderer/versions?g=1.21.5)![Separator](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/separator.svg)[![1.21.4](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/minecraft/1-21-4.svg "1.21.4")](https://modrinth.com/mod/fancy-entity-renderer/versions?g=1.21.4)
 
 ![Loader](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/loader/loader.svg "Loader")[![NeoForge](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/loader/neoforge.svg "NeoForge")](https://modrinth.com/mod/fancy-entity-renderer/versions?l=neoforge)![Separator](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/separator.svg)[![Fabric](https://raw.githubusercontent.com/crystal-nest/mod-fancy-assets/main/loader/fabric.svg "Fabric")](https://modrinth.com/mod/fancy-entity-renderer/versions?l=fabric)
 
@@ -15,6 +15,15 @@
 ## **Description**
 
 Fancy Entity Renderer is a mod API that allows to easily draw entities in any Screen, Menu, GUI, or HUD!
+
+**Officially used by [FancyMenu](https://modrinth.com/mod/fancymenu)**:
+
+
+## **Dependencies**
+
+| Mod                                                 | Loader | Requirement | Purpose                                 |
+|:----------------------------------------------------|:------:|:-----------:|:----------------------------------------|
+| [Soul Fire'd](https://modrinth.com/mod/soul-fire-d) |  All   |  Optional   | Customize the color of the fire overlay |
 
 ## **License and right of use**
 
