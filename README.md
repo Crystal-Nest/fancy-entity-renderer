@@ -18,6 +18,7 @@ Fancy Entity Renderer is a mod API that allows to easily draw entities in any Sc
 
 **Officially used by [FancyMenu](https://modrinth.com/mod/fancymenu)**:
 
+https://github.com/user-attachments/assets/735b135d-efa7-4e48-8931-784ea52d71dd
 
 ## **Dependencies**
 
