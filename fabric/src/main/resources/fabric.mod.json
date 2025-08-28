@@ -30,5 +30,8 @@
     "fabric-api": "*",
     "minecraft": "~${minecraft_version}",
     "java": ">=${java_version}"
+  },
+  "suggests": {
+    "soul_fire_d": "^${soul_fire_d_version}"
   }
 }

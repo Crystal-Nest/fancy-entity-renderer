@@ -28,6 +28,12 @@ issueTrackerURL="https://github.com/${github_user}/${mod_id_kebab}/issues" #opti
   versionRange = "[${minecraft_version},)"
   ordering = "NONE"
   side = "BOTH"
+[[dependencies.${mod_id}]]
+  modId = "soul_fire_d"
+  type = "optional"
+  versionRange = "[${soul_fire_d_version},)"
+  ordering = "AFTER"
+  side = "BOTH"
 
 # Features are specific properties of the game environment, that you may want to declare you require. This example declares
 # that your mod requires GL version 3.2 or higher. Other features will be added. They are side aware so declaring this won't
