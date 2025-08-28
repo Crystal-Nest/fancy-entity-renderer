@@ -19,7 +19,7 @@ dependencies {
   compileOnly group: "org.spongepowered", name: "mixin", version: "0.8.5"
   compileOnly group: "io.github.llamalad7", name: "mixinextras-common", version: "$mixin_extras_version"
   annotationProcessor group: "io.github.llamalad7", name: "mixinextras-common", version: "$mixin_extras_version"
-  implementation "it.crystalnest:soul-fire-d-$name:$minecraft_version-$soul_fire_d_version"
+  compileOnly "it.crystalnest:soul-fire-d-$name:$minecraft_version-$soul_fire_d_version"
 }
 
 configurations {
