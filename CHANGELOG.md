@@ -10,11 +10,18 @@ and this project adheres to [Crystal Nest Semantic Versioning](https://crystalne
 - Unfinished port to 1.21/1.21.1.
 - Unfinished port to 1.21.6/1.21.7/1.21.8.
 
+## [v0.3.4] - 2025/08/30
+
+- A few private fields of `FancyPlayerWidget` are now protected for better accessibility when subclassing.
+- Added setter for arrow count, allowing to set arrows stuck into the player's body.
+- Added setter for stinger count, allowing to set stingers stuck into the player's body.
+- Added ability to fully mimic a client player, with possibility to whitelist only some poses.
+
 ## [v0.3.3] - 2025/08/29
 
-- Port to 1.21.5.
-- Fix [#15](https://github.com/Crystal-Nest/fancy-entity-renderer/issues/15), Soul Fire'd dependency dragging along on Maven.
-- Fix Soul Fire'd declared dependency in mod loaders and mod publishing platforms.
+- Ported to 1.21.5.
+- Fixed [#15](https://github.com/Crystal-Nest/fancy-entity-renderer/issues/15), Soul Fire'd dependency dragging along on Maven.
+- Fixed Soul Fire'd declared dependency in mod loaders and mod publishing platforms.
 - Dropped support for Forge.
 
 ## [v0.3.2] - 2025/07/27
@@ -72,6 +79,7 @@ and this project adheres to [Crystal Nest Semantic Versioning](https://crystalne
 [Unreleased]: https://github.com/crystal-nest/fancy-entity-renderer
 [README]: https://github.com/crystal-nest/fancy-entity-renderer#readme
 
+[v0.3.4]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.3.4
 [v0.3.3]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.3.3
 [v0.3.2]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.3.2
 [v0.3.1]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.3.1
