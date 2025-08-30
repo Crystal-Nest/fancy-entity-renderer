@@ -2,10 +2,16 @@ package it.crystalnest.fancy_entity_renderer.api.entity.player.state;
 
 import it.crystalnest.fancy_entity_renderer.api.Rotation;
 import it.crystalnest.fancy_entity_renderer.api.entity.player.FancyPlayerRenderer;
+import it.crystalnest.fancy_entity_renderer.api.entity.player.FancyPlayerWidget;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.state.PlayerRenderState;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Extension of {@link PlayerRenderState}.
@@ -58,7 +64,7 @@ public class FancyPlayerRenderState extends PlayerRenderState {
   public boolean headFollowsMouse;
 
   /**
-   * Whether to mimic a player.
+   * Whether to copy the appearance a player.
    */
   public boolean copyingPlayer;
 
@@ -95,4 +101,26 @@ public class FancyPlayerRenderState extends PlayerRenderState {
    */
   @Nullable
   public ItemStack leftHandHeldItem;
+
+  /**
+   * Player to mimic when mimicking a player.
+   */
+  @Nullable
+  public AbstractClientPlayer mimickedPlayer;
+
+  /**
+   * Allowed poses when mimicking a player.
+   */
+  public List<Pose> allowedPoses = new ArrayList<>();
+
+  /**
+   * Updates the scale and bounding box properties from the given height value.
+   *
+   * @param height height.
+   */
+  public void updateScale(float height) {
+    boundingBoxHeight = height;
+    boundingBoxWidth = height / FancyPlayerWidget.PLAYER_SIZE_RATIO;
+    scale = height / FancyPlayerWidget.PLAYER_RENDER_HEIGHT;
+  }
 }

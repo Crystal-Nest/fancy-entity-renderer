@@ -148,30 +148,61 @@ public class FancyPlayerRenderer extends PlayerRenderer {
   @Override
   public void extractRenderState(@Nullable AbstractClientPlayer player, @NotNull PlayerRenderState renderState, float partialTick) {
     FancyPlayerRenderState state = state();
-    renderState.eyeHeight = Player.POSES.get(state.pose).eyeHeight();
-    renderState.isDiscrete = state.isCrouching || state.isInvisible;
-    if (state.isMoving && state.pose != Pose.DYING) {
-      float step = renderState.speedValue * 0.33F;
-      renderState.ageInTicks += step;
-      renderState.walkAnimationPos += step;
+    if (state.mimickedPlayer != null) {
+      float height = state.boundingBoxHeight;
+      boolean isBaby = state.isBaby, isUpsideDown = state.isUpsideDown;
+      super.extractRenderState(state.mimickedPlayer, renderState, partialTick);
+      ((FancyPlayerRenderState) renderState).updateScale(height);
+      renderState.bodyRot = 0;
+      if (!state.allowedPoses.contains(renderState.pose)) {
+        renderState.pose = Pose.STANDING;
+      }
+      renderState.isFallFlying = renderState.pose == Pose.FALL_FLYING;
+      renderState.isAutoSpinAttack = renderState.pose == Pose.SPIN_ATTACK;
+      renderState.isCrouching = renderState.pose == Pose.CROUCHING;
+      renderState.isVisuallySwimming = renderState.pose == Pose.SWIMMING;
+      if (!renderState.isVisuallySwimming) {
+        renderState.swimAmount = 0;
+      }
+      renderState.hasRedOverlay = renderState.pose == Pose.DYING;
+      if (!renderState.hasRedOverlay) {
+        renderState.deathTime = 0;
+      }
+      if (renderState.pose != Pose.STANDING && renderState.pose != Pose.CROUCHING) {
+        renderState.displayFireAnimation = false;
+      }
+      if (renderState.pose == Pose.SWIMMING) {
+        renderState.parrotOnLeftShoulder = null;
+        renderState.parrotOnRightShoulder = null;
+      }
+      renderState.isBaby = isBaby;
+      renderState.isUpsideDown = isUpsideDown;
     } else {
-      renderState.ageInTicks = 3000;
-      renderState.walkAnimationPos = 0;
+      renderState.eyeHeight = Player.POSES.get(state.pose).eyeHeight();
+      renderState.isDiscrete = state.isCrouching || state.isInvisible;
+      if (state.isMoving && state.pose != Pose.DYING) {
+        float step = renderState.speedValue * 0.33F;
+        renderState.ageInTicks += step;
+        renderState.walkAnimationPos += step;
+      } else {
+        renderState.ageInTicks = 3000;
+        renderState.walkAnimationPos = 0;
+      }
+      renderState.nameTag = Component.literal(state.name);
+      if (state.pose == Pose.SLEEPING) {
+        renderState.nameTagAttachment = new Vec3(Player.POSES.get(state.pose).eyeHeight() * state.scale - state.boundingBoxHeight / 1.35F, 0, 0);
+      } else {
+        renderState.nameTagAttachment = new Vec3(0, 0.25F * state.scale, 0);
+      }
+      if (state.rightHandHeldItem != null) {
+        itemModelResolver.updateForTopItem(state.rightHandItem, state.rightHandHeldItem, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, null, null, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND.ordinal());
+      }
+      if (state.leftHandHeldItem != null) {
+        itemModelResolver.updateForTopItem(state.leftHandItem, state.leftHandHeldItem, ItemDisplayContext.THIRD_PERSON_LEFT_HAND, null, null, ItemDisplayContext.THIRD_PERSON_LEFT_HAND.ordinal());
+      }
+      renderState.elytraRotX = (float) (Math.PI / 16);
+      renderState.elytraRotZ = (float) (Math.PI / 10);
     }
-    renderState.nameTag = Component.literal(state.name);
-    if (state.pose == Pose.SLEEPING) {
-      renderState.nameTagAttachment = new Vec3(Player.POSES.get(state.pose).eyeHeight() * state.scale - state.boundingBoxHeight / 1.35F, 0, 0);
-    } else {
-      renderState.nameTagAttachment = new Vec3(0, 0.25F * state.scale, 0);
-    }
-    if (state.rightHandHeldItem != null) {
-      itemModelResolver.updateForTopItem(state.rightHandItem, state.rightHandHeldItem, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, null, null, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND.ordinal());
-    }
-    if (state.leftHandHeldItem != null) {
-      itemModelResolver.updateForTopItem(state.leftHandItem, state.leftHandHeldItem, ItemDisplayContext.THIRD_PERSON_LEFT_HAND, null, null, ItemDisplayContext.THIRD_PERSON_LEFT_HAND.ordinal());
-    }
-    renderState.elytraRotX = (float) (Math.PI / 16);
-    renderState.elytraRotZ = (float) (Math.PI / 10);
   }
 
   /**
