@@ -15,6 +15,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.client.resources.PlayerSkin;
@@ -24,6 +25,7 @@ import net.minecraft.commands.arguments.item.ItemParser;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.animal.Parrot;
 import net.minecraft.world.entity.player.Player;
@@ -35,6 +37,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
@@ -63,7 +66,12 @@ public class FancyPlayerWidget extends AbstractWidget {
   /**
    * Global render state.
    */
-  private final FancyPlayerRenderState renderState = new FancyPlayerRenderState();
+  protected final FancyPlayerRenderState renderState = new FancyPlayerRenderState();
+
+  /**
+   * Random source.
+   */
+  protected final Random random = new Random();
 
   /**
    * Renderer for the wide player model.
@@ -78,17 +86,12 @@ public class FancyPlayerWidget extends AbstractWidget {
   /**
    * Current player renderer.
    */
-  private FancyPlayerRenderer renderer = renderState.isSlim ? slimRenderer : wideRenderer;
+  protected FancyPlayerRenderer renderer = renderState.isSlim ? slimRenderer : wideRenderer;
 
   /**
    * Memory for overridable render state properties.
    */
   private final OverridableProperties properties = new OverridableProperties(renderState.name);
-
-  /**
-   * Random source.
-   */
-  private final Random random = new Random();
 
   /**
    * @param x x coordinate on the screen.
@@ -409,7 +412,7 @@ public class FancyPlayerWidget extends AbstractWidget {
   }
 
   /**
-   * Makes the model copy the local player.<br>
+   * Copies the local player's model.<br>
    * If you want to undo the copy, use {@link #uncopyPlayer()}.<br>
    * Overrides the slim and the skin properties.
    *
@@ -539,6 +542,30 @@ public class FancyPlayerWidget extends AbstractWidget {
       Services.COMPAT.setOnFire(renderState, fireType);
     }
     return setOnFire(onFire);
+  }
+
+  /**
+   * Sets the amount of arrows stuck into the player's body.<br>
+   * Arrow positions are randomly generated.
+   *
+   * @param count amount of arrows.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setArrowCount(int count) {
+    renderState.arrowCount = count;
+    return this;
+  }
+
+  /**
+   * Sets the amount of stingers stuck into the player's body.<br>
+   * Arrow positions are randomly generated.
+   *
+   * @param count amount of stingers.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setStingerCount(int count) {
+    renderState.stingerCount = count;
+    return this;
   }
 
   /**
@@ -915,6 +942,86 @@ public class FancyPlayerWidget extends AbstractWidget {
   }
 
   /**
+   * Sets the attack time for the attack animation.<br>
+   * Value must be {@code >= 0}.
+   *
+   * @param attackTime attack time animation.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setAttackTime(float attackTime) {
+    if (attackTime >= 0) {
+      renderState.attackTime = attackTime % 1;
+    }
+    return this;
+  }
+
+  /**
+   * Sets the attack arm for the attack animation.
+   *
+   * @param attackArm attack arm.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setAttackArm(HumanoidArm attackArm) {
+    renderState.attackArm = attackArm;
+    return this;
+  }
+
+  /**
+   * Fully mimics the local player.<br>
+   * If you want to undo the mimicking, use {@link #unmimicPlayer()}.<br>
+   * Overrides almost every other property.
+   *
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget mimicLocalPlayer() {
+    return mimicPlayer(Minecraft.getInstance().player);
+  }
+
+  /**
+   * Fully mimics the given client player.<br>
+   * If you want to undo the mimicking, use {@link #unmimicPlayer()}.<br>
+   * Overrides almost every other property.
+   *
+   * @param player player to mimic.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget mimicPlayer(@Nullable AbstractClientPlayer player) {
+    renderState.mimickedPlayer = player;
+    return this;
+  }
+
+  /**
+   * Stops the widget from currently mimicking a player.
+   *
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget unmimicPlayer() {
+    renderState.mimickedPlayer = null;
+    return this;
+  }
+
+  /**
+   * Returns whether the widget is currently mimicking a player.
+   *
+   * @return whether the widget is mimicking a player
+   */
+  public boolean isMimickingPlayer() {
+    return renderState.mimickedPlayer != null;
+  }
+
+  /**
+   * Sets the allowed poses for when mimicking a player.<br>
+   * Effective only when mimicking a player.
+   *
+   * @param poses list of allowed poses.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setAllowedPoses(List<Pose> poses) {
+    renderState.allowedPoses = poses;
+    return this;
+  }
+
+  /**
    * Safely checks and returns the {@link ItemStack} to use as wearable.
    *
    * @param item item data.
@@ -944,7 +1051,7 @@ public class FancyPlayerWidget extends AbstractWidget {
   }
 
   /**
-   * Copies a player from its profile name.<br>
+   * Copies a player's model from its profile name.<br>
    * Verify that the copy was successful by calling {@link #isCopyingPlayer()}.
    *
    * @param profileName profile name.
@@ -955,7 +1062,7 @@ public class FancyPlayerWidget extends AbstractWidget {
   }
 
   /**
-   * Copies a player from its UUID.<br>
+   * Copies a player's model from its UUID.<br>
    * Verify that the copy was successful by calling {@link #isCopyingPlayer()}.
    *
    * @param profileId profile UUID.
@@ -1050,10 +1157,8 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @param mouseY mouse y coordinate.
    * @param partialTick partial tick.
    */
-  private void updateRenderState(int x, int y, int width, int height, int mouseX, int mouseY, float partialTick) {
-    renderState.boundingBoxWidth = height / PLAYER_SIZE_RATIO;
-    renderState.boundingBoxHeight = height;
-    renderState.scale = height / PLAYER_RENDER_HEIGHT;
+  protected void updateRenderState(int x, int y, int width, int height, int mouseX, int mouseY, float partialTick) {
+    renderState.updateScale(height);
     if (renderState.bodyFollowsMouse || renderState.headFollowsMouse) {
       float renderHeight = renderState.pose == Pose.CROUCHING ? Player.CROUCH_BB_HEIGHT : PLAYER_RENDER_HEIGHT;
       float eyeHeight = renderState.pose == Pose.CROUCHING ? PLAYER_CROUCHING_EYE_HEIGHT : Player.DEFAULT_EYE_HEIGHT;
