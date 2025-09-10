@@ -62,8 +62,6 @@ public class FancyPlayerRenderer extends PlayerRenderer {
   public FancyPlayerRenderer(FancyPlayerRenderState state, boolean isSlim) {
     super(RENDER_CONTEXT, isSlim);
     entityRenderDispatcher.overrideCameraOrientation(new Quaternionf());
-    entityRenderDispatcher.setRenderShadow(false);
-    entityRenderDispatcher.setRenderHitBoxes(false);
     adultModel = new FancyPlayerModel(RENDER_CONTEXT.getModelSet(), isSlim, false);
     babyModel = new FancyPlayerModel(RENDER_CONTEXT.getModelSet(), isSlim, true);
     model = adultModel;
@@ -92,8 +90,7 @@ public class FancyPlayerRenderer extends PlayerRenderer {
   }
 
   /**
-   * Renders the player model.<br>
-   * Called after {@link #render(PoseStack, MultiBufferSource, int)}.
+   * Renders the player model.
    *
    * @param state render state.
    * @param poseStack pose stack.
@@ -104,19 +101,6 @@ public class FancyPlayerRenderer extends PlayerRenderer {
   public void render(@NotNull PlayerRenderState state, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight) {
     model = state.isBaby ? babyModel : adultModel;
     super.render(state, poseStack, bufferSource, packedLight);
-  }
-
-  /**
-   * Renders the player model.
-   *
-   * @param poseStack pose stack.
-   * @param bufferSource buffer source.
-   * @param packedLight packed light.
-   */
-  public void render(@NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight) {
-    entityRenderDispatcher.overrideCameraOrientation(new Quaternionf().rotateXYZ(-state().bodyRot.getX(), state().bodyRot.getY(), -state().bodyRot.getZ()));
-    // noinspection DataFlowIssue: Entity is null, but it won't get used anyway because extractRenderState was overridden.
-    entityRenderDispatcher.render(null, 0, 0, 0, 0, poseStack, bufferSource, packedLight, this);
   }
 
   /**

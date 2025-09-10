@@ -1,10 +1,8 @@
 package it.crystalnest.fancy_entity_renderer.api.entity.player;
 
 import com.mojang.authlib.GameProfile;
-import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.math.Axis;
 import it.crystalnest.fancy_entity_renderer.Constants;
 import it.crystalnest.fancy_entity_renderer.api.Rotation;
 import it.crystalnest.fancy_entity_renderer.api.entity.RenderMode;
@@ -15,7 +13,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.client.sounds.SoundManager;
@@ -34,6 +31,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 import java.util.Optional;
 import java.util.Random;
@@ -130,9 +128,8 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @param partialTick partial tick.
    */
   @Override
-  protected void renderWidget(GuiGraphics gfx, int mouseX, int mouseY, float partialTick) {
+  protected void renderWidget(@NotNull GuiGraphics gfx, int mouseX, int mouseY, float partialTick) {
     updateRenderState(getX(), getY(), getWidth(), getHeight(), mouseX, mouseY, partialTick);
-    gfx.pose().pushPose();
     float offsetX = 0;
     float offsetY = (float) renderer.getRenderOffset(renderState).y;
     if (renderState.pose == Pose.SLEEPING) {
@@ -144,14 +141,18 @@ public class FancyPlayerWidget extends AbstractWidget {
         offsetY /= 1.5F;
       }
     }
-    gfx.pose().translate(getX() + getWidth() / 2F + offsetX, getY() + getHeight() + offsetY, 100);
-    gfx.flush();
-    gfx.pose().scale(1, -1, 1);
-    Lighting.setupForEntityInInventory(Axis.XP.rotationDegrees(renderState.bodyRot.getX()));
-    gfx.pose().rotateAround(new Quaternionf().rotateXYZ(renderState.bodyRot.getX(), -renderState.bodyRot.getY(), renderState.bodyRot.getZ()), 0, 0, 0);
-    gfx.drawSpecial(bufferSource -> renderer.render(gfx.pose(), bufferSource, LightTexture.FULL_BRIGHT));
-    gfx.flush();
-    gfx.pose().popPose();
+    renderState.renderer = renderer;
+    gfx.submitEntityRenderState(
+      renderState,
+      1,
+      new Vector3f(offsetX - (Minecraft.getInstance().getWindow().getGuiScaledWidth() - getWidth()) / 2F + getX(), offsetY - Minecraft.getInstance().getWindow().getGuiScaledHeight() / 2F + getY() + getHeight(), 0),
+      new Quaternionf().rotateXYZ(renderState.bodyRot.getX(), -renderState.bodyRot.getY(), renderState.bodyRot.getZ()),
+      new Quaternionf().rotateXYZ(-renderState.bodyRot.getX(), renderState.bodyRot.getY(), -renderState.bodyRot.getZ()),
+      0,
+      0,
+      Minecraft.getInstance().getWindow().getGuiScaledWidth(),
+      Minecraft.getInstance().getWindow().getGuiScaledHeight()
+    );
   }
 
   /**
