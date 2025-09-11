@@ -4,12 +4,17 @@ import it.crystalnest.fancy_entity_renderer.api.Rotation;
 import it.crystalnest.fancy_entity_renderer.api.entity.player.FancyPlayerRenderer;
 import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * Extension of {@link PlayerRenderState}.
  */
 public class FancyPlayerRenderState extends PlayerRenderState {
+  /**
+   * Internal {@link FancyPlayerRenderer} reference.
+   */
+  @ApiStatus.Internal
   public FancyPlayerRenderer renderer = null;
 
   /**

@@ -145,7 +145,11 @@ public class FancyPlayerWidget extends AbstractWidget {
     gfx.submitEntityRenderState(
       renderState,
       1,
-      new Vector3f(offsetX - (Minecraft.getInstance().getWindow().getGuiScaledWidth() - getWidth()) / 2F + getX(), offsetY - Minecraft.getInstance().getWindow().getGuiScaledHeight() / 2F + getY() + getHeight(), 0),
+      new Vector3f(
+        offsetX - (Minecraft.getInstance().getWindow().getGuiScaledWidth() - getWidth()) / 2F + getX(),
+        offsetY - Minecraft.getInstance().getWindow().getGuiScaledHeight() / 2F + getY() + getHeight(),
+        0
+      ),
       new Quaternionf().rotateXYZ(renderState.bodyRot.getX(), -renderState.bodyRot.getY(), renderState.bodyRot.getZ()),
       new Quaternionf().rotateXYZ(-renderState.bodyRot.getX(), renderState.bodyRot.getY(), -renderState.bodyRot.getZ()),
       0,
