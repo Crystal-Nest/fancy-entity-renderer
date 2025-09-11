@@ -15,7 +15,5 @@ public final class ModLoader {
    *
    * @param bus Event bus.
    */
-  public ModLoader(IEventBus bus) {
-    CommonModLoader.init();
-  }
+  public ModLoader(IEventBus bus) {}
 }
