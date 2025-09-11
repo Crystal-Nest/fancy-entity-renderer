@@ -8,7 +8,11 @@ and this project adheres to [Crystal Nest Semantic Versioning](https://crystalne
 ## [Unreleased]
 
 - Unfinished port to 1.21/1.21.1.
-- Unfinished port to 1.21.6/1.21.7/1.21.8.
+
+## [v0.3.5] - 2025/09/11
+
+- Fixed a bug with NeoForge that prevented the game to load correctly.
+- Ported to 1.21.6, 1.21.7, and 1.21.8.
 
 ## [v0.3.4] - 2025/08/30
 
@@ -79,6 +83,7 @@ and this project adheres to [Crystal Nest Semantic Versioning](https://crystalne
 [Unreleased]: https://github.com/crystal-nest/fancy-entity-renderer
 [README]: https://github.com/crystal-nest/fancy-entity-renderer#readme
 
+[v0.3.5]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.3.5
 [v0.3.4]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.3.4
 [v0.3.3]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.3.3
 [v0.3.2]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.3.2
