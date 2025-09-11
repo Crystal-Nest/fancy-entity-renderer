@@ -9,7 +9,5 @@ import org.jetbrains.annotations.ApiStatus;
 @ApiStatus.Internal
 public final class ModLoader implements ModInitializer {
   @Override
-  public void onInitialize() {
-    CommonModLoader.init();
-  }
+  public void onInitialize() {}
 }
