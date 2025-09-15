@@ -15,7 +15,7 @@ public abstract class EntityRenderDispatcherMixin {
   @Inject(method = "getRenderer", at = @At(value = "HEAD"), cancellable = true)
   private <T extends Entity> void getRenderer(final Entity entity, final CallbackInfoReturnable<EntityRenderer<? super T>> cir) {
     if (entity instanceof FancyPlayerMock player) {
-      cir.setReturnValue((EntityRenderer<? super T>) (player.isSlim() ? FancyPlayerRenderer.SLIM_RENDERER : FancyPlayerRenderer.WIDE_RENDERER));
+      cir.setReturnValue((EntityRenderer<? super T>) (player.isSlim ? FancyPlayerRenderer.SLIM_RENDERER : FancyPlayerRenderer.WIDE_RENDERER));
     }
   }
 }

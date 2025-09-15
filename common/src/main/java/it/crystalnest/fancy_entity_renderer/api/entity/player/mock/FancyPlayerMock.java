@@ -2,9 +2,12 @@ package it.crystalnest.fancy_entity_renderer.api.entity.player.mock;
 
 import com.mojang.authlib.GameProfile;
 import it.crystalnest.fancy_entity_renderer.api.Rotation;
+import it.crystalnest.fancy_entity_renderer.api.entity.player.FancyPlayerWidget;
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.resources.PlayerSkin;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.animal.Parrot;
 import net.minecraft.world.item.ItemStack;
@@ -12,9 +15,12 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class FancyPlayerMock extends AbstractClientPlayer {
   public FancyPlayerMock(GameProfile gameProfile) {
-    super(new FancyLevelMock(), gameProfile);
+    super(new FancyLevelMock(gameProfile), gameProfile);
   }
 
   public boolean isBaby;
@@ -155,4 +161,45 @@ public class FancyPlayerMock extends AbstractClientPlayer {
   public PlayerSkin skin;
 
   public boolean showCape;
+
+  public int arrowCount;
+
+  public int stingerCount;
+
+  public float attackTime;
+
+  public HumanoidArm attackArm;
+
+  /**
+   * Player to mimic when mimicking a player.
+   */
+  @Nullable
+  public AbstractClientPlayer mimickedPlayer;
+
+  /**
+   * Allowed poses when mimicking a player.
+   */
+  public List<Pose> allowedPoses = new ArrayList<>();
+
+  /**
+   * Updates the scale and bounding box properties from the given height value.
+   *
+   * @param height height.
+   */
+  public void updateScale(float height) {
+    boundingBoxHeight = height;
+    boundingBoxWidth = height / FancyPlayerWidget.PLAYER_SIZE_RATIO;
+    scale = height / FancyPlayerWidget.PLAYER_RENDER_HEIGHT;
+  }
+
+  @Override
+  public float getScale() {
+    return scale;
+  }
+
+  @Nullable
+  @Override
+  protected PlayerInfo getPlayerInfo() {
+    return null;
+  }
 }

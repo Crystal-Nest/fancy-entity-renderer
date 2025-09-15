@@ -18,6 +18,9 @@
   "entrypoints": {
     "main": [
       "${group}.${mod_id}.ModLoader"
+    ],
+    "client": [
+      "${group}.${mod_id}.ClientModLoader"
     ]
   },
   "accessWidener": "${mod_id}.accesswidener",

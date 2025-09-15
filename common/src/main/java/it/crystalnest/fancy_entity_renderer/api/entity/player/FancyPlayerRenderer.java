@@ -2,7 +2,6 @@ package it.crystalnest.fancy_entity_renderer.api.entity.player;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import it.crystalnest.fancy_entity_renderer.api.entity.player.layer.FancyCapeLayer;
 import it.crystalnest.fancy_entity_renderer.api.entity.player.mock.FancyPlayerMock;
 import it.crystalnest.fancy_entity_renderer.api.entity.player.model.FancyPlayerModel;
 import net.minecraft.client.Minecraft;
@@ -12,15 +11,12 @@ import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.entity.layers.CapeLayer;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemDisplayContext;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
@@ -29,9 +25,6 @@ import org.joml.Quaternionf;
  * Custom player renderer.
  */
 public class FancyPlayerRenderer extends PlayerRenderer {
-  public static final FancyPlayerRenderer SLIM_RENDERER = new FancyPlayerRenderer(true);
-
-  public static final FancyPlayerRenderer WIDE_RENDERER = new FancyPlayerRenderer(false);
 
   /**
    * Render context.
@@ -45,6 +38,10 @@ public class FancyPlayerRenderer extends PlayerRenderer {
     Minecraft.getInstance().getEntityModels(),
     Minecraft.getInstance().font
   );
+
+  public static final FancyPlayerRenderer SLIM_RENDERER = new FancyPlayerRenderer(true);
+
+  public static final FancyPlayerRenderer WIDE_RENDERER = new FancyPlayerRenderer(false);
 
   /**
    * Adult player model.
@@ -76,7 +73,7 @@ public class FancyPlayerRenderer extends PlayerRenderer {
 //        new HumanoidArmorModel<>(FancyPlayerModel.getBabyArmorModel(false)),
         RENDER_CONTEXT.getModelManager()
       );
-      case CapeLayer l -> new FancyCapeLayer(this, RENDER_CONTEXT.getModelSet(), RENDER_CONTEXT.getModelManager());
+//      case CapeLayer l -> new FancyCapeLayer(this, RENDER_CONTEXT.getModelSet(), RENDER_CONTEXT.getModelManager());
       default -> layer;
     });
   }
@@ -95,7 +92,7 @@ public class FancyPlayerRenderer extends PlayerRenderer {
   @Override
   public void render(@NotNull AbstractClientPlayer entity, float entityYaw, float partialTicks, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight) {
     model = ((FancyPlayerMock) entity).isBaby ? babyModel : adultModel;
-    extractRenderState();
+//    extractRenderState();
     super.render(entity, entityYaw, partialTicks, poseStack, bufferSource, packedLight);
   }
 
@@ -124,7 +121,7 @@ public class FancyPlayerRenderer extends PlayerRenderer {
   @Override
   protected void renderNameTag(@NotNull AbstractClientPlayer entity, @NotNull Component nameTag, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight, float partialTick) {
     FancyPlayerMock player = (FancyPlayerMock) entity;
-    if (player.showPlayerName && !player.isInvisibleTo(null)) {
+    if (player.showPlayerName) { // && !player.isInvisibleTo(null)
       float scale = player.scale * NAMETAG_SCALE;
       Font font = getFont();
       poseStack.pushPose();
@@ -154,31 +151,62 @@ public class FancyPlayerRenderer extends PlayerRenderer {
    * @param partialTick partial tick.
    */
   public void extractRenderState(@Nullable AbstractClientPlayer entity, @NotNull FancyPlayerMock renderState, float partialTick) {
-    FancyPlayerRenderState state = state();
-    renderState.eyeHeight = Player.POSES.get(state.pose).eyeHeight();
-    renderState.isDiscrete = state.isCrouching || state.isInvisible;
-    if (state.isMoving && state.pose != Pose.DYING) {
-      float step = renderState.speedValue * 0.33F;
-      renderState.ageInTicks += step;
-      renderState.walkAnimationPos += step;
-    } else {
-      renderState.ageInTicks = 3000;
-      renderState.walkAnimationPos = 0;
-    }
-    renderState.nameTag = Component.literal(state.name);
-    if (state.pose == Pose.SLEEPING) {
-      renderState.nameTagAttachment = new Vec3(Player.POSES.get(state.pose).eyeHeight() * state.scale - state.boundingBoxHeight / 1.35F, 0, 0);
-    } else {
-      renderState.nameTagAttachment = new Vec3(0, 0.25F * state.scale, 0);
-    }
-    if (state.rightHandHeldItem != null) {
-      Minecraft.getInstance().getItemModelResolver().updateForTopItem(state.rightHandItem, state.rightHandHeldItem, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, false, null, null, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND.ordinal());
-    }
-    if (state.leftHandHeldItem != null) {
-      Minecraft.getInstance().getItemModelResolver().updateForTopItem(state.leftHandItem, state.leftHandHeldItem, ItemDisplayContext.THIRD_PERSON_LEFT_HAND, true, null, null, ItemDisplayContext.THIRD_PERSON_LEFT_HAND.ordinal());
-    }
-    renderState.elytraRotX = (float) (Math.PI / 16);
-    renderState.elytraRotZ = (float) (Math.PI / 10);
+//    FancyPlayerRenderState state = state();
+//    if (state.mimickedPlayer != null) {
+//      float height = state.boundingBoxHeight;
+//      boolean isBaby = state.isBaby, isUpsideDown = state.isUpsideDown;
+//      super.extractRenderState(state.mimickedPlayer, renderState, partialTick);
+//      ((FancyPlayerRenderState) renderState).updateScale(height);
+//      renderState.bodyRot = 0;
+//      if (!state.allowedPoses.contains(renderState.pose)) {
+//        renderState.pose = Pose.STANDING;
+//      }
+//      renderState.isFallFlying = renderState.pose == Pose.FALL_FLYING;
+//      renderState.isAutoSpinAttack = renderState.pose == Pose.SPIN_ATTACK;
+//      renderState.isCrouching = renderState.pose == Pose.CROUCHING;
+//      renderState.isVisuallySwimming = renderState.pose == Pose.SWIMMING;
+//      if (!renderState.isVisuallySwimming) {
+//        renderState.swimAmount = 0;
+//      }
+//      renderState.hasRedOverlay = renderState.pose == Pose.DYING;
+//      if (!renderState.hasRedOverlay) {
+//        renderState.deathTime = 0;
+//      }
+//      if (renderState.pose != Pose.STANDING && renderState.pose != Pose.CROUCHING) {
+//        renderState.displayFireAnimation = false;
+//      }
+//      if (renderState.pose == Pose.SWIMMING) {
+//        renderState.parrotOnLeftShoulder = null;
+//        renderState.parrotOnRightShoulder = null;
+//      }
+//      renderState.isBaby = isBaby;
+//      renderState.isUpsideDown = isUpsideDown;
+//    } else {
+//      renderState.eyeHeight = Player.POSES.get(state.pose).eyeHeight();
+//      renderState.isDiscrete = state.isCrouching || state.isInvisible;
+//      if (state.isMoving && state.pose != Pose.DYING) {
+//        float step = renderState.speedValue * 0.33F;
+//        renderState.ageInTicks += step;
+//        renderState.walkAnimationPos += step;
+//      } else {
+//        renderState.ageInTicks = 3000;
+//        renderState.walkAnimationPos = 0;
+//      }
+//      renderState.nameTag = Component.literal(state.name);
+//      if (state.pose == Pose.SLEEPING) {
+//        renderState.nameTagAttachment = new Vec3(Player.POSES.get(state.pose).eyeHeight() * state.scale - state.boundingBoxHeight / 1.35F, 0, 0);
+//      } else {
+//        renderState.nameTagAttachment = new Vec3(0, 0.25F * state.scale, 0);
+//      }
+//      if (state.rightHandHeldItem != null) {
+//        itemModelResolver.updateForTopItem(state.rightHandItem, state.rightHandHeldItem, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, null, null, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND.ordinal());
+//      }
+//      if (state.leftHandHeldItem != null) {
+//        itemModelResolver.updateForTopItem(state.leftHandItem, state.leftHandHeldItem, ItemDisplayContext.THIRD_PERSON_LEFT_HAND, null, null, ItemDisplayContext.THIRD_PERSON_LEFT_HAND.ordinal());
+//      }
+//      renderState.elytraRotX = (float) (Math.PI / 16);
+//      renderState.elytraRotZ = (float) (Math.PI / 10);
+//    }
   }
 
   /**
@@ -206,5 +234,10 @@ public class FancyPlayerRenderer extends PlayerRenderer {
         poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
       }
     }
+  }
+
+  @Override
+  protected boolean shouldShowName(@NotNull AbstractClientPlayer entity) {
+    return true;
   }
 }

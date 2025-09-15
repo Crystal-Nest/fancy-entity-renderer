@@ -1,5 +1,6 @@
 package it.crystalnest.fancy_entity_renderer.api.entity.player.mock;
 
+import com.mojang.authlib.GameProfile;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.Holder;
@@ -13,9 +14,9 @@ import net.minecraft.world.level.dimension.DimensionType;
 import java.util.OptionalLong;
 
 public class FancyLevelMock extends ClientLevel {
-  public FancyLevelMock() {
+  public FancyLevelMock(GameProfile gameProfile) {
     super(
-      new FancyPacketListenerMock(),
+      new FancyPacketListenerMock(gameProfile),
       new ClientLevelData(Difficulty.PEACEFUL, false, false),
       Level.OVERWORLD,
       Holder.direct(

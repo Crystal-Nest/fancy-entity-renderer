@@ -17,6 +17,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.client.resources.PlayerSkin;
@@ -26,6 +27,7 @@ import net.minecraft.commands.arguments.item.ItemParser;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.animal.Parrot;
 import net.minecraft.world.entity.player.Player;
@@ -37,6 +39,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
@@ -65,22 +68,22 @@ public class FancyPlayerWidget extends AbstractWidget {
   /**
    * Global render state.
    */
-  private final FancyPlayerMock renderState = new FancyPlayerMock(new GameProfile(Util.NIL_UUID, "Steve"));
+  private final FancyPlayerMock renderState = new FancyPlayerMock(new GameProfile(Util.NIL_UUID, "FancyMock"));
 
   /**
    * Renderer for the wide player model.
    */
-  private final FancyPlayerRenderer wideRenderer = new FancyPlayerRenderer(false);
-
-  /**
-   * Renderer for the slim player model.
-   */
-  private final FancyPlayerRenderer slimRenderer = new FancyPlayerRenderer(true);
+//  private final FancyPlayerRenderer wideRenderer = new FancyPlayerRenderer(false);
+//
+//  /**
+//   * Renderer for the slim player model.
+//   */
+//  private final FancyPlayerRenderer slimRenderer = new FancyPlayerRenderer(true);
 
   /**
    * Current player renderer.
    */
-  private FancyPlayerRenderer renderer = renderState.isSlim ? slimRenderer : wideRenderer;
+  private FancyPlayerRenderer renderer = renderState.isSlim ? FancyPlayerRenderer.SLIM_RENDERER : FancyPlayerRenderer.WIDE_RENDERER;
 
   /**
    * Memory for overridable render state properties.
@@ -390,7 +393,7 @@ public class FancyPlayerWidget extends AbstractWidget {
     properties.isSlim = isSlim;
     if (!renderState.copyingPlayer && properties.skin == null) {
       updateIsSlim(properties.isSlim);
-      renderer = isSlim ? slimRenderer : wideRenderer;
+      renderer = isSlim ? FancyPlayerRenderer.SLIM_RENDERER : FancyPlayerRenderer.WIDE_RENDERER;
     }
     return this;
   }
@@ -541,6 +544,30 @@ public class FancyPlayerWidget extends AbstractWidget {
       Services.COMPAT.setOnFire(renderState, fireType);
     }
     return setOnFire(onFire);
+  }
+
+  /**
+   * Sets the amount of arrows stuck into the player's body.<br>
+   * Arrow positions are randomly generated.
+   *
+   * @param count amount of arrows.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setArrowCount(int count) {
+    renderState.arrowCount = count;
+    return this;
+  }
+
+  /**
+   * Sets the amount of stingers stuck into the player's body.<br>
+   * Arrow positions are randomly generated.
+   *
+   * @param count amount of stingers.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setStingerCount(int count) {
+    renderState.stingerCount = count;
+    return this;
   }
 
   /**
@@ -917,6 +944,86 @@ public class FancyPlayerWidget extends AbstractWidget {
   }
 
   /**
+   * Sets the attack time for the attack animation.<br>
+   * Value must be {@code >= 0}.
+   *
+   * @param attackTime attack time animation.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setAttackTime(float attackTime) {
+    if (attackTime >= 0) {
+      renderState.attackTime = attackTime % 1;
+    }
+    return this;
+  }
+
+  /**
+   * Sets the attack arm for the attack animation.
+   *
+   * @param attackArm attack arm.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setAttackArm(HumanoidArm attackArm) {
+    renderState.attackArm = attackArm;
+    return this;
+  }
+
+  /**
+   * Fully mimics the local player.<br>
+   * If you want to undo the mimicking, use {@link #unmimicPlayer()}.<br>
+   * Overrides almost every other property.
+   *
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget mimicLocalPlayer() {
+    return mimicPlayer(Minecraft.getInstance().player);
+  }
+
+  /**
+   * Fully mimics the given client player.<br>
+   * If you want to undo the mimicking, use {@link #unmimicPlayer()}.<br>
+   * Overrides almost every other property.
+   *
+   * @param player player to mimic.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget mimicPlayer(@Nullable AbstractClientPlayer player) {
+    renderState.mimickedPlayer = player;
+    return this;
+  }
+
+  /**
+   * Stops the widget from currently mimicking a player.
+   *
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget unmimicPlayer() {
+    renderState.mimickedPlayer = null;
+    return this;
+  }
+
+  /**
+   * Returns whether the widget is currently mimicking a player.
+   *
+   * @return whether the widget is mimicking a player
+   */
+  public boolean isMimickingPlayer() {
+    return renderState.mimickedPlayer != null;
+  }
+
+  /**
+   * Sets the allowed poses for when mimicking a player.<br>
+   * Effective only when mimicking a player.
+   *
+   * @param poses list of allowed poses.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setAllowedPoses(List<Pose> poses) {
+    renderState.allowedPoses = poses;
+    return this;
+  }
+
+  /**
    * Safely checks and returns the {@link ItemStack} to use as wearable.
    *
    * @param item item data.
@@ -1032,7 +1139,7 @@ public class FancyPlayerWidget extends AbstractWidget {
     } else {
       updateIsSlim(properties.isSlim);
     }
-    renderer = renderState.isSlim ? slimRenderer : wideRenderer;
+    renderer = renderState.isSlim ? FancyPlayerRenderer.SLIM_RENDERER : FancyPlayerRenderer.WIDE_RENDERER;
   }
 
   /**
