@@ -13,6 +13,7 @@ import net.minecraft.world.level.dimension.DimensionType;
 
 import java.util.OptionalLong;
 
+@SuppressWarnings("DataFlowIssue")
 public class FancyLevelMock extends ClientLevel {
   public FancyLevelMock(GameProfile gameProfile) {
     super(

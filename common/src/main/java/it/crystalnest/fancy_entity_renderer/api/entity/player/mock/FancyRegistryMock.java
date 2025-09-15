@@ -1,0 +1,207 @@
+package it.crystalnest.fancy_entity_renderer.api.entity.player.mock;
+
+import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Lifecycle;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.HolderOwner;
+import net.minecraft.core.HolderSet;
+import net.minecraft.core.RegistrationInfo;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
+import net.minecraft.util.RandomSource;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Stream;
+
+@SuppressWarnings({"DataFlowIssue", "unchecked"})
+public class FancyRegistryMock<T> implements Registry<T> {
+  private final ResourceKey<? extends Registry<T>> key;
+
+  public FancyRegistryMock(ResourceKey<? extends Registry<? extends T>> key) {
+    this.key = (ResourceKey<? extends Registry<T>>) key;
+  }
+
+  @Override
+  public Holder.@NotNull Reference<T> getHolderOrThrow(@NotNull ResourceKey<T> key) {
+    return Holder.Reference.createStandAlone(null, null);
+  }
+
+  @NotNull
+  @Override
+  public Iterator<T> iterator() {
+    return null;
+  }
+
+  @Override
+  public @NotNull ResourceKey<? extends Registry<T>> key() {
+    return key;
+  }
+
+  @Nullable
+  @Override
+  public ResourceLocation getKey(@NotNull T key) {
+    return null;
+  }
+
+  @Override
+  public @NotNull Optional<ResourceKey<T>> getResourceKey(@NotNull T key) {
+    return Optional.empty();
+  }
+
+  @Override
+  public int getId(@Nullable T key) {
+    return 0;
+  }
+
+  @Nullable
+  @Override
+  public T byId(int i) {
+    return null;
+  }
+
+  @Override
+  public int size() {
+    return 0;
+  }
+
+  @Nullable
+  @Override
+  public T get(@Nullable ResourceKey<T> resourceKey) {
+    return null;
+  }
+
+  @Nullable
+  @Override
+  public T get(@Nullable ResourceLocation resourceLocation) {
+    return null;
+  }
+
+  @Override
+  public @NotNull Optional<RegistrationInfo> registrationInfo(@NotNull ResourceKey<T> resourceKey) {
+    return Optional.empty();
+  }
+
+  @Override
+  public @NotNull Lifecycle registryLifecycle() {
+    return null;
+  }
+
+  @Override
+  public @NotNull Optional<Holder.Reference<T>> getAny() {
+    return Optional.empty();
+  }
+
+  @Override
+  public @NotNull Set<ResourceLocation> keySet() {
+    return Set.of();
+  }
+
+  @Override
+  public @NotNull Set<Map.Entry<ResourceKey<T>, T>> entrySet() {
+    return Set.of();
+  }
+
+  @Override
+  public @NotNull Set<ResourceKey<T>> registryKeySet() {
+    return Set.of();
+  }
+
+  @Override
+  public @NotNull Optional<Holder.Reference<T>> getRandom(@NotNull RandomSource randomSource) {
+    return Optional.empty();
+  }
+
+  @Override
+  public boolean containsKey(@NotNull ResourceLocation resourceLocation) {
+    return false;
+  }
+
+  @Override
+  public boolean containsKey(@NotNull ResourceKey<T> resourceKey) {
+    return false;
+  }
+
+  @Override
+  public @NotNull Registry<T> freeze() {
+    return this;
+  }
+
+  @Override
+  public Holder.@NotNull Reference<T> createIntrusiveHolder(@NotNull T key) {
+    return null;
+  }
+
+  @Override
+  public @NotNull Optional<Holder.Reference<T>> getHolder(int i) {
+    return Optional.empty();
+  }
+
+  @Override
+  public @NotNull Optional<Holder.Reference<T>> getHolder(@NotNull ResourceLocation resourceLocation) {
+    return Optional.empty();
+  }
+
+  @Override
+  public @NotNull Optional<Holder.Reference<T>> getHolder(@NotNull ResourceKey<T> resourceKey) {
+    return Optional.empty();
+  }
+
+  @Override
+  public @NotNull Holder<T> wrapAsHolder(@NotNull T key) {
+    return null;
+  }
+
+  @Override
+  public @NotNull Stream<Holder.Reference<T>> holders() {
+    return Stream.empty();
+  }
+
+  @Override
+  public @NotNull Optional<HolderSet.Named<T>> getTag(@NotNull TagKey<T> tagKey) {
+    return Optional.empty();
+  }
+
+  @Override
+  public HolderSet.@NotNull Named<T> getOrCreateTag(@NotNull TagKey<T> tagKey) {
+    return null;
+  }
+
+  @Override
+  public @NotNull Stream<Pair<TagKey<T>, HolderSet.Named<T>>> getTags() {
+    return Stream.empty();
+  }
+
+  @Override
+  public @NotNull Stream<TagKey<T>> getTagNames() {
+    return Stream.empty();
+  }
+
+  @Override
+  public void resetTags() {
+
+  }
+
+  @Override
+  public void bindTags(@NotNull Map<TagKey<T>, List<Holder<T>>> map) {
+
+  }
+
+  @Override
+  public @NotNull HolderOwner<T> holderOwner() {
+    return null;
+  }
+
+  @Override
+  public HolderLookup.@NotNull RegistryLookup<T> asLookup() {
+    return null;
+  }
+}
