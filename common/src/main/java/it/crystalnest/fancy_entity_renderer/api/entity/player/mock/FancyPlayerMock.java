@@ -7,11 +7,12 @@ import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.resources.PlayerSkin;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.animal.Parrot;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,6 +29,36 @@ public class FancyPlayerMock extends AbstractClientPlayer {
   @Override
   public boolean isBaby() {
     return isBaby;
+  }
+
+  @Override
+  public boolean isSpectator() {
+    return isSpectator;
+  }
+
+  @Override
+  public boolean isInvisibleTo(@NotNull Player player) {
+    return isInvisibleToPlayer;
+  }
+
+  @Override
+  public boolean isInvisible() {
+    return isInvisible;
+  }
+
+  @Override
+  public boolean displayFireAnimation() {
+    return displayFireAnimation;
+  }
+
+  @Override
+  public @NotNull Component getName() {
+    return Component.literal(name);
+  }
+
+  @Override
+  public @NotNull PlayerSkin getSkin() {
+    return skin;
   }
 
   /**
@@ -118,9 +149,6 @@ public class FancyPlayerMock extends AbstractClientPlayer {
 
   public float boundingBoxWidth;
 
-  @NotNull
-  public Vec3 nameTagAttachment = Vec3.ZERO;
-
   public boolean isUpsideDown;
 
   public boolean isDiscrete;
@@ -161,10 +189,6 @@ public class FancyPlayerMock extends AbstractClientPlayer {
   public PlayerSkin skin;
 
   public boolean showCape;
-
-  public int arrowCount;
-
-  public int stingerCount;
 
   public float attackTime;
 

@@ -4,10 +4,13 @@
   "package": "${group}.${mod_id}.mixin",
   "refmap": "${mod_id}.refmap.json",
   "compatibilityLevel": "JAVA_${java_version}",
-  "mixins": [],
+  "mixins": [
+    "EntityMixin"
+  ],
   "client": [
     "client.EntityRenderDispatcherMixin",
-    "client.GuiGraphicsMixin"
+    "client.GuiGraphicsMixin",
+    "client.LivingEntityRendererMixin"
   ],
   "server": [],
   "injectors": {

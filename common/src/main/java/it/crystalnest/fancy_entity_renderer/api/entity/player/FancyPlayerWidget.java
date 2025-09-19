@@ -68,22 +68,12 @@ public class FancyPlayerWidget extends AbstractWidget {
   /**
    * Global render state.
    */
-  private final FancyPlayerMock renderState = new FancyPlayerMock(new GameProfile(Util.NIL_UUID, "FancyMock"));
+  protected final FancyPlayerMock renderState = new FancyPlayerMock(new GameProfile(Util.NIL_UUID, "FancyMock"));
 
   /**
-   * Renderer for the wide player model.
+   * Random source.
    */
-//  private final FancyPlayerRenderer wideRenderer = new FancyPlayerRenderer(false);
-//
-//  /**
-//   * Renderer for the slim player model.
-//   */
-//  private final FancyPlayerRenderer slimRenderer = new FancyPlayerRenderer(true);
-
-  /**
-   * Current player renderer.
-   */
-  private FancyPlayerRenderer renderer = renderState.isSlim ? FancyPlayerRenderer.SLIM_RENDERER : FancyPlayerRenderer.WIDE_RENDERER;
+  protected final Random random = new Random();
 
   /**
    * Memory for overridable render state properties.
@@ -91,9 +81,9 @@ public class FancyPlayerWidget extends AbstractWidget {
   private final OverridableProperties properties = new OverridableProperties(renderState.name);
 
   /**
-   * Random source.
+   * Current player renderer.
    */
-  private final Random random = new Random();
+  protected FancyPlayerRenderer renderer = renderState.isSlim ? FancyPlayerRenderer.SLIM_RENDERER : FancyPlayerRenderer.WIDE_RENDERER;
 
   /**
    * @param x x coordinate on the screen.
@@ -137,6 +127,7 @@ public class FancyPlayerWidget extends AbstractWidget {
   @Override
   protected void renderWidget(GuiGraphics gfx, int mouseX, int mouseY, float partialTick) {
     updateRenderState(getX(), getY(), getWidth(), getHeight(), mouseX, mouseY, partialTick);
+    gfx.renderOutline(getX(), getY(), getWidth(), getHeight(), -6250336);
     gfx.pose().pushPose();
     float offsetX = 0;
     float offsetY = (float) renderer.getRenderOffset(renderState, 0).y;
@@ -554,7 +545,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setArrowCount(int count) {
-    renderState.arrowCount = count;
+    renderState.setArrowCount(count);
     return this;
   }
 
@@ -566,7 +557,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setStingerCount(int count) {
-    renderState.stingerCount = count;
+    renderState.setStingerCount(count);
     return this;
   }
 
@@ -1200,31 +1191,31 @@ public class FancyPlayerWidget extends AbstractWidget {
   private static final class OverridableProperties {
     /**
      * Head rotation.<br>
-     * Overridable by {@link FancyPlayerRenderState#headFollowsMouse headFollowsMouse}.
+     * Overridable by {@link FancyPlayerMock#headFollowsMouse headFollowsMouse}.
      */
     final Rotation headRot = new Rotation();
 
     /**
      * Whole model rotation.<br>
-     * Overridable by {@link FancyPlayerRenderState#bodyFollowsMouse bodyFollowsMouse}.
+     * Overridable by {@link FancyPlayerMock#bodyFollowsMouse bodyFollowsMouse}.
      */
     final Rotation bodyRot = new Rotation();
 
     /**
      * Whether the whole model should rotate to follow the mouse.<br>
-     * Overridable by {@link FancyPlayerRenderState#pose}.
+     * Overridable by {@link FancyPlayerMock#pose}.
      */
     public boolean bodyFollowsMouse;
 
     /**
      * Whether the head should rotate to follow the mouse.<br>
-     * Overridable by {@link FancyPlayerRenderState#pose}.
+     * Overridable by {@link FancyPlayerMock#pose}.
      */
     public boolean headFollowsMouse;
 
     /**
      * Whether the model is slim or wide.<br>
-     * Overridable by {@link FancyPlayerRenderState#skin skin} or when copying a player.
+     * Overridable by {@link FancyPlayerMock#skin skin} or when copying a player.
      */
     boolean isSlim;
 
@@ -1244,26 +1235,26 @@ public class FancyPlayerWidget extends AbstractWidget {
 
     /**
      * Parrot variant on the left shoulder.<br>
-     * Overridable by {@link FancyPlayerRenderState#isBaby isBaby}.
+     * Overridable by {@link FancyPlayerMock#isBaby isBaby}.
      */
     @Nullable
     Parrot.Variant parrotOnLeftShoulder;
 
     /**
      * Parrot variant on the left shoulder.<br>
-     * Overridable by {@link FancyPlayerRenderState#isBaby isBaby}.
+     * Overridable by {@link FancyPlayerMock#isBaby isBaby}.
      */
     @Nullable
     Parrot.Variant parrotOnRightShoulder;
 
     /**
      * Whether to display the fire animation.<br>
-     * Overridable by {@link FancyPlayerRenderState#pose}.
+     * Overridable by {@link FancyPlayerMock#pose}.
      */
     boolean displayFireAnimation;
 
     /**
-     * @param name {@link FancyPlayerRenderState#name name}.
+     * @param name {@link FancyPlayerMock#name name}.
      */
     private OverridableProperties(@NotNull String name) {
       this.name = name;

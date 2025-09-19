@@ -17,6 +17,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
@@ -121,14 +122,23 @@ public class FancyPlayerRenderer extends PlayerRenderer {
   @Override
   protected void renderNameTag(@NotNull AbstractClientPlayer entity, @NotNull Component nameTag, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight, float partialTick) {
     FancyPlayerMock player = (FancyPlayerMock) entity;
-    if (player.showPlayerName) { // && !player.isInvisibleTo(null)
+    if (player.showPlayerName) {
       float scale = player.scale * NAMETAG_SCALE;
       Font font = getFont();
       poseStack.pushPose();
+      Vec3 nameTagAttachment;
+      if (player.pose == Pose.SLEEPING) {
+        nameTagAttachment = new Vec3(Player.POSES.get(player.pose).eyeHeight() * player.scale - player.boundingBoxHeight / 1.35F, 0, 0);
+      } else {
+        nameTagAttachment = new Vec3(0, 0.25F * player.scale, 0);
+      }
       float height = player.isBaby && player.pose != Pose.SPIN_ATTACK ? player.boundingBoxHeight * Player.DEFAULT_BABY_SCALE : player.boundingBoxHeight;
-      float offsetY = (player.pose == Pose.SLEEPING || player.pose == Pose.SWIMMING ? player.boundingBoxWidth : height) / scale + (float) player.nameTagAttachment.y;
-      float offsetX = player.pose == Pose.SLEEPING ? -(float) player.nameTagAttachment.x : font.width(nameTag) / 2F;
+      float offsetY = (player.pose == Pose.SLEEPING || player.pose == Pose.SWIMMING ? player.boundingBoxWidth : height) / scale + (float) nameTagAttachment.y;
+      float offsetX = player.pose == Pose.SLEEPING ? -(float) nameTagAttachment.x : font.width(nameTag) / 2F;
       poseStack.scale(scale, -scale, scale);
+      if (player.pinName) {
+        poseStack.rotateAround(new Quaternionf().rotateY(player.bodyRot.getY()), 0, 0, 0);
+      }
       poseStack.translate(-offsetX, -offsetY, 0);
       if (player.isUpsideDown) {
         poseStack.scale(1, -1, 1);
@@ -191,12 +201,6 @@ public class FancyPlayerRenderer extends PlayerRenderer {
 //      } else {
 //        renderState.ageInTicks = 3000;
 //        renderState.walkAnimationPos = 0;
-//      }
-//      renderState.nameTag = Component.literal(state.name);
-//      if (state.pose == Pose.SLEEPING) {
-//        renderState.nameTagAttachment = new Vec3(Player.POSES.get(state.pose).eyeHeight() * state.scale - state.boundingBoxHeight / 1.35F, 0, 0);
-//      } else {
-//        renderState.nameTagAttachment = new Vec3(0, 0.25F * state.scale, 0);
 //      }
 //      if (state.rightHandHeldItem != null) {
 //        itemModelResolver.updateForTopItem(state.rightHandItem, state.rightHandHeldItem, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, null, null, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND.ordinal());
