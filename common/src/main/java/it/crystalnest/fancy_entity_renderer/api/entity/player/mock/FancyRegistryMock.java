@@ -28,7 +28,7 @@ import java.util.stream.Stream;
  * @param <T> registry type.
  */
 @SuppressWarnings({"DataFlowIssue", "unchecked"})
-public class FancyRegistryMock<T> implements Registry<T> {
+public abstract class FancyRegistryMock<T> implements Registry<T> {
   /**
    * Registry key.
    */

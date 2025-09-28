@@ -3,6 +3,7 @@ package it.crystalnest.fancy_entity_renderer.platform;
 import it.crystalnest.fancy_entity_renderer.Constants;
 import it.crystalnest.fancy_entity_renderer.platform.services.CompatHelper;
 import it.crystalnest.fancy_entity_renderer.platform.services.PlatformHelper;
+import it.crystalnest.fancy_entity_renderer.platform.services.RegistryHelper;
 
 import java.util.ServiceLoader;
 
@@ -20,6 +21,11 @@ public final class Services {
    * Provides compatibility with other mods.
    */
   public static final CompatHelper COMPAT = load(CompatHelper.class);
+
+  /**
+   * Provides registry capabilities.
+   */
+  public static final RegistryHelper REGISTRY = load(RegistryHelper.class);
 
   private Services() {}
 

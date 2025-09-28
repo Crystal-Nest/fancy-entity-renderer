@@ -1,6 +1,7 @@
 package it.crystalnest.fancy_entity_renderer.api.entity.player.mock;
 
 import com.mojang.authlib.GameProfile;
+import it.crystalnest.fancy_entity_renderer.platform.Services;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.CommonListenerCookie;
@@ -37,7 +38,7 @@ public class FancyPacketListenerMock extends ClientPacketListener {
 
           @Override
           public <E> @NotNull Registry<E> registryOrThrow(@NotNull ResourceKey<? extends Registry<? extends E>> registryKey) {
-              return new FancyRegistryMock<>(registryKey);
+            return Services.REGISTRY.mockRegistry(registryKey);
           }
 
           @Override
