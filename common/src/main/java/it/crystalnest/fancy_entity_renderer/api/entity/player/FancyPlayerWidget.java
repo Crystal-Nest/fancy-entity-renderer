@@ -153,8 +153,8 @@ public class FancyPlayerWidget extends AbstractWidget {
         offsetY - Minecraft.getInstance().getWindow().getGuiScaledHeight() / 2F + getY() + getHeight(),
         0
       ),
-      new Quaternionf().rotateXYZ(renderState.bodyRot.getX(), -renderState.bodyRot.getY(), renderState.bodyRot.getZ()),
-      new Quaternionf().rotateXYZ(-renderState.bodyRot.getX(), renderState.bodyRot.getY(), -renderState.bodyRot.getZ()),
+      new Quaternionf().rotateXYZ(renderState.modelRot.getX(), -renderState.modelRot.getY(), renderState.modelRot.getZ()),
+      new Quaternionf().rotateXYZ(-renderState.modelRot.getX(), renderState.modelRot.getY(), -renderState.modelRot.getZ()),
       0,
       0,
       Minecraft.getInstance().getWindow().getGuiScaledWidth(),
