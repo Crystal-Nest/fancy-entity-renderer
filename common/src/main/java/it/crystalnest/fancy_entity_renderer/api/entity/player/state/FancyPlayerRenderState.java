@@ -51,7 +51,7 @@ public class FancyPlayerRenderState extends PlayerRenderState {
   /**
    * Whole model rotation.
    */
-  public final Rotation bodyRot = new Rotation();
+  public final Rotation modelRot = new Rotation();
 
   /**
    * Whether the whole model should rotate to follow the mouse.
@@ -77,6 +77,11 @@ public class FancyPlayerRenderState extends PlayerRenderState {
    * Whether the player should move.
    */
   public boolean isMoving;
+
+  /**
+   * Walk speed.
+   */
+  public float walkSpeed;
 
   /**
    * Whether to show the player's name.
@@ -112,6 +117,36 @@ public class FancyPlayerRenderState extends PlayerRenderState {
    * Allowed poses when mimicking a player.
    */
   public List<Pose> allowedPoses = new ArrayList<>();
+
+  /**
+   * Whether to show the player's left arm.
+   */
+  public boolean showLeftArm = true;
+
+  /**
+   * Whether to show the player's right arm.
+   */
+  public boolean showRightArm = true;
+
+  /**
+   * Whether to show the player's left leg.
+   */
+  public boolean showLeftLeg = true;
+
+  /**
+   * Whether to show the player's right leg.
+   */
+  public boolean showRightLeg = true;
+
+  /**
+   * Whether to show the player's head.
+   */
+  public boolean showHead = true;
+
+  /**
+   * Whether to show the player's torso.
+   */
+  public boolean showBody = true;
 
   /**
    * Updates the scale and bounding box properties from the given height value.

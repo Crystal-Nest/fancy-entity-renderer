@@ -13,7 +13,7 @@ and this project adheres to [Crystal Nest Semantic Versioning](https://crystalne
 
 - Backported to 1.21 and 1.21.1.
 - For 1.21 and 1.21.1 only some features are missing:
-  * Mimick player;
+  * Mimic player;
   * Attack/swing animation;
   * Arms poses;
 - Renamed `bodyRot` to `modelRot` to avoid overriding the already existing property in `LivingEntityRenderState`.
