@@ -7,7 +7,19 @@ and this project adheres to [Crystal Nest Semantic Versioning](https://crystalne
 
 ## [Unreleased]
 
-- Unfinished port to 1.21/1.21.1.
+- Nothing new.
+
+## [v0.4.0] - 2025/09/28
+
+- Backported to 1.21 and 1.21.1.
+- For 1.21 and 1.21.1 only some features are missing:
+  * Mimick player;
+  * Attack/swing animation;
+  * Arms poses;
+- Renamed `bodyRot` to `modelRot` to avoid overriding the already existing property in `LivingEntityRenderState`.
+- Implemented [#17](https://github.com/Crystal-Nest/fancy-entity-renderer/issues/17), there is now a flag to prevent the name tag from rotating around the Y axis with the player.
+- Implemented [#18](https://github.com/Crystal-Nest/fancy-entity-renderer/issues/18), there are now flags to individually change the visibility of different body parts or layers.
+- Added new property (`walkSpeed`) to allow players to walk while moving (before they could only play the idle animation when standing or crouching).
 
 ## [v0.3.5] - 2025/09/11
 
@@ -83,6 +95,7 @@ and this project adheres to [Crystal Nest Semantic Versioning](https://crystalne
 [Unreleased]: https://github.com/crystal-nest/fancy-entity-renderer
 [README]: https://github.com/crystal-nest/fancy-entity-renderer#readme
 
+[v0.4.0]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.4.0
 [v0.3.5]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.3.5
 [v0.3.4]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.3.4
 [v0.3.3]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.3.3
