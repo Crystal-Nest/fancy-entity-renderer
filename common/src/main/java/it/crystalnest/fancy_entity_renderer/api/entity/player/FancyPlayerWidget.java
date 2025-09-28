@@ -131,7 +131,6 @@ public class FancyPlayerWidget extends AbstractWidget {
   @Override
   protected void renderWidget(GuiGraphics gfx, int mouseX, int mouseY, float partialTick) {
     updateRenderState(getX(), getY(), getWidth(), getHeight(), mouseX, mouseY, partialTick);
-    gfx.renderOutline(getX(), getY(), getWidth(), getHeight(), -6250336);
     gfx.pose().pushPose();
     float offsetX = 0;
     float offsetY = (float) renderer.getRenderOffset(player, 0).y;
@@ -147,8 +146,8 @@ public class FancyPlayerWidget extends AbstractWidget {
     gfx.pose().translate(getX() + getWidth() / 2F + offsetX, getY() + getHeight() + offsetY, 100);
     gfx.flush();
     gfx.pose().scale(1, -1, 1);
-    Lighting.setupForEntityInInventory(Axis.XP.rotationDegrees(player.bodyRot.getX()));
-    gfx.pose().rotateAround(new Quaternionf().rotateXYZ(player.bodyRot.getX(), -player.bodyRot.getY(), player.bodyRot.getZ()), 0, 0, 0);
+    Lighting.setupForEntityInInventory(Axis.XP.rotationDegrees(player.modelRot.getX()));
+    gfx.pose().rotateAround(new Quaternionf().rotateXYZ(player.modelRot.getX(), -player.modelRot.getY(), player.modelRot.getZ()), 0, 0, 0);
     renderer.render(player, gfx.pose(), gfx.bufferSource(), LightTexture.FULL_BRIGHT);
     gfx.bufferSource().endBatch();
     gfx.flush();
@@ -187,9 +186,9 @@ public class FancyPlayerWidget extends AbstractWidget {
     if (player.getPose() == Pose.STANDING || player.getPose() == Pose.CROUCHING || player.getPose() == Pose.SPIN_ATTACK) {
       player.bodyFollowsMouse = followsMouse;
       if (followsMouse) {
-        properties.bodyRot.copy(player.bodyRot);
+        properties.bodyRot.copy(player.modelRot);
       } else {
-        player.bodyRot.copy(properties.bodyRot);
+        player.modelRot.copy(properties.bodyRot);
       }
     } else {
       properties.bodyFollowsMouse = followsMouse;
@@ -255,7 +254,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    */
   public FancyPlayerWidget setBodyRotation(Rotation rotation) {
     properties.bodyRot.copy(rotation);
-    player.bodyRot.copy(rotation);
+    player.modelRot.copy(rotation);
     return this;
   }
 
@@ -270,7 +269,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    */
   public FancyPlayerWidget setBodyRotation(float x, float y, float z) {
     properties.bodyRot.setDeg(x, y, z);
-    player.bodyRot.setDeg(x, y, z);
+    player.modelRot.setDeg(x, y, z);
     return this;
   }
 
@@ -1264,9 +1263,9 @@ public class FancyPlayerWidget extends AbstractWidget {
         yRot = -yRot;
       }
       if (player.bodyFollowsMouse) {
-        player.bodyRot.setXDeg(xRot);
-        player.bodyRot.setYDeg(yRot);
-        player.bodyRot.setZ(0);
+        player.modelRot.setXDeg(xRot);
+        player.modelRot.setYDeg(yRot);
+        player.modelRot.setZ(0);
       }
       if (player.headFollowsMouse) {
         player.headRot.setXDeg(xRot);

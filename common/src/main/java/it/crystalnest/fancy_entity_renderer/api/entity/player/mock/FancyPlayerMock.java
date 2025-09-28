@@ -46,7 +46,7 @@ public class FancyPlayerMock extends AbstractClientPlayer {
   /**
    * Whole model rotation.
    */
-  public final Rotation bodyRot = new Rotation();
+  public final Rotation modelRot = new Rotation();
 
   /**
    * Whether the player is baby.
@@ -64,7 +64,7 @@ public class FancyPlayerMock extends AbstractClientPlayer {
   public boolean headFollowsMouse;
 
   /**
-   * Whether to copy a player.
+   * Whether to copy the appearance a player.
    */
   public boolean copyingPlayer;
 
@@ -320,11 +320,6 @@ public class FancyPlayerMock extends AbstractClientPlayer {
   @Override
   public boolean isAutoSpinAttack() {
     return isAutoSpinAttack;
-  }
-
-  @Override
-  public boolean isUsingItem() {
-    return true;
   }
 
   /**

@@ -101,7 +101,7 @@ public class FancyPlayerRenderer extends PlayerRenderer {
   @Override
   protected void renderNameTag(@NotNull AbstractClientPlayer entity, @NotNull Component nameTag, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight, float partialTick) {
     FancyPlayerMock player = (FancyPlayerMock) entity;
-    if (player.showPlayerName) {
+    if (player.showPlayerName && !player.isInvisibleToPlayer) {
       float scale = player.scale * NAMETAG_SCALE;
       Font font = getFont();
       poseStack.pushPose();
@@ -116,7 +116,7 @@ public class FancyPlayerRenderer extends PlayerRenderer {
       float offsetX = player.getPose() == Pose.SLEEPING ? -(float) nameTagAttachment.x : font.width(nameTag) / 2F;
       poseStack.scale(scale, -scale, scale);
       if (player.pinName) {
-        poseStack.rotateAround(new Quaternionf().rotateY(player.bodyRot.getY()), 0, 0, 0);
+        poseStack.rotateAround(new Quaternionf().rotateY(player.modelRot.getY()), 0, 0, 0);
       }
       poseStack.translate(-offsetX, -offsetY, 0);
       if (player.isUpsideDown) {
@@ -169,7 +169,7 @@ public class FancyPlayerRenderer extends PlayerRenderer {
     if (entityRenderDispatcher.camera == null) {
       entityRenderDispatcher.camera = Minecraft.getInstance().gameRenderer.getMainCamera();
     }
-    entityRenderDispatcher.overrideCameraOrientation(new Quaternionf().rotateXYZ(-entity.bodyRot.getX(), entity.bodyRot.getY(), -entity.bodyRot.getZ()));
+    entityRenderDispatcher.overrideCameraOrientation(new Quaternionf().rotateXYZ(-entity.modelRot.getX(), entity.modelRot.getY(), -entity.modelRot.getZ()));
     entityRenderDispatcher.render(entity, 0, 0, 0, 0, entity.isMoving && !entity.hasPose(Pose.DYING) ? entity.partialTick + entity.speedValue * 0.33F : 0, poseStack, bufferSource, packedLight);
   }
 
