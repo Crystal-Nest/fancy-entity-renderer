@@ -22,10 +22,21 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
+/**
+ * Mock for registry.
+ *
+ * @param <T> registry type.
+ */
 @SuppressWarnings({"DataFlowIssue", "unchecked"})
 public class FancyRegistryMock<T> implements Registry<T> {
+  /**
+   * Registry key.
+   */
   private final ResourceKey<? extends Registry<T>> key;
 
+  /**
+   * @param key registry key.
+   */
   public FancyRegistryMock(ResourceKey<? extends Registry<? extends T>> key) {
     this.key = (ResourceKey<? extends Registry<T>>) key;
   }
@@ -186,14 +197,10 @@ public class FancyRegistryMock<T> implements Registry<T> {
   }
 
   @Override
-  public void resetTags() {
-
-  }
+  public void resetTags() {}
 
   @Override
-  public void bindTags(@NotNull Map<TagKey<T>, List<Holder<T>>> map) {
-
-  }
+  public void bindTags(@NotNull Map<TagKey<T>, List<Holder<T>>> map) {}
 
   @Override
   public @NotNull HolderOwner<T> holderOwner() {

@@ -16,9 +16,19 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.entity.animal.Parrot;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Custom parrot on shoulder layer.
+ */
 public class FancyParrotOnShoulderLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
+  /**
+   * Parrot model.
+   */
   protected final ParrotModel model;
 
+  /**
+   * @param renderer player renderer.
+   * @param modelSet entity model set.
+   */
   public FancyParrotOnShoulderLayer(RenderLayerParent<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> renderer, EntityModelSet modelSet) {
     super(renderer);
     model = new ParrotModel(modelSet.bakeLayer(ModelLayers.PARROT));
@@ -30,6 +40,19 @@ public class FancyParrotOnShoulderLayer extends RenderLayer<AbstractClientPlayer
     renderParrot(poseStack, buffer, packedLight, player, limbSwing, limbSwingAmount, netHeadYaw, headPitch, false);
   }
 
+  /**
+   * Renders a parrot.
+   *
+   * @param poseStack pose stack.
+   * @param buffer buffer source.
+   * @param packedLight packed light.
+   * @param player player.
+   * @param limbSwing limb swing.
+   * @param limbSwingAmount limb swing amount.
+   * @param netHeadYaw head yaw.
+   * @param headPitch head pitch.
+   * @param leftShoulder whether it's the left shoulder.
+   */
   protected void renderParrot(PoseStack poseStack, MultiBufferSource buffer, int packedLight, AbstractClientPlayer player, float limbSwing, float limbSwingAmount, float netHeadYaw, float headPitch, boolean leftShoulder) {
     if (player instanceof FancyPlayerMock playerMock) {
       Parrot.Variant variant = leftShoulder ? playerMock.parrotOnLeftShoulder : playerMock.parrotOnRightShoulder;

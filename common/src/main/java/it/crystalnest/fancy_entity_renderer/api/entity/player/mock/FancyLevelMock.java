@@ -13,8 +13,14 @@ import net.minecraft.world.level.dimension.DimensionType;
 
 import java.util.OptionalLong;
 
+/**
+ * Mock for client level.
+ */
 @SuppressWarnings("DataFlowIssue")
 public class FancyLevelMock extends ClientLevel {
+  /**
+   * @param gameProfile mock game profile.
+   */
   public FancyLevelMock(GameProfile gameProfile) {
     super(
       new FancyPacketListenerMock(gameProfile),

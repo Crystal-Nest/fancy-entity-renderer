@@ -40,8 +40,14 @@ public class FancyPlayerRenderer extends PlayerRenderer {
     Minecraft.getInstance().font
   );
 
+  /**
+   * Player renderer for slim models.
+   */
   public static final FancyPlayerRenderer SLIM_RENDERER = new FancyPlayerRenderer(true);
 
+  /**
+   * Player renderer for wide models.
+   */
   public static final FancyPlayerRenderer WIDE_RENDERER = new FancyPlayerRenderer(false);
 
   /**
@@ -168,8 +174,7 @@ public class FancyPlayerRenderer extends PlayerRenderer {
   }
 
   /**
-   * Updates the given render state with data from the given player.<br>
-   * Since there is no player entity for this renderer, the render state is updated from the global render state passed in the constructor and retrieved with {@link #state()}.
+   * Updates the given player.
    *
    * @param player player to update.
    * @param partialTick partial tick.

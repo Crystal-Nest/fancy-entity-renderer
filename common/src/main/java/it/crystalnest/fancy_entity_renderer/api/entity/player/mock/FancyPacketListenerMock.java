@@ -14,8 +14,14 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+/**
+ * Mock for client packet listener.
+ */
 @SuppressWarnings("DataFlowIssue")
 public class FancyPacketListenerMock extends ClientPacketListener {
+  /**
+   * @param gameProfile mock game profile.
+   */
   public FancyPacketListenerMock(GameProfile gameProfile) {
     super(
       Minecraft.getInstance(),

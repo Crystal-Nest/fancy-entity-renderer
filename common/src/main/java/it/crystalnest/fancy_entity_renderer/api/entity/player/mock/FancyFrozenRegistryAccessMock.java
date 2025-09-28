@@ -10,8 +10,14 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
+/**
+ * Mock for frozen registry access.
+ */
 @SuppressWarnings("unchecked")
 public class FancyFrozenRegistryAccessMock implements RegistryAccess.Frozen {
+  /**
+   * Registries computed so far.
+   */
   private final Map<ResourceKey<? extends Registry<?>>, Registry<?>> registries = new ConcurrentHashMap<>();
 
   @Override

@@ -9,7 +9,6 @@ import it.crystalnest.fancy_entity_renderer.Constants;
 import it.crystalnest.fancy_entity_renderer.api.Rotation;
 import it.crystalnest.fancy_entity_renderer.api.entity.RenderMode;
 import it.crystalnest.fancy_entity_renderer.api.entity.player.mock.FancyPlayerMock;
-import it.crystalnest.fancy_entity_renderer.imixin.SpecialDrawer;
 import it.crystalnest.fancy_entity_renderer.platform.Services;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -150,7 +149,8 @@ public class FancyPlayerWidget extends AbstractWidget {
     gfx.pose().scale(1, -1, 1);
     Lighting.setupForEntityInInventory(Axis.XP.rotationDegrees(player.bodyRot.getX()));
     gfx.pose().rotateAround(new Quaternionf().rotateXYZ(player.bodyRot.getX(), -player.bodyRot.getY(), player.bodyRot.getZ()), 0, 0, 0);
-    ((SpecialDrawer) gfx).drawSpecial(bufferSource -> renderer.render(player, gfx.pose(), bufferSource, LightTexture.FULL_BRIGHT));
+    renderer.render(player, gfx.pose(), gfx.bufferSource(), LightTexture.FULL_BRIGHT);
+    gfx.bufferSource().endBatch();
     gfx.flush();
     gfx.pose().popPose();
   }
@@ -460,71 +460,163 @@ public class FancyPlayerWidget extends AbstractWidget {
     return this;
   }
 
+  /**
+   * Sets whether to show the player's cape.<br>
+   * Note: to show a cape, the player's skin must include the cape.
+   *
+   * @param showCape whether to show the player's cape.
+   * @return {@code this}.
+   */
   public FancyPlayerWidget setShowCape(boolean showCape) {
     player.showCape = showCape;
     return this;
   }
 
+  /**
+   * Sets whether to show the player's left arm.
+   *
+   * @param showLeftArm whether to show the player's left arm.
+   * @return {@code this}.
+   */
   public FancyPlayerWidget setShowLeftArm(boolean showLeftArm) {
     player.showLeftArm = showLeftArm;
     return this;
   }
 
+  /**
+   * Sets whether to show the player's left sleeve.<br>
+   * Note: the player's skin must include an outer layer for the left sleeve to be visible.
+   *
+   * @param showLeftSleeve whether to show the player's left sleeve.
+   * @return {@code this}.
+   */
   public FancyPlayerWidget setShowLeftSleeve(boolean showLeftSleeve) {
     player.showLeftSleeve = showLeftSleeve;
     return this;
   }
 
+  /**
+   * Sets whether to show the player's right arm.
+   *
+   * @param showRightArm whether to show the player's right arm.
+   * @return {@code this}.
+   */
   public FancyPlayerWidget setShowRightArm(boolean showRightArm) {
     player.showRightArm = showRightArm;
     return this;
   }
 
+  /**
+   * Sets whether to show the player's right sleeve.<br>
+   * Note: the player's skin must include an outer layer for the right sleeve to be visible.
+   *
+   * @param showRightSleeve whether to show the player's right sleeve.
+   * @return {@code this}.
+   */
   public FancyPlayerWidget setShowRightSleeve(boolean showRightSleeve) {
     player.showRightSleeve = showRightSleeve;
     return this;
   }
 
+  /**
+   * Sets whether to show the player's left leg.
+   *
+   * @param showLeftLeg whether to show the player's left leg.
+   * @return {@code this}.
+   */
   public FancyPlayerWidget setShowLeftLeg(boolean showLeftLeg) {
     player.showLeftLeg = showLeftLeg;
     return this;
   }
 
+  /**
+   * Sets whether to show the player's left pants.<br>
+   * Note: the player's skin must include an outer layer for the left pants to be visible.
+   *
+   * @param showLeftPants whether to show the player's left pants.
+   * @return {@code this}.
+   */
   public FancyPlayerWidget setShowLeftPants(boolean showLeftPants) {
     player.showLeftPants = showLeftPants;
     return this;
   }
 
+  /**
+   * Sets whether to show the player's right leg.
+   *
+   * @param showRightLeg whether to show the player's right leg.
+   * @return {@code this}.
+   */
   public FancyPlayerWidget setShowRightLeg(boolean showRightLeg) {
     player.showRightLeg = showRightLeg;
     return this;
   }
 
+  /**
+   * Sets whether to show the player's right pants.<br>
+   * Note: the player's skin must include an outer layer for the right pants to be visible.
+   *
+   * @param showRightPants whether to show the player's right pants.
+   * @return {@code this}.
+   */
   public FancyPlayerWidget setShowRightPants(boolean showRightPants) {
     player.showRightPants = showRightPants;
     return this;
   }
 
+  /**
+   * Sets whether to show the player's head.
+   *
+   * @param showHead whether to show the player's head.
+   * @return {@code this}.
+   */
   public FancyPlayerWidget setShowHead(boolean showHead) {
     player.showHead = showHead;
     return this;
   }
 
+  /**
+   * Sets whether to show the player's hat.<br>
+   * Note: the player's skin must include an outer layer for the hat to be visible.
+   *
+   * @param showHat whether to show the player's hat.
+   * @return {@code this}.
+   */
   public FancyPlayerWidget setShowHat(boolean showHat) {
     player.showHat = showHat;
     return this;
   }
 
+  /**
+   * Sets whether to show the player's torso.
+   *
+   * @param showBody whether to show the player's torso.
+   * @return {@code this}.
+   */
   public FancyPlayerWidget setShowBody(boolean showBody) {
     player.showBody = showBody;
     return this;
   }
 
+  /**
+   * Sets whether to show the player's jacket.<br>
+   * Note: the player's skin must include an outer layer for the jacket to be visible.
+   *
+   * @param showJacket whether to show the player's jacket.
+   * @return {@code this}.
+   */
   public FancyPlayerWidget setShowJacket(boolean showJacket) {
     player.showJacket = showJacket;
     return this;
   }
 
+  /**
+   * Sets whether to show the player's outer layer.<br>
+   * Note: the player's skin must include an outer layer for it to be visible.
+   *
+   * @param showOuterLayer whether to show the player's outer layer.
+   * @return {@code this}.
+   */
   public FancyPlayerWidget setShowOuterLayer(boolean showOuterLayer) {
     setShowLeftSleeve(showOuterLayer);
     setShowRightSleeve(showOuterLayer);
@@ -535,6 +627,12 @@ public class FancyPlayerWidget extends AbstractWidget {
     return this;
   }
 
+  /**
+   * Sets whether to show the player's inner layer.
+   *
+   * @param showInnerLayer whether to show the player's inner layer.
+   * @return {@code this}.
+   */
   public FancyPlayerWidget setShowInnerLayer(boolean showInnerLayer) {
     setShowLeftArm(showInnerLayer);
     setShowRightArm(showInnerLayer);

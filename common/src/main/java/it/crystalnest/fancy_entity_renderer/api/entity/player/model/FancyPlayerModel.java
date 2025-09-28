@@ -23,11 +23,11 @@ public class FancyPlayerModel extends PlayerModel<AbstractClientPlayer> {
    * Sets up the model animation pose.
    *
    * @param entity entity to render.
-   * @param limbSwing
-   * @param limbSwingAmount
-   * @param ageInTicks
-   * @param netHeadYaw
-   * @param headPitch
+   * @param limbSwing limb swing.
+   * @param limbSwingAmount limb swing amount.
+   * @param ageInTicks age in ticks.
+   * @param netHeadYaw head yaw.
+   * @param headPitch head pitch.
    */
   @Override
   public void setupAnim(@NotNull AbstractClientPlayer entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {

@@ -14,6 +14,9 @@ import net.minecraft.world.entity.player.PlayerModelPart;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Mock for client player.
+ */
 public class FancyPlayerMock extends AbstractClientPlayer {
   /**
    * Left arm rotation.
@@ -45,6 +48,9 @@ public class FancyPlayerMock extends AbstractClientPlayer {
    */
   public final Rotation bodyRot = new Rotation();
 
+  /**
+   * Whether the player is baby.
+   */
   public boolean isBaby;
 
   /**
@@ -82,70 +88,166 @@ public class FancyPlayerMock extends AbstractClientPlayer {
    */
   public boolean pinName;
 
+  /**
+   * Model scale.
+   */
   public float scale;
 
+  /**
+   * Model bounding box height.
+   */
   public float boundingBoxHeight;
 
+  /**
+   * Model bounding box width.
+   */
   public float boundingBoxWidth;
 
+  /**
+   * Whether the model is upside down.
+   */
   public boolean isUpsideDown;
 
+  /**
+   * Player name.
+   */
   public String name = getGameProfile().getName();
 
+  /**
+   * Whether the player is in spectator mode.
+   */
   public boolean isSpectator;
 
+  /**
+   * Whether the player is invisible.
+   */
   public boolean isInvisible;
 
+  /**
+   * Whether the player is invisible to other players.
+   */
   public boolean isInvisibleToPlayer;
 
+  /**
+   * Whether the player is glowing.
+   */
   public boolean appearsGlowing;
 
+  /**
+   * Parrot variant for the left shoulder.
+   */
   @Nullable
   public Parrot.Variant parrotOnLeftShoulder;
 
+  /**
+   * Parrot variant for the right shoulder.
+   */
   @Nullable
   public Parrot.Variant parrotOnRightShoulder;
 
+  /**
+   * Whether to display the fire animation.
+   */
   public boolean displayFireAnimation;
 
+  /**
+   * Whether the player is making a spin attack.
+   */
   public boolean isAutoSpinAttack;
 
+  /**
+   * Whether the player is swimming.
+   */
   public boolean isVisuallySwimming;
 
+  /**
+   * Movement speed.
+   */
   public float speedValue = 1;
 
+  /**
+   * Walk speed.
+   */
   public float walkSpeed;
 
+  /**
+   * Cumulative partial tick counter.
+   */
   public float partialTick;
 
+  /**
+   * Player skin.
+   */
   public PlayerSkin skin = DefaultPlayerSkin.get(getUUID());
 
+  /**
+   * Whether to show the player's cape.
+   */
   public boolean showCape = true;
 
+  /**
+   * Whether to show the player's left arm.
+   */
   public boolean showLeftArm = true;
 
+  /**
+   * Whether to show the player's left sleeve.
+   */
   public boolean showLeftSleeve = true;
 
+  /**
+   * Whether to show the player's right arm.
+   */
   public boolean showRightArm = true;
 
+  /**
+   * Whether to show the player's right sleeve.
+   */
   public boolean showRightSleeve = true;
 
+  /**
+   * Whether to show the player's left leg.
+   */
   public boolean showLeftLeg = true;
 
+  /**
+   * Whether to show the player's left pants.
+   */
   public boolean showLeftPants = true;
 
+  /**
+   * Whether to show the player's right leg.
+   */
   public boolean showRightLeg = true;
 
+  /**
+   * Whether to show the player's right pants.
+   */
   public boolean showRightPants = true;
 
+  /**
+   * Whether to show the player's head.
+   */
   public boolean showHead = true;
 
+  /**
+   * Whether to show the player's hat.
+   */
   public boolean showHat = true;
 
+  /**
+   * Whether to show the player's torso.
+   */
   public boolean showBody = true;
 
+  /**
+   * Whether to show the player's jacket.
+   */
   public boolean showJacket = true;
 
+  /**
+   * @param gameProfile mock game profile.
+   */
   public FancyPlayerMock(GameProfile gameProfile) {
     super(new FancyLevelMock(gameProfile), gameProfile);
     xo = 0;
