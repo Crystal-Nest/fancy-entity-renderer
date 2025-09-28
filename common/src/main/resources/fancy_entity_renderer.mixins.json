@@ -8,6 +8,7 @@
     "EntityMixin"
   ],
   "client": [
+    "client.CapeLayerMixin",
     "client.EntityRenderDispatcherMixin",
     "client.GuiGraphicsMixin",
     "client.LivingEntityRendererMixin"

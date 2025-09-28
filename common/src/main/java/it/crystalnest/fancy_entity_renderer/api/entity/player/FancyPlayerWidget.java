@@ -16,8 +16,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.client.resources.PlayerSkin;
@@ -27,7 +25,8 @@ import net.minecraft.commands.arguments.item.ItemParser;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.animal.Parrot;
 import net.minecraft.world.entity.player.Player;
@@ -39,6 +38,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -68,7 +68,7 @@ public class FancyPlayerWidget extends AbstractWidget {
   /**
    * Global render state.
    */
-  protected final FancyPlayerMock renderState = new FancyPlayerMock(new GameProfile(Util.NIL_UUID, "FancyMock"));
+  protected final FancyPlayerMock player = new FancyPlayerMock(new GameProfile(Util.NIL_UUID, "FancyMock"));
 
   /**
    * Random source.
@@ -78,12 +78,17 @@ public class FancyPlayerWidget extends AbstractWidget {
   /**
    * Memory for overridable render state properties.
    */
-  private final OverridableProperties properties = new OverridableProperties(renderState.name);
+  private final OverridableProperties properties = new OverridableProperties(player.name);
+
+  /**
+   * Allowed poses when mimicking a player.
+   */
+  public List<Pose> allowedPoses = new ArrayList<>();
 
   /**
    * Current player renderer.
    */
-  protected FancyPlayerRenderer renderer = renderState.isSlim ? FancyPlayerRenderer.SLIM_RENDERER : FancyPlayerRenderer.WIDE_RENDERER;
+  protected FancyPlayerRenderer renderer = player.isSlim ? FancyPlayerRenderer.SLIM_RENDERER : FancyPlayerRenderer.WIDE_RENDERER;
 
   /**
    * @param x x coordinate on the screen.
@@ -130,11 +135,11 @@ public class FancyPlayerWidget extends AbstractWidget {
     gfx.renderOutline(getX(), getY(), getWidth(), getHeight(), -6250336);
     gfx.pose().pushPose();
     float offsetX = 0;
-    float offsetY = (float) renderer.getRenderOffset(renderState, 0).y;
-    if (renderState.pose == Pose.SLEEPING) {
-      offsetX += PLAYER_RENDER_HEIGHT * renderState.scale / 2;
-      offsetY -= 0.25F * renderState.scale;
-      if (renderState.isBaby) {
+    float offsetY = (float) renderer.getRenderOffset(player, 0).y;
+    if (player.getPose() == Pose.SLEEPING) {
+      offsetX += PLAYER_RENDER_HEIGHT * player.scale / 2;
+      offsetY -= 0.25F * player.scale;
+      if (player.isBaby) {
         // TODO: Why these values?
         offsetX /= 1.75F;
         offsetY /= 1.5F;
@@ -143,9 +148,9 @@ public class FancyPlayerWidget extends AbstractWidget {
     gfx.pose().translate(getX() + getWidth() / 2F + offsetX, getY() + getHeight() + offsetY, 100);
     gfx.flush();
     gfx.pose().scale(1, -1, 1);
-    Lighting.setupForEntityInInventory(Axis.XP.rotationDegrees(renderState.bodyRot.getX()));
-    gfx.pose().rotateAround(new Quaternionf().rotateXYZ(renderState.bodyRot.getX(), -renderState.bodyRot.getY(), renderState.bodyRot.getZ()), 0, 0, 0);
-    ((SpecialDrawer) gfx).drawSpecial(bufferSource -> renderer.render(renderState, gfx.pose(), bufferSource, LightTexture.FULL_BRIGHT));
+    Lighting.setupForEntityInInventory(Axis.XP.rotationDegrees(player.bodyRot.getX()));
+    gfx.pose().rotateAround(new Quaternionf().rotateXYZ(player.bodyRot.getX(), -player.bodyRot.getY(), player.bodyRot.getZ()), 0, 0, 0);
+    ((SpecialDrawer) gfx).drawSpecial(bufferSource -> renderer.render(player, gfx.pose(), bufferSource, LightTexture.FULL_BRIGHT));
     gfx.flush();
     gfx.pose().popPose();
   }
@@ -179,12 +184,12 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setBodyFollowsMouse(boolean followsMouse) {
-    if (renderState.pose == Pose.STANDING || renderState.pose == Pose.CROUCHING || renderState.pose == Pose.SPIN_ATTACK) {
-      renderState.bodyFollowsMouse = followsMouse;
+    if (player.getPose() == Pose.STANDING || player.getPose() == Pose.CROUCHING || player.getPose() == Pose.SPIN_ATTACK) {
+      player.bodyFollowsMouse = followsMouse;
       if (followsMouse) {
-        properties.bodyRot.copy(renderState.bodyRot);
+        properties.bodyRot.copy(player.bodyRot);
       } else {
-        renderState.bodyRot.copy(properties.bodyRot);
+        player.bodyRot.copy(properties.bodyRot);
       }
     } else {
       properties.bodyFollowsMouse = followsMouse;
@@ -200,12 +205,12 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setHeadFollowsMouse(boolean followsMouse) {
-    if (renderState.pose == Pose.STANDING || renderState.pose == Pose.CROUCHING || renderState.pose == Pose.SPIN_ATTACK) {
-      renderState.headFollowsMouse = followsMouse;
+    if (player.getPose() == Pose.STANDING || player.getPose() == Pose.CROUCHING || player.getPose() == Pose.SPIN_ATTACK) {
+      player.headFollowsMouse = followsMouse;
       if (followsMouse) {
-        properties.headRot.copy(renderState.headRot);
+        properties.headRot.copy(player.headRot);
       } else {
-        renderState.headRot.copy(properties.headRot);
+        player.headRot.copy(properties.headRot);
       }
     } else {
       properties.headFollowsMouse = followsMouse;
@@ -222,7 +227,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    */
   public FancyPlayerWidget setHeadRotation(Rotation rotation) {
     properties.headRot.copy(rotation);
-    renderState.headRot.copy(rotation);
+    player.headRot.copy(rotation);
     return this;
   }
 
@@ -237,7 +242,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    */
   public FancyPlayerWidget setHeadRotation(float x, float y, float z) {
     properties.headRot.setDeg(x, y, z);
-    renderState.headRot.setDeg(x, y, z);
+    player.headRot.setDeg(x, y, z);
     return this;
   }
 
@@ -250,7 +255,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    */
   public FancyPlayerWidget setBodyRotation(Rotation rotation) {
     properties.bodyRot.copy(rotation);
-    renderState.bodyRot.copy(rotation);
+    player.bodyRot.copy(rotation);
     return this;
   }
 
@@ -265,7 +270,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    */
   public FancyPlayerWidget setBodyRotation(float x, float y, float z) {
     properties.bodyRot.setDeg(x, y, z);
-    renderState.bodyRot.setDeg(x, y, z);
+    player.bodyRot.setDeg(x, y, z);
     return this;
   }
 
@@ -277,7 +282,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setLeftArmRotation(Rotation rotation) {
-    renderState.leftArmRot.copy(rotation);
+    player.leftArmRot.copy(rotation);
     return this;
   }
 
@@ -291,7 +296,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setLeftArmRotation(float x, float y, float z) {
-    renderState.leftArmRot.setDeg(x, y, z);
+    player.leftArmRot.setDeg(x, y, z);
     return this;
   }
 
@@ -303,7 +308,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setRightArmRotation(Rotation rotation) {
-    renderState.rightArmRot.copy(rotation);
+    player.rightArmRot.copy(rotation);
     return this;
   }
 
@@ -317,7 +322,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setRightArmRotation(float x, float y, float z) {
-    renderState.rightArmRot.setDeg(x, y, z);
+    player.rightArmRot.setDeg(x, y, z);
     return this;
   }
 
@@ -329,7 +334,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setLeftLegRotation(Rotation rotation) {
-    renderState.leftLegRot.copy(rotation);
+    player.leftLegRot.copy(rotation);
     return this;
   }
 
@@ -343,7 +348,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setLeftLegRotation(float x, float y, float z) {
-    renderState.leftLegRot.setDeg(x, y, z);
+    player.leftLegRot.setDeg(x, y, z);
     return this;
   }
 
@@ -355,7 +360,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setRightLegRotation(Rotation rotation) {
-    renderState.rightLegRot.copy(rotation);
+    player.rightLegRot.copy(rotation);
     return this;
   }
 
@@ -369,7 +374,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setRightLegRotation(float x, float y, float z) {
-    renderState.rightLegRot.setDeg(x, y, z);
+    player.rightLegRot.setDeg(x, y, z);
     return this;
   }
 
@@ -382,7 +387,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    */
   public FancyPlayerWidget setSlim(boolean isSlim) {
     properties.isSlim = isSlim;
-    if (!renderState.copyingPlayer && properties.skin == null) {
+    if (!player.copyingPlayer && properties.skin == null) {
       updateIsSlim(properties.isSlim);
       renderer = isSlim ? FancyPlayerRenderer.SLIM_RENDERER : FancyPlayerRenderer.WIDE_RENDERER;
     }
@@ -398,7 +403,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    */
   public FancyPlayerWidget setSkin(@Nullable PlayerSkin skin) {
     properties.skin = skin;
-    if (!renderState.copyingPlayer) {
+    if (!player.copyingPlayer) {
       updateSkin(skin);
     }
     return this;
@@ -412,7 +417,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget copyLocalPlayer() {
-    renderState.copyingPlayer = true;
+    player.copyingPlayer = true;
     copyPlayer(Minecraft.getInstance().getGameProfile());
     return this;
   }
@@ -426,9 +431,21 @@ public class FancyPlayerWidget extends AbstractWidget {
    */
   public FancyPlayerWidget setName(String name) {
     properties.name = name;
-    if (!renderState.copyingPlayer) {
-      renderState.name = name;
+    if (!player.copyingPlayer) {
+      player.name = name;
     }
+    return this;
+  }
+
+  /**
+   * Sets whether to pin the player's name at the top of the bounding box.<br>
+   * If you want to change the name's visibility, use {@link #setShowName(boolean)}.
+   *
+   * @param pinName whether to pin the player's name at the top of the bounding box.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setPinName(boolean pinName) {
+    player.pinName = pinName;
     return this;
   }
 
@@ -439,21 +456,92 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setShowName(boolean showName) {
-    renderState.showPlayerName = showName;
+    player.showPlayerName = showName;
     return this;
   }
 
-  /**
-   * Sets whether to pin the player's name at the top of the bounding box.<p>
-   * <b>WARNING: Experimental!</b><br>
-   * Currently, it has no effect.
-   *
-   * @param pinName whether to pin the player's name at the top of the bounding box.
-   * @return {@code this}.
-   */
-  @ApiStatus.Experimental
-  public FancyPlayerWidget setPinName(boolean pinName) {
-    renderState.pinName = pinName;
+  public FancyPlayerWidget setShowCape(boolean showCape) {
+    player.showCape = showCape;
+    return this;
+  }
+
+  public FancyPlayerWidget setShowLeftArm(boolean showLeftArm) {
+    player.showLeftArm = showLeftArm;
+    return this;
+  }
+
+  public FancyPlayerWidget setShowLeftSleeve(boolean showLeftSleeve) {
+    player.showLeftSleeve = showLeftSleeve;
+    return this;
+  }
+
+  public FancyPlayerWidget setShowRightArm(boolean showRightArm) {
+    player.showRightArm = showRightArm;
+    return this;
+  }
+
+  public FancyPlayerWidget setShowRightSleeve(boolean showRightSleeve) {
+    player.showRightSleeve = showRightSleeve;
+    return this;
+  }
+
+  public FancyPlayerWidget setShowLeftLeg(boolean showLeftLeg) {
+    player.showLeftLeg = showLeftLeg;
+    return this;
+  }
+
+  public FancyPlayerWidget setShowLeftPants(boolean showLeftPants) {
+    player.showLeftPants = showLeftPants;
+    return this;
+  }
+
+  public FancyPlayerWidget setShowRightLeg(boolean showRightLeg) {
+    player.showRightLeg = showRightLeg;
+    return this;
+  }
+
+  public FancyPlayerWidget setShowRightPants(boolean showRightPants) {
+    player.showRightPants = showRightPants;
+    return this;
+  }
+
+  public FancyPlayerWidget setShowHead(boolean showHead) {
+    player.showHead = showHead;
+    return this;
+  }
+
+  public FancyPlayerWidget setShowHat(boolean showHat) {
+    player.showHat = showHat;
+    return this;
+  }
+
+  public FancyPlayerWidget setShowBody(boolean showBody) {
+    player.showBody = showBody;
+    return this;
+  }
+
+  public FancyPlayerWidget setShowJacket(boolean showJacket) {
+    player.showJacket = showJacket;
+    return this;
+  }
+
+  public FancyPlayerWidget setShowOuterLayer(boolean showOuterLayer) {
+    setShowLeftSleeve(showOuterLayer);
+    setShowRightSleeve(showOuterLayer);
+    setShowLeftPants(showOuterLayer);
+    setShowRightPants(showOuterLayer);
+    setShowHat(showOuterLayer);
+    setShowJacket(showOuterLayer);
+    return this;
+  }
+
+  public FancyPlayerWidget setShowInnerLayer(boolean showInnerLayer) {
+    setShowLeftArm(showInnerLayer);
+    setShowRightArm(showInnerLayer);
+    setShowLeftLeg(showInnerLayer);
+    setShowRightLeg(showInnerLayer);
+    setShowHead(showInnerLayer);
+    setShowBody(showInnerLayer);
     return this;
   }
 
@@ -464,7 +552,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setUpsideDown(boolean isUpsideDown) {
-    renderState.isUpsideDown = isUpsideDown;
+    player.isUpsideDown = isUpsideDown;
     return this;
   }
 
@@ -475,9 +563,9 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setRenderMode(RenderMode mode) {
-    renderState.isSpectator = RenderMode.SPECTATOR == mode;
-    renderState.isInvisible = RenderMode.NORMAL != mode;
-    renderState.isInvisibleToPlayer = RenderMode.INVISIBLE == mode;
+    player.isSpectator = RenderMode.SPECTATOR == mode;
+    player.isInvisible = RenderMode.NORMAL != mode;
+    player.isInvisibleToPlayer = RenderMode.INVISIBLE == mode;
     return this;
   }
 
@@ -491,7 +579,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    */
   @ApiStatus.Experimental
   public FancyPlayerWidget setGlowing(boolean isGlowing) {
-    renderState.appearsGlowing = isGlowing;
+    player.appearsGlowing = isGlowing;
     return this;
   }
 
@@ -502,7 +590,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setMoving(boolean isMoving) {
-    renderState.isMoving = isMoving;
+    player.isMoving = isMoving;
     return this;
   }
 
@@ -514,8 +602,8 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setOnFire(boolean onFire) {
-    if (renderState.pose == Pose.STANDING || renderState.pose == Pose.CROUCHING) {
-      renderState.displayFireAnimation = onFire;
+    if (player.getPose() == Pose.STANDING || player.getPose() == Pose.CROUCHING) {
+      player.displayFireAnimation = onFire;
     } else {
       properties.displayFireAnimation = onFire;
     }
@@ -532,7 +620,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    */
   public FancyPlayerWidget setOnFire(boolean onFire, ResourceLocation fireType) {
     if (Services.PLATFORM.isModLoaded("soul_fire_d")) {
-      Services.COMPAT.setOnFire(renderState, fireType);
+      Services.COMPAT.setOnFire(player, fireType);
     }
     return setOnFire(onFire);
   }
@@ -545,7 +633,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setArrowCount(int count) {
-    renderState.setArrowCount(count);
+    player.setArrowCount(count);
     return this;
   }
 
@@ -557,7 +645,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setStingerCount(int count) {
-    renderState.setStingerCount(count);
+    player.setStingerCount(count);
     return this;
   }
 
@@ -569,10 +657,10 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setLeftParrot(@Nullable Parrot.Variant parrot) {
-    if (renderState.isBaby || renderState.pose == Pose.SWIMMING) {
+    if (player.isBaby || player.getPose() == Pose.SWIMMING) {
       properties.parrotOnLeftShoulder = parrot;
     } else {
-      renderState.parrotOnLeftShoulder = parrot;
+      player.parrotOnLeftShoulder = parrot;
     }
     return this;
   }
@@ -585,10 +673,10 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setRightParrot(@Nullable Parrot.Variant parrot) {
-    if (renderState.isBaby || renderState.pose == Pose.SWIMMING) {
+    if (player.isBaby || player.getPose() == Pose.SWIMMING) {
       properties.parrotOnRightShoulder = parrot;
     } else {
-      renderState.parrotOnRightShoulder = parrot;
+      player.parrotOnRightShoulder = parrot;
     }
     return this;
   }
@@ -602,12 +690,12 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setParrots(@Nullable Parrot.Variant left, @Nullable Parrot.Variant right) {
-    if (renderState.isBaby || renderState.pose == Pose.SWIMMING) {
+    if (player.isBaby || player.getPose() == Pose.SWIMMING) {
       properties.parrotOnLeftShoulder = left;
       properties.parrotOnRightShoulder = right;
     } else {
-      renderState.parrotOnLeftShoulder = left;
-      renderState.parrotOnRightShoulder = right;
+      player.parrotOnLeftShoulder = left;
+      player.parrotOnRightShoulder = right;
     }
     return this;
   }
@@ -620,13 +708,13 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setBaby(boolean isBaby) {
-    renderState.isBaby = isBaby;
+    player.isBaby = isBaby;
     if (isBaby) {
-      properties.parrotOnLeftShoulder = renderState.parrotOnLeftShoulder;
-      properties.parrotOnRightShoulder = renderState.parrotOnRightShoulder;
+      properties.parrotOnLeftShoulder = player.parrotOnLeftShoulder;
+      properties.parrotOnRightShoulder = player.parrotOnRightShoulder;
     } else {
-      renderState.parrotOnLeftShoulder = properties.parrotOnLeftShoulder;
-      renderState.parrotOnRightShoulder = properties.parrotOnRightShoulder;
+      player.parrotOnLeftShoulder = properties.parrotOnLeftShoulder;
+      player.parrotOnRightShoulder = properties.parrotOnRightShoulder;
     }
     return this;
   }
@@ -639,36 +727,33 @@ public class FancyPlayerWidget extends AbstractWidget {
    */
   public FancyPlayerWidget setPose(Pose pose) {
     if (Player.POSES.containsKey(pose) && pose != Pose.FALL_FLYING) {
-      renderState.pose = pose;
-      renderState.isAutoSpinAttack = pose == Pose.SPIN_ATTACK;
-      renderState.isCrouching = pose == Pose.CROUCHING;
-      renderState.isVisuallySwimming = pose == Pose.SWIMMING;
-      renderState.swimAmount = renderState.isVisuallySwimming ? 1 : 0;
-      renderState.hasRedOverlay = pose == Pose.DYING;
-      renderState.deathTime = renderState.hasRedOverlay ? 5 : 0;
+      player.setPose(pose);
+      player.isAutoSpinAttack = pose == Pose.SPIN_ATTACK;
+      player.isVisuallySwimming = pose == Pose.SWIMMING;
+      player.deathTime = pose == Pose.DYING ? 5 : 0;
       if (pose == Pose.STANDING || pose == Pose.CROUCHING) {
-        renderState.displayFireAnimation = properties.displayFireAnimation;
+        player.displayFireAnimation = properties.displayFireAnimation;
       } else {
-        properties.displayFireAnimation = renderState.displayFireAnimation;
-        renderState.displayFireAnimation = false;
+        properties.displayFireAnimation = player.displayFireAnimation;
+        player.displayFireAnimation = false;
       }
       if (pose == Pose.STANDING || pose == Pose.CROUCHING || pose == Pose.SPIN_ATTACK) {
-        renderState.headFollowsMouse = properties.headFollowsMouse;
-        renderState.bodyFollowsMouse = properties.bodyFollowsMouse;
+        player.headFollowsMouse = properties.headFollowsMouse;
+        player.bodyFollowsMouse = properties.bodyFollowsMouse;
       } else {
-        properties.headFollowsMouse = renderState.headFollowsMouse;
-        properties.bodyFollowsMouse = renderState.bodyFollowsMouse;
-        renderState.headFollowsMouse = false;
-        renderState.bodyFollowsMouse = false;
+        properties.headFollowsMouse = player.headFollowsMouse;
+        properties.bodyFollowsMouse = player.bodyFollowsMouse;
+        player.headFollowsMouse = false;
+        player.bodyFollowsMouse = false;
       }
       if (pose == Pose.SWIMMING) {
-        properties.parrotOnLeftShoulder = renderState.parrotOnLeftShoulder;
-        properties.parrotOnRightShoulder = renderState.parrotOnRightShoulder;
-        renderState.parrotOnLeftShoulder = null;
-        renderState.parrotOnRightShoulder = null;
+        properties.parrotOnLeftShoulder = player.parrotOnLeftShoulder;
+        properties.parrotOnRightShoulder = player.parrotOnRightShoulder;
+        player.parrotOnLeftShoulder = null;
+        player.parrotOnRightShoulder = null;
       } else {
-        renderState.parrotOnLeftShoulder = properties.parrotOnLeftShoulder;
-        renderState.parrotOnRightShoulder = properties.parrotOnRightShoulder;
+        player.parrotOnLeftShoulder = properties.parrotOnLeftShoulder;
+        player.parrotOnRightShoulder = properties.parrotOnRightShoulder;
       }
     } else {
       Constants.LOGGER.warn("Pose {} is not supported for Player entity!", pose);
@@ -677,38 +762,26 @@ public class FancyPlayerWidget extends AbstractWidget {
   }
 
   /**
-   * Sets the right arm pose.<br>
-   * {@link HumanoidModel.ArmPose#EMPTY} to remove.
-   *
-   * @param pose {@link HumanoidModel.ArmPose}.
-   * @return {@code this}.
-   */
-  public FancyPlayerWidget setRightArmPose(HumanoidModel.ArmPose pose) {
-    renderState.rightArmPose = pose;
-    return this;
-  }
-
-  /**
-   * Sets the left arm pose.<br>
-   * {@link HumanoidModel.ArmPose#EMPTY} to remove.
-   *
-   * @param pose {@link HumanoidModel.ArmPose}.
-   * @return {@code this}.
-   */
-  public FancyPlayerWidget setLeftArmPose(HumanoidModel.ArmPose pose) {
-    renderState.leftArmPose = pose;
-    return this;
-  }
-
-  /**
    * Sets the movement speed.<br>
-   * Effective only when the player is moving (see {@link #setMoving(boolean)}.
+   * Effective only when the player is moving (see {@link #setMoving(boolean)}).
    *
    * @param speed speed value.
    * @return {@code this}.
    */
   public FancyPlayerWidget setMovementSpeed(float speed) {
-    renderState.speedValue = speed;
+    player.speedValue = speed;
+    return this;
+  }
+
+  /**
+   * Sets the walking speed and amplitude.<br>
+   * Effective only when the player is moving (see {@link #setMoving(boolean)}).
+   *
+   * @param speed speed value.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setWalkingSpeed(float speed) {
+    player.walkSpeed = speed;
     return this;
   }
 
@@ -721,7 +794,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setRightHandItem(@Nullable String item, HolderLookup.Provider provider) {
-    renderState.rightHandHeldItem = getNullableItem(item, i -> parseItem(i, provider));
+    player.setItemInHand(InteractionHand.MAIN_HAND, getNullableItem(item, i -> parseItem(i, provider)));
     return this;
   }
 
@@ -734,7 +807,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setLeftHandItem(@Nullable String item, HolderLookup.Provider provider) {
-    renderState.leftHandHeldItem = getNullableItem(item, i -> parseItem(i, provider));
+    player.setItemInHand(InteractionHand.OFF_HAND, getNullableItem(item, i -> parseItem(i, provider)));
     return this;
   }
 
@@ -746,7 +819,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setRightHandItem(@Nullable Item item) {
-    renderState.rightHandHeldItem = getNullableItem(item, Item::getDefaultInstance);
+    player.setItemInHand(InteractionHand.MAIN_HAND, getNullableItem(item, Item::getDefaultInstance));
     return this;
   }
 
@@ -758,7 +831,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setLeftHandItem(@Nullable Item item) {
-    renderState.leftHandHeldItem = getNullableItem(item, Item::getDefaultInstance);
+    player.setItemInHand(InteractionHand.OFF_HAND, getNullableItem(item, Item::getDefaultInstance));
     return this;
   }
 
@@ -770,7 +843,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setRightHandItem(@Nullable ItemStack item) {
-    renderState.rightHandHeldItem = getNullableItem(item, i -> i);
+    player.setItemInHand(InteractionHand.MAIN_HAND, getNullableItem(item, i -> i));
     return this;
   }
 
@@ -782,7 +855,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setLeftHandItem(@Nullable ItemStack item) {
-    renderState.leftHandHeldItem = getNullableItem(item, i -> i);
+    player.setItemInHand(InteractionHand.OFF_HAND, getNullableItem(item, i -> i));
     return this;
   }
 
@@ -795,7 +868,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setHeadWearable(@Nullable String item, HolderLookup.Provider provider) {
-    renderState.headEquipment = getNullableItem(item, i -> parseItem(i, provider));
+    player.setItemSlot(EquipmentSlot.HEAD, getNullableItem(item, i -> parseItem(i, provider)));
     return this;
   }
 
@@ -808,7 +881,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setChestWearable(@Nullable String item, HolderLookup.Provider provider) {
-    renderState.chestEquipment = getNullableItem(item, i -> parseItem(i, provider));
+    player.setItemSlot(EquipmentSlot.CHEST, getNullableItem(item, i -> parseItem(i, provider)));
     return this;
   }
 
@@ -821,7 +894,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setLegsWearable(@Nullable String item, HolderLookup.Provider provider) {
-    renderState.legsEquipment = getNullableItem(item, i -> parseItem(i, provider));
+    player.setItemSlot(EquipmentSlot.LEGS, getNullableItem(item, i -> parseItem(i, provider)));
     return this;
   }
 
@@ -834,7 +907,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setFeetWearable(@Nullable String item, HolderLookup.Provider provider) {
-    renderState.feetEquipment = getNullableItem(item, i -> parseItem(i, provider));
+    player.setItemSlot(EquipmentSlot.FEET, getNullableItem(item, i -> parseItem(i, provider)));
     return this;
   }
 
@@ -846,7 +919,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setHeadWearable(@Nullable Item item) {
-    renderState.headEquipment = getNullableItem(item, Item::getDefaultInstance);
+    player.setItemSlot(EquipmentSlot.HEAD, getNullableItem(item, Item::getDefaultInstance));
     return this;
   }
 
@@ -858,7 +931,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setChestWearable(@Nullable Item item) {
-    renderState.chestEquipment = getNullableItem(item, Item::getDefaultInstance);
+    player.setItemSlot(EquipmentSlot.CHEST, getNullableItem(item, Item::getDefaultInstance));
     return this;
   }
 
@@ -870,7 +943,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setLegsWearable(@Nullable Item item) {
-    renderState.legsEquipment = getNullableItem(item, Item::getDefaultInstance);
+    player.setItemSlot(EquipmentSlot.LEGS, getNullableItem(item, Item::getDefaultInstance));
     return this;
   }
 
@@ -882,7 +955,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setFeetWearable(@Nullable Item item) {
-    renderState.feetEquipment = getNullableItem(item, Item::getDefaultInstance);
+    player.setItemSlot(EquipmentSlot.FEET, getNullableItem(item, Item::getDefaultInstance));
     return this;
   }
 
@@ -894,7 +967,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setHeadWearable(@Nullable ItemStack item) {
-    renderState.headEquipment = getNullableItem(item, i -> i);
+    player.setItemSlot(EquipmentSlot.HEAD, getNullableItem(item, i -> i));
     return this;
   }
 
@@ -906,7 +979,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setChestWearable(@Nullable ItemStack item) {
-    renderState.chestEquipment = getNullableItem(item, i -> i);
+    player.setItemSlot(EquipmentSlot.CHEST, getNullableItem(item, i -> i));
     return this;
   }
 
@@ -918,7 +991,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setLegsWearable(@Nullable ItemStack item) {
-    renderState.legsEquipment = getNullableItem(item, i -> i);
+    player.setItemSlot(EquipmentSlot.LEGS, getNullableItem(item, i -> i));
     return this;
   }
 
@@ -930,87 +1003,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setFeetWearable(@Nullable ItemStack item) {
-    renderState.feetEquipment = getNullableItem(item, i -> i);
-    return this;
-  }
-
-  /**
-   * Sets the attack time for the attack animation.<br>
-   * Value must be {@code >= 0}.
-   *
-   * @param attackTime attack time animation.
-   * @return {@code this}.
-   */
-  public FancyPlayerWidget setAttackTime(float attackTime) {
-    if (attackTime >= 0) {
-      renderState.attackTime = attackTime % 1;
-    }
-    return this;
-  }
-
-  /**
-   * Sets the attack arm for the attack animation.
-   *
-   * @param attackArm attack arm.
-   * @return {@code this}.
-   */
-  public FancyPlayerWidget setAttackArm(HumanoidArm attackArm) {
-    renderState.attackArm = attackArm;
-    return this;
-  }
-
-  /**
-   * Fully mimics the local player.<br>
-   * If you want to undo the mimicking, use {@link #unmimicPlayer()}.<br>
-   * Overrides almost every other property.
-   *
-   * @return {@code this}.
-   */
-  public FancyPlayerWidget mimicLocalPlayer() {
-    return mimicPlayer(Minecraft.getInstance().player);
-  }
-
-  /**
-   * Fully mimics the given client player.<br>
-   * If you want to undo the mimicking, use {@link #unmimicPlayer()}.<br>
-   * Overrides almost every other property.
-   *
-   * @param player player to mimic.
-   * @return {@code this}.
-   */
-  public FancyPlayerWidget mimicPlayer(@Nullable AbstractClientPlayer player) {
-    renderState.mimickedPlayer = player;
-    return this;
-  }
-
-  /**
-   * Stops the widget from currently mimicking a player.
-   *
-   * @return {@code this}.
-   */
-  public FancyPlayerWidget unmimicPlayer() {
-    renderState.mimickedPlayer = null;
-    return this;
-  }
-
-  /**
-   * Returns whether the widget is currently mimicking a player.
-   *
-   * @return whether the widget is mimicking a player
-   */
-  public boolean isMimickingPlayer() {
-    return renderState.mimickedPlayer != null;
-  }
-
-  /**
-   * Sets the allowed poses for when mimicking a player.<br>
-   * Effective only when mimicking a player.
-   *
-   * @param poses list of allowed poses.
-   * @return {@code this}.
-   */
-  public FancyPlayerWidget setAllowedPoses(List<Pose> poses) {
-    renderState.allowedPoses = poses;
+    player.setItemSlot(EquipmentSlot.FEET, getNullableItem(item, i -> i));
     return this;
   }
 
@@ -1071,9 +1064,9 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget uncopyPlayer() {
-    renderState.copyingPlayer = false;
+    player.copyingPlayer = false;
     updateSkin(properties.skin);
-    renderState.name = properties.name;
+    player.name = properties.name;
     return this;
   }
 
@@ -1083,7 +1076,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return whether the widget is copying a player.
    */
   public boolean isCopyingPlayer() {
-    return renderState.copyingPlayer;
+    return player.copyingPlayer;
   }
 
   /**
@@ -1106,13 +1099,13 @@ public class FancyPlayerWidget extends AbstractWidget {
    */
   private FancyPlayerWidget copyPlayer(GameProfile profile) {
     Minecraft.getInstance().getSkinManager().getOrLoad(profile).exceptionally(throwable -> (PlayerSkin) FancyPlayerWidget.handlePlayerCopyError(throwable).orElse(null)).thenAccept(skin -> {
-      renderState.copyingPlayer = true;
-      properties.name = renderState.name;
-      renderState.name = profile.getName();
+      player.copyingPlayer = true;
+      properties.name = player.name;
+      player.name = profile.getName();
       if (skin != null) {
-        this.updateSkin(skin);
+        updateSkin(skin);
       } else {
-        handlePlayerCopyError(renderState.name);
+        handlePlayerCopyError(player.name);
       }
     });
     return this;
@@ -1125,12 +1118,12 @@ public class FancyPlayerWidget extends AbstractWidget {
    */
   private void updateSkin(@Nullable PlayerSkin skin) {
     if (skin != null) {
-      renderState.isSlim = skin.model() == PlayerSkin.Model.SLIM;
-      renderState.skin = skin;
+      player.isSlim = skin.model() == PlayerSkin.Model.SLIM;
+      player.skin = skin;
     } else {
       updateIsSlim(properties.isSlim);
     }
-    renderer = renderState.isSlim ? FancyPlayerRenderer.SLIM_RENDERER : FancyPlayerRenderer.WIDE_RENDERER;
+    renderer = player.isSlim ? FancyPlayerRenderer.SLIM_RENDERER : FancyPlayerRenderer.WIDE_RENDERER;
   }
 
   /**
@@ -1139,8 +1132,8 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @param isSlim whether the player is slim or wide.
    */
   private void updateIsSlim(boolean isSlim) {
-    renderState.isSlim = isSlim;
-    renderState.skin = DefaultPlayerSkin.DEFAULT_SKINS[random.nextInt(9) + (isSlim ? 0 : 9)];
+    player.isSlim = isSlim;
+    player.skin = DefaultPlayerSkin.DEFAULT_SKINS[random.nextInt(9) + (isSlim ? 0 : 9)];
   }
 
   /**
@@ -1155,32 +1148,32 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @param partialTick partial tick.
    */
   private void updateRenderState(int x, int y, int width, int height, int mouseX, int mouseY, float partialTick) {
-    renderState.boundingBoxWidth = height / PLAYER_SIZE_RATIO;
-    renderState.boundingBoxHeight = height;
-    renderState.scale = height / PLAYER_RENDER_HEIGHT;
-    if (renderState.bodyFollowsMouse || renderState.headFollowsMouse) {
-      float renderHeight = renderState.pose == Pose.CROUCHING ? Player.CROUCH_BB_HEIGHT : PLAYER_RENDER_HEIGHT;
-      float eyeHeight = renderState.pose == Pose.CROUCHING ? PLAYER_CROUCHING_EYE_HEIGHT : Player.DEFAULT_EYE_HEIGHT;
+    player.boundingBoxWidth = height / PLAYER_SIZE_RATIO;
+    player.boundingBoxHeight = height;
+    player.scale = height / PLAYER_RENDER_HEIGHT;
+    if (player.bodyFollowsMouse || player.headFollowsMouse) {
+      float renderHeight = player.getPose() == Pose.CROUCHING ? Player.CROUCH_BB_HEIGHT : PLAYER_RENDER_HEIGHT;
+      float eyeHeight = player.getPose() == Pose.CROUCHING ? PLAYER_CROUCHING_EYE_HEIGHT : Player.DEFAULT_EYE_HEIGHT;
       float adultEyeY = (renderHeight - eyeHeight) * height / renderHeight;
-      float eyeY = y + (renderState.isBaby ? (height + adultEyeY) * Player.DEFAULT_BABY_SCALE : adultEyeY);
+      float eyeY = y + (player.isBaby ? (height + adultEyeY) * Player.DEFAULT_BABY_SCALE : adultEyeY);
       float eyeX = (x + width / 2F);
       double mouseXRelative = mouseX - eyeX;
       double mouseYRelative = mouseY - eyeY;
       double xRot = Math.atan(mouseYRelative / 40F) * 20;
       double yRot = -Math.atan(mouseXRelative / 40F) * 20;
-      if (renderState.isUpsideDown) {
+      if (player.isUpsideDown) {
         xRot = -xRot;
         yRot = -yRot;
       }
-      if (renderState.bodyFollowsMouse) {
-        renderState.bodyRot.setXDeg(xRot);
-        renderState.bodyRot.setYDeg(yRot);
-        renderState.bodyRot.setZ(0);
+      if (player.bodyFollowsMouse) {
+        player.bodyRot.setXDeg(xRot);
+        player.bodyRot.setYDeg(yRot);
+        player.bodyRot.setZ(0);
       }
-      if (renderState.headFollowsMouse) {
-        renderState.headRot.setXDeg(xRot);
-        renderState.headRot.setYDeg(yRot);
-        renderState.headRot.setZ(0);
+      if (player.headFollowsMouse) {
+        player.headRot.setXDeg(xRot);
+        player.headRot.setYDeg(yRot);
+        player.headRot.setZ(0);
       }
     }
   }
@@ -1203,13 +1196,13 @@ public class FancyPlayerWidget extends AbstractWidget {
 
     /**
      * Whether the whole model should rotate to follow the mouse.<br>
-     * Overridable by {@link FancyPlayerMock#pose}.
+     * Overridable by {@link FancyPlayerMock#getPose()}.
      */
     public boolean bodyFollowsMouse;
 
     /**
      * Whether the head should rotate to follow the mouse.<br>
-     * Overridable by {@link FancyPlayerMock#pose}.
+     * Overridable by {@link FancyPlayerMock#getPose()}.
      */
     public boolean headFollowsMouse;
 
@@ -1249,7 +1242,7 @@ public class FancyPlayerWidget extends AbstractWidget {
 
     /**
      * Whether to display the fire animation.<br>
-     * Overridable by {@link FancyPlayerMock#pose}.
+     * Overridable by {@link FancyPlayerMock#getPose()}.
      */
     boolean displayFireAnimation;
 
