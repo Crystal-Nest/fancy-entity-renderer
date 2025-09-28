@@ -73,5 +73,11 @@ public class FancyPlayerModel extends PlayerModel {
     leftLeg.offsetRotation(state.leftLegRot.getOffset());
     rightLeg.offsetRotation(state.rightLegRot.getOffset());
     head.offsetRotation(state.headRot.getOffset());
+    leftArm.skipDraw = !state.showLeftArm;
+    rightArm.skipDraw = !state.showRightArm;
+    leftLeg.skipDraw = !state.showLeftLeg;
+    rightLeg.skipDraw = !state.showRightLeg;
+    head.skipDraw = !state.showHead;
+    body.skipDraw = !state.showBody;
   }
 }

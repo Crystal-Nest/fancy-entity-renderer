@@ -114,7 +114,7 @@ public class FancyPlayerRenderer extends PlayerRenderer {
    * @param packedLight packed light.
    */
   public void render(@NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight) {
-    entityRenderDispatcher.overrideCameraOrientation(new Quaternionf().rotateXYZ(-state().bodyRot.getX(), state().bodyRot.getY(), -state().bodyRot.getZ()));
+    entityRenderDispatcher.overrideCameraOrientation(new Quaternionf().rotateXYZ(-state().modelRot.getX(), state().modelRot.getY(), -state().modelRot.getZ()));
     // noinspection DataFlowIssue: Entity is null, but it won't get used anyway because extractRenderState was overridden.
     entityRenderDispatcher.render(null, 0, 0, 0, 0, poseStack, bufferSource, packedLight, this);
   }
@@ -140,6 +140,9 @@ public class FancyPlayerRenderer extends PlayerRenderer {
       float offsetY = (state.pose == Pose.SLEEPING || state.pose == Pose.SWIMMING ? state.boundingBoxWidth : height) / scale + (float) state.nameTagAttachment.y;
       float offsetX = state.pose == Pose.SLEEPING ? -(float) state.nameTagAttachment.x : font.width(nameTag) / 2F;
       poseStack.scale(scale, -scale, scale);
+      if (state.pinName) {
+        poseStack.rotateAround(new Quaternionf().rotateY(state.modelRot.getY()), 0, 0, 0);
+      }
       poseStack.translate(-offsetX, -offsetY, 0);
       if (renderState.isUpsideDown) {
         poseStack.scale(1, -1, 1);
@@ -200,9 +203,15 @@ public class FancyPlayerRenderer extends PlayerRenderer {
         float step = renderState.speedValue * 0.33F;
         renderState.ageInTicks += step;
         renderState.walkAnimationPos += step;
+        if (!(state.pose == Pose.SPIN_ATTACK || state.pose == Pose.SLEEPING)) {
+          renderState.walkAnimationSpeed = state.walkSpeed;
+        } else {
+          renderState.walkAnimationSpeed = 0;
+        }
       } else {
         renderState.ageInTicks = 3000;
         renderState.walkAnimationPos = 0;
+        renderState.walkAnimationSpeed = 0;
       }
       renderState.nameTag = Component.literal(state.name);
       if (state.pose == Pose.SLEEPING) {
