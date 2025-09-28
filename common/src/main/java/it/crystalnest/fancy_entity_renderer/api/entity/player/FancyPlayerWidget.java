@@ -150,8 +150,8 @@ public class FancyPlayerWidget extends AbstractWidget {
     gfx.pose().translate(getX() + getWidth() / 2F + offsetX, getY() + getHeight() + offsetY, 100);
     gfx.flush();
     gfx.pose().scale(1, -1, 1);
-    Lighting.setupForEntityInInventory(Axis.XP.rotationDegrees(renderState.bodyRot.getX()));
-    gfx.pose().rotateAround(new Quaternionf().rotateXYZ(renderState.bodyRot.getX(), -renderState.bodyRot.getY(), renderState.bodyRot.getZ()), 0, 0, 0);
+    Lighting.setupForEntityInInventory(Axis.XP.rotationDegrees(renderState.modelRot.getX()));
+    gfx.pose().rotateAround(new Quaternionf().rotateXYZ(renderState.modelRot.getX(), -renderState.modelRot.getY(), renderState.modelRot.getZ()), 0, 0, 0);
     gfx.drawSpecial(bufferSource -> renderer.render(gfx.pose(), bufferSource, LightTexture.FULL_BRIGHT));
     gfx.flush();
     gfx.pose().popPose();
@@ -189,9 +189,9 @@ public class FancyPlayerWidget extends AbstractWidget {
     if (renderState.pose == Pose.STANDING || renderState.pose == Pose.CROUCHING || renderState.pose == Pose.SPIN_ATTACK) {
       renderState.bodyFollowsMouse = followsMouse;
       if (followsMouse) {
-        properties.bodyRot.copy(renderState.bodyRot);
+        properties.bodyRot.copy(renderState.modelRot);
       } else {
-        renderState.bodyRot.copy(properties.bodyRot);
+        renderState.modelRot.copy(properties.bodyRot);
       }
     } else {
       properties.bodyFollowsMouse = followsMouse;
@@ -257,7 +257,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    */
   public FancyPlayerWidget setBodyRotation(Rotation rotation) {
     properties.bodyRot.copy(rotation);
-    renderState.bodyRot.copy(rotation);
+    renderState.modelRot.copy(rotation);
     return this;
   }
 
@@ -272,7 +272,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    */
   public FancyPlayerWidget setBodyRotation(float x, float y, float z) {
     properties.bodyRot.setDeg(x, y, z);
-    renderState.bodyRot.setDeg(x, y, z);
+    renderState.modelRot.setDeg(x, y, z);
     return this;
   }
 
@@ -440,6 +440,18 @@ public class FancyPlayerWidget extends AbstractWidget {
   }
 
   /**
+   * Sets whether to pin the player's name at the top of the bounding box.<br>
+   * If you want to change the name's visibility, use {@link #setShowName(boolean)}.
+   *
+   * @param pinName whether to pin the player's name at the top of the bounding box.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setPinName(boolean pinName) {
+    renderState.pinName = pinName;
+    return this;
+  }
+
+  /**
    * Sets whether to show the player's name.
    *
    * @param showName whether to show the player's name.
@@ -451,16 +463,185 @@ public class FancyPlayerWidget extends AbstractWidget {
   }
 
   /**
-   * Sets whether to pin the player's name at the top of the bounding box.<p>
-   * <b>WARNING: Experimental!</b><br>
-   * Currently, it has no effect.
+   * Sets whether to show the player's cape.<br>
+   * Note: to show a cape, the player's skin must include the cape.
    *
-   * @param pinName whether to pin the player's name at the top of the bounding box.
+   * @param showCape whether to show the player's cape.
    * @return {@code this}.
    */
-  @ApiStatus.Experimental
-  public FancyPlayerWidget setPinName(boolean pinName) {
-    renderState.pinName = pinName;
+  public FancyPlayerWidget setShowCape(boolean showCape) {
+    renderState.showCape = showCape;
+    return this;
+  }
+
+  /**
+   * Sets whether to show the player's left arm.
+   *
+   * @param showLeftArm whether to show the player's left arm.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setShowLeftArm(boolean showLeftArm) {
+    renderState.showLeftArm = showLeftArm;
+    return this;
+  }
+
+  /**
+   * Sets whether to show the player's left sleeve.<br>
+   * Note: the player's skin must include an outer layer for the left sleeve to be visible.
+   *
+   * @param showLeftSleeve whether to show the player's left sleeve.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setShowLeftSleeve(boolean showLeftSleeve) {
+    renderState.showLeftSleeve = showLeftSleeve;
+    return this;
+  }
+
+  /**
+   * Sets whether to show the player's right arm.
+   *
+   * @param showRightArm whether to show the player's right arm.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setShowRightArm(boolean showRightArm) {
+    renderState.showRightArm = showRightArm;
+    return this;
+  }
+
+  /**
+   * Sets whether to show the player's right sleeve.<br>
+   * Note: the player's skin must include an outer layer for the right sleeve to be visible.
+   *
+   * @param showRightSleeve whether to show the player's right sleeve.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setShowRightSleeve(boolean showRightSleeve) {
+    renderState.showRightSleeve = showRightSleeve;
+    return this;
+  }
+
+  /**
+   * Sets whether to show the player's left leg.
+   *
+   * @param showLeftLeg whether to show the player's left leg.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setShowLeftLeg(boolean showLeftLeg) {
+    renderState.showLeftLeg = showLeftLeg;
+    return this;
+  }
+
+  /**
+   * Sets whether to show the player's left pants.<br>
+   * Note: the player's skin must include an outer layer for the left pants to be visible.
+   *
+   * @param showLeftPants whether to show the player's left pants.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setShowLeftPants(boolean showLeftPants) {
+    renderState.showLeftPants = showLeftPants;
+    return this;
+  }
+
+  /**
+   * Sets whether to show the player's right leg.
+   *
+   * @param showRightLeg whether to show the player's right leg.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setShowRightLeg(boolean showRightLeg) {
+    renderState.showRightLeg = showRightLeg;
+    return this;
+  }
+
+  /**
+   * Sets whether to show the player's right pants.<br>
+   * Note: the player's skin must include an outer layer for the right pants to be visible.
+   *
+   * @param showRightPants whether to show the player's right pants.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setShowRightPants(boolean showRightPants) {
+    renderState.showRightPants = showRightPants;
+    return this;
+  }
+
+  /**
+   * Sets whether to show the player's head.
+   *
+   * @param showHead whether to show the player's head.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setShowHead(boolean showHead) {
+    renderState.showHead = showHead;
+    return this;
+  }
+
+  /**
+   * Sets whether to show the player's hat.<br>
+   * Note: the player's skin must include an outer layer for the hat to be visible.
+   *
+   * @param showHat whether to show the player's hat.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setShowHat(boolean showHat) {
+    renderState.showHat = showHat;
+    return this;
+  }
+
+  /**
+   * Sets whether to show the player's torso.
+   *
+   * @param showBody whether to show the player's torso.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setShowBody(boolean showBody) {
+    renderState.showBody = showBody;
+    return this;
+  }
+
+  /**
+   * Sets whether to show the player's jacket.<br>
+   * Note: the player's skin must include an outer layer for the jacket to be visible.
+   *
+   * @param showJacket whether to show the player's jacket.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setShowJacket(boolean showJacket) {
+    renderState.showJacket = showJacket;
+    return this;
+  }
+
+  /**
+   * Sets whether to show the player's outer layer.<br>
+   * Note: the player's skin must include an outer layer for it to be visible.
+   *
+   * @param showOuterLayer whether to show the player's outer layer.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setShowOuterLayer(boolean showOuterLayer) {
+    setShowLeftSleeve(showOuterLayer);
+    setShowRightSleeve(showOuterLayer);
+    setShowLeftPants(showOuterLayer);
+    setShowRightPants(showOuterLayer);
+    setShowHat(showOuterLayer);
+    setShowJacket(showOuterLayer);
+    return this;
+  }
+
+  /**
+   * Sets whether to show the player's inner layer.
+   *
+   * @param showInnerLayer whether to show the player's inner layer.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setShowInnerLayer(boolean showInnerLayer) {
+    setShowLeftArm(showInnerLayer);
+    setShowRightArm(showInnerLayer);
+    setShowLeftLeg(showInnerLayer);
+    setShowRightLeg(showInnerLayer);
+    setShowHead(showInnerLayer);
+    setShowBody(showInnerLayer);
     return this;
   }
 
@@ -716,6 +897,18 @@ public class FancyPlayerWidget extends AbstractWidget {
    */
   public FancyPlayerWidget setMovementSpeed(float speed) {
     renderState.speedValue = speed;
+    return this;
+  }
+
+  /**
+   * Sets the walking speed and amplitude.<br>
+   * Effective only when the player is moving (see {@link #setMoving(boolean)}).
+   *
+   * @param speed speed value.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setWalkingSpeed(float speed) {
+    renderState.walkSpeed = speed;
     return this;
   }
 
@@ -1174,9 +1367,9 @@ public class FancyPlayerWidget extends AbstractWidget {
         yRot = -yRot;
       }
       if (renderState.bodyFollowsMouse) {
-        renderState.bodyRot.setXDeg(xRot);
-        renderState.bodyRot.setYDeg(yRot);
-        renderState.bodyRot.setZ(0);
+        renderState.modelRot.setXDeg(xRot);
+        renderState.modelRot.setYDeg(yRot);
+        renderState.modelRot.setZ(0);
       }
       if (renderState.headFollowsMouse) {
         renderState.headRot.setXDeg(xRot);
