@@ -9,6 +9,15 @@ and this project adheres to [Crystal Nest Semantic Versioning](https://crystalne
 
 - Nothing new.
 
+## [v0.4.0] - 2025/09/29
+
+- 1.21.6+ only.
+- Renamed `bodyRot` to `modelRot` to avoid overriding the already existing property in `LivingEntityRenderState`.
+- Implemented [#17](https://github.com/Crystal-Nest/fancy-entity-renderer/issues/17), there is now a flag to prevent the name tag from rotating around the Y axis with the player.
+- Implemented [#18](https://github.com/Crystal-Nest/fancy-entity-renderer/issues/18), there are now flags to individually change the visibility of different body parts or layers.
+- Added new property (`walkSpeed`) to allow players to walk while moving (before they could only play the idle animation when standing or crouching).
+- Fixed a (Vanilla) bug that would prevent multiple widgets from being rendered at a time.
+
 ## [v0.4.0] - 2025/09/28
 
 - Backported to 1.21 and 1.21.1.

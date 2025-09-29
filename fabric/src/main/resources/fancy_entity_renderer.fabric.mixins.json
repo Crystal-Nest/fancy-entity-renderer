@@ -5,7 +5,9 @@
   "refmap": "${mod_id}.refmap.json",
   "compatibilityLevel": "JAVA_${java_version}",
   "mixins": [],
-  "client": [],
+  "client": [
+    "client.GuiRendererMixin"
+  ],
   "server": [],
   "injectors": {
     "defaultRequire": 1

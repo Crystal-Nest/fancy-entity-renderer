@@ -54,10 +54,10 @@ public abstract class GuiEntityRendererMixin extends PictureInPictureRenderer<Gu
       if (guiState.overrideCameraAngle() != null) {
         entityRenderDispatcher.overrideCameraOrientation(guiState.overrideCameraAngle());
       }
-      this.entityRenderDispatcher.setRenderShadow(false);
+      entityRenderDispatcher.setRenderShadow(false);
       // noinspection DataFlowIssue: Entity is null, but it won't get used anyway because extractRenderState was overridden.
       entityRenderDispatcher.render(null, 0, 0, 0, 0, poseStack, bufferSource, LightTexture.FULL_BRIGHT, renderState.renderer);
-      this.entityRenderDispatcher.setRenderShadow(true);
+      entityRenderDispatcher.setRenderShadow(true);
       ci.cancel();
     }
   }
