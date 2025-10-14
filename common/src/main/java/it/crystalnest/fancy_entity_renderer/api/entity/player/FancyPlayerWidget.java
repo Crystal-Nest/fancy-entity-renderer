@@ -99,6 +99,8 @@ public class FancyPlayerWidget extends AbstractWidget {
    */
   public FancyPlayerWidget(int x, int y, int width, int height) {
     super(x, y, width, height, CommonComponents.EMPTY);
+    setPose(Pose.SWIMMING);
+    setMoving(true);
   }
 
   /**
