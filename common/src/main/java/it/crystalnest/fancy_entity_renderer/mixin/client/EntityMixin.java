@@ -1,4 +1,4 @@
-package it.crystalnest.fancy_entity_renderer.mixin;
+package it.crystalnest.fancy_entity_renderer.mixin.client;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import it.crystalnest.fancy_entity_renderer.api.entity.player.mock.FancyPlayerMock;
