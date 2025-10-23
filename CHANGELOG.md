@@ -9,6 +9,11 @@ and this project adheres to [Crystal Nest Semantic Versioning](https://crystalne
 
 - Nothing new.
 
+## [v0.4.1] - 2025/10/23
+
+- 1.21 and 1.21.1 only.
+- Fixed crash on server.
+
 ## [v0.4.0] - 2025/09/29
 
 - 1.21.6+ only.
@@ -104,6 +109,7 @@ and this project adheres to [Crystal Nest Semantic Versioning](https://crystalne
 [Unreleased]: https://github.com/crystal-nest/fancy-entity-renderer
 [README]: https://github.com/crystal-nest/fancy-entity-renderer#readme
 
+[v0.4.1]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.4.1
 [v0.4.0]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.4.0
 [v0.3.5]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.3.5
 [v0.3.4]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.3.4
