@@ -15,6 +15,7 @@ import net.minecraft.util.RandomSource;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +28,7 @@ import java.util.stream.Stream;
  *
  * @param <T> registry type.
  */
-@SuppressWarnings({"DataFlowIssue", "unchecked"})
+@SuppressWarnings("unchecked")
 public abstract class FancyRegistryMock<T> implements Registry<T> {
   /**
    * Registry key.
@@ -35,21 +36,46 @@ public abstract class FancyRegistryMock<T> implements Registry<T> {
   private final ResourceKey<? extends Registry<T>> key;
 
   /**
+   * Lookup.
+   */
+  private final HolderLookup.RegistryLookup<T> lookup;
+
+  /**
    * @param key registry key.
    */
   public FancyRegistryMock(ResourceKey<? extends Registry<? extends T>> key) {
     this.key = (ResourceKey<? extends Registry<T>>) key;
-  }
+    this.lookup = new HolderLookup.RegistryLookup<>() {
+      public @NotNull ResourceKey<? extends Registry<? extends T>> key() {
+        return FancyRegistryMock.this.key;
+      }
 
-  @Override
-  public Holder.@NotNull Reference<T> getHolderOrThrow(@NotNull ResourceKey<T> key) {
-    return Holder.Reference.createStandAlone(null, null);
+      public @NotNull Lifecycle registryLifecycle() {
+        return FancyRegistryMock.this.registryLifecycle();
+      }
+
+      public @NotNull Optional<Holder.Reference<T>> get(@NotNull ResourceKey<T> key) {
+        return FancyRegistryMock.this.getHolder(key);
+      }
+
+      public @NotNull Optional<HolderSet.Named<T>> get(@NotNull TagKey<T> key) {
+        return FancyRegistryMock.this.getTag(key);
+      }
+
+      public @NotNull Stream<Holder.Reference<T>> listElements() {
+        return FancyRegistryMock.this.holders();
+      }
+
+      public @NotNull Stream<HolderSet.Named<T>> listTags() {
+        return FancyRegistryMock.this.getTags().map(Pair::getSecond);
+      }
+    };
   }
 
   @NotNull
   @Override
   public Iterator<T> iterator() {
-    return null;
+    return Collections.emptyIterator();
   }
 
   @Override
@@ -75,17 +101,6 @@ public abstract class FancyRegistryMock<T> implements Registry<T> {
 
   @Nullable
   @Override
-  public T byId(int i) {
-    return null;
-  }
-
-  @Override
-  public int size() {
-    return 0;
-  }
-
-  @Nullable
-  @Override
   public T get(@Nullable ResourceKey<T> resourceKey) {
     return null;
   }
@@ -103,7 +118,7 @@ public abstract class FancyRegistryMock<T> implements Registry<T> {
 
   @Override
   public @NotNull Lifecycle registryLifecycle() {
-    return null;
+    return Lifecycle.stable();
   }
 
   @Override
@@ -148,7 +163,7 @@ public abstract class FancyRegistryMock<T> implements Registry<T> {
 
   @Override
   public Holder.@NotNull Reference<T> createIntrusiveHolder(@NotNull T key) {
-    return null;
+    throw new IllegalStateException("This registry can't create intrusive holders");
   }
 
   @Override
@@ -168,7 +183,12 @@ public abstract class FancyRegistryMock<T> implements Registry<T> {
 
   @Override
   public @NotNull Holder<T> wrapAsHolder(@NotNull T key) {
-    return null;
+    return Holder.direct(key);
+  }
+
+  @Override
+  public Holder.@NotNull Reference<T> getHolderOrThrow(@NotNull ResourceKey<T> key) {
+    return Holder.Reference.createStandAlone(holderOwner(), key);
   }
 
   @Override
@@ -182,8 +202,9 @@ public abstract class FancyRegistryMock<T> implements Registry<T> {
   }
 
   @Override
+  @SuppressWarnings("deprecation")
   public HolderSet.@NotNull Named<T> getOrCreateTag(@NotNull TagKey<T> tagKey) {
-    return null;
+    return HolderSet.emptyNamed(holderOwner(), tagKey);
   }
 
   @Override
@@ -204,11 +225,22 @@ public abstract class FancyRegistryMock<T> implements Registry<T> {
 
   @Override
   public @NotNull HolderOwner<T> holderOwner() {
-    return null;
+    return lookup;
   }
 
   @Override
   public HolderLookup.@NotNull RegistryLookup<T> asLookup() {
+    return lookup;
+  }
+
+  @Nullable
+  @Override
+  public T byId(int i) {
     return null;
+  }
+
+  @Override
+  public int size() {
+    return 0;
   }
 }
