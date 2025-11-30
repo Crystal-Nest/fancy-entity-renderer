@@ -13,6 +13,8 @@ import net.minecraft.client.gui.render.state.GuiRenderState;
 import net.minecraft.client.gui.render.state.pip.GuiEntityRenderState;
 import net.minecraft.client.gui.render.state.pip.PictureInPictureRenderState;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.feature.FeatureRenderDispatcher;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -29,6 +31,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
+// TODO: Check if still needed
 /**
  * Injects into {@link GuiRenderer} to allow the rendering of multiple entities.
  */
@@ -89,12 +92,14 @@ public abstract class GuiRendererMixin {
    *
    * @param renderState {@link GuiRenderState}.
    * @param bufferSource buffer source.
+   * @param submitNodeCollector submit node collector.
+   * @param featureRenderDispatcher render dispatcher.
    * @param renderers list of PiP renderers.
    * @param ci {@link CallbackInfo}.
    */
   @Inject(method = "<init>", at = @At(value = "TAIL"))
-  private void onInit(GuiRenderState renderState, MultiBufferSource.BufferSource bufferSource, List<PictureInPictureRenderer<?>> renderers, CallbackInfo ci) {
-    guiEntityRenderer = (GuiEntityRenderer) pictureInPictureRenderers.get(GuiEntityRenderState.class);
+  private void onInit(GuiRenderState renderState, MultiBufferSource.BufferSource bufferSource, SubmitNodeCollector submitNodeCollector, FeatureRenderDispatcher featureRenderDispatcher, List<PictureInPictureRenderer<?>> renderers, CallbackInfo ci) {
+    guiEntityRenderer = (GuiEntityRenderer) renderers.get(GuiEntityRenderState.class.getModifiers());
   }
 
   /**

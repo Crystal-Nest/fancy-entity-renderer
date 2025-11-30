@@ -7,6 +7,7 @@ import it.crystalnest.fancy_entity_renderer.Constants;
 import it.crystalnest.fancy_entity_renderer.api.Rotation;
 import it.crystalnest.fancy_entity_renderer.api.entity.RenderMode;
 import it.crystalnest.fancy_entity_renderer.api.entity.player.state.FancyPlayerRenderState;
+import it.crystalnest.fancy_entity_renderer.compat.Prometheus;
 import it.crystalnest.fancy_entity_renderer.platform.Services;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -15,17 +16,19 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.resources.DefaultPlayerSkin;
-import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.commands.arguments.item.ItemInput;
 import net.minecraft.commands.arguments.item.ItemParser;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Avatar;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.animal.Parrot;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.PlayerModelType;
+import net.minecraft.world.entity.player.PlayerSkin;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -39,7 +42,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 /**
@@ -54,7 +56,7 @@ public class FancyPlayerWidget extends AbstractWidget {
   /**
    * Player eye height when crouching.
    */
-  public static final float PLAYER_CROUCHING_EYE_HEIGHT = Player.POSES.get(Pose.CROUCHING).eyeHeight();
+  public static final float PLAYER_CROUCHING_EYE_HEIGHT = Avatar.POSES.get(Pose.CROUCHING).eyeHeight();
 
   /**
    * Ratio of a player's height to its width.
@@ -71,7 +73,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    */
   protected final Random random = new Random();
 
-  /**
+   /**
    * Renderer for the wide player model.
    */
   private final FancyPlayerRenderer wideRenderer = new FancyPlayerRenderer(renderState, false);
@@ -99,8 +101,6 @@ public class FancyPlayerWidget extends AbstractWidget {
    */
   public FancyPlayerWidget(int x, int y, int width, int height) {
     super(x, y, width, height, CommonComponents.EMPTY);
-    setPose(Pose.SWIMMING);
-    setMoving(true);
   }
 
   /**
@@ -679,14 +679,14 @@ public class FancyPlayerWidget extends AbstractWidget {
   /**
    * Sets whether the player should glow.<p>
    * <b>WARNING: Experimental!</b><br>
-   * Currently, it has no effect.
+   * Currently, it renders the player as a full solid color.
    *
-   * @param isGlowing whether the player should glow.
+   * @param color glow color. {@code 0} to disable.
    * @return {@code this}.
    */
   @ApiStatus.Experimental
-  public FancyPlayerWidget setGlowing(boolean isGlowing) {
-    renderState.appearsGlowing = isGlowing;
+  public FancyPlayerWidget setGlowing(int color) {
+    renderState.outlineColor = color;
     return this;
   }
 
@@ -703,7 +703,7 @@ public class FancyPlayerWidget extends AbstractWidget {
 
   /**
    * Sets whether the player is on fire.<br>
-   * If Soul Fire'd is installed, you can use {@link #setOnFire(boolean, ResourceLocation)} to specify the kind of fire.
+   * If Prometheus is installed, you can use {@link #setOnFire(boolean, ResourceLocation)} to specify the kind of fire.
    *
    * @param onFire whether the player is on fire.
    * @return {@code this}.
@@ -719,15 +719,15 @@ public class FancyPlayerWidget extends AbstractWidget {
 
   /**
    * Sets whether the player is on fire and what kind of fire it is.<br>
-   * Effective only when Soul Fire'd is installed too.
+   * Effective only when Prometheus is installed too.
    *
    * @param onFire whether the player is on fire.
-   * @param fireType Soul Fire'd fire type.
+   * @param fireType Prometheus fire type.
    * @return {@code this}.
    */
   public FancyPlayerWidget setOnFire(boolean onFire, ResourceLocation fireType) {
-    if (Services.PLATFORM.isModLoaded("soul_fire_d")) {
-      Services.COMPAT.setOnFire(renderState, fireType);
+    if (Services.PLATFORM.isModLoaded("prometheus")) {
+      Prometheus.setOnFire(renderState, fireType);
     }
     return setOnFire(onFire);
   }
@@ -1258,7 +1258,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget copyPlayer(String profileName) {
-    return copyPlayer(FancyProfileFetcher.fetchProfile(profileName), profileName);
+    return copyPlayer(Minecraft.getInstance().services().profileResolver().fetchByName(profileName), profileName);
   }
 
   /**
@@ -1269,7 +1269,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget copyPlayer(UUID profileId) {
-    return copyPlayer(FancyProfileFetcher.fetchProfile(profileId), profileId.toString());
+    return copyPlayer(Minecraft.getInstance().services().profileResolver().fetchById(profileId), profileId.toString());
   }
 
   /**
@@ -1296,12 +1296,12 @@ public class FancyPlayerWidget extends AbstractWidget {
   /**
    * Copies the player from the given profile result.
    *
-   * @param result profile result.
+   * @param profile profile.
    * @param source player identifier.
    * @return {@code this}.
    */
-  private FancyPlayerWidget copyPlayer(CompletableFuture<Optional<GameProfile>> result, String source) {
-    result.exceptionally(FancyPlayerWidget::handlePlayerCopyError).thenAccept(profile -> profile.ifPresentOrElse(this::copyPlayer, () -> handlePlayerCopyError(source)));
+  private FancyPlayerWidget copyPlayer(Optional<GameProfile> profile, String source) {
+    profile.ifPresentOrElse(this::copyPlayer, () -> handlePlayerCopyError(source));
     return this;
   }
 
@@ -1312,10 +1312,10 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   private FancyPlayerWidget copyPlayer(GameProfile profile) {
-    Minecraft.getInstance().getSkinManager().getOrLoad(profile).exceptionally(FancyPlayerWidget::handlePlayerCopyError).thenAccept(skin -> {
+    Minecraft.getInstance().getSkinManager().get(profile).exceptionally(FancyPlayerWidget::handlePlayerCopyError).thenAccept(skin -> {
       renderState.copyingPlayer = true;
       properties.name = renderState.name;
-      renderState.name = profile.getName();
+      renderState.name = profile.name();
       skin.ifPresentOrElse(this::updateSkin, () -> handlePlayerCopyError(renderState.name));
     });
     return this;
@@ -1328,7 +1328,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    */
   private void updateSkin(@Nullable PlayerSkin skin) {
     if (skin != null) {
-      renderState.isSlim = skin.model() == PlayerSkin.Model.SLIM;
+      renderState.isSlim = skin.model() == PlayerModelType.SLIM;
       renderState.skin = skin;
     } else {
       updateIsSlim(properties.isSlim);

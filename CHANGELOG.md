@@ -9,6 +9,27 @@ and this project adheres to [Crystal Nest Semantic Versioning](https://crystalne
 
 - Nothing new.
 
+## [v0.5.0] - 2025/12/dd
+
+- Ported to 1.21.10.
+- Removed `FancyProfileFetcher` (superseded by `ProfileResolver`).
+- Renamed `Rotation#createFromDeg` and `Rotation#createFromRad` to `Rotation#fromDeg` and `Rotation#fromRad`.
+
+## [v0.4.3] - 2025/12/dd
+
+- 1.21/1.21.1 and 1.21.6/1.21.7/1.21.8 only.
+- Added compatibility with Soul Fire'd v6.0.0+ and Prometheus 1.0.0+.
+
+## [v0.4.2] - 2025/11/26
+
+- 1.21/1.21.1 only.
+- Fix a compatibility with Ore Harvester (and probably a few other mods).
+
+## [v0.4.1] - 2025/10/23
+
+- 1.21/1.21.1 only.
+- Fix crash on server.
+
 ## [v0.4.0] - 2025/09/29
 
 - 1.21.6+ only.
@@ -104,6 +125,9 @@ and this project adheres to [Crystal Nest Semantic Versioning](https://crystalne
 [Unreleased]: https://github.com/crystal-nest/fancy-entity-renderer
 [README]: https://github.com/crystal-nest/fancy-entity-renderer#readme
 
+[v0.5.0]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.5.0
+[v0.4.2]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.4.2
+[v0.4.1]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.4.1
 [v0.4.0]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.4.0
 [v0.3.5]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.3.5
 [v0.3.4]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.3.4

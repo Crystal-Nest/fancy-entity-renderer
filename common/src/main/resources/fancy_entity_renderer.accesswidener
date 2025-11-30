@@ -1,14 +1,12 @@
 accessWidener v2 named
-accessible method net/minecraft/client/renderer/entity/EntityRenderDispatcher render (Lnet/minecraft/world/entity/Entity;DDDFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/EntityRenderer;)V
-accessible field net/minecraft/client/renderer/entity/EntityRenderer reusedState Lnet/minecraft/client/renderer/entity/state/EntityRenderState;
-mutable field net/minecraft/client/renderer/entity/EntityRenderer reusedState Lnet/minecraft/client/renderer/entity/state/EntityRenderState;
 accessible field net/minecraft/client/resources/DefaultPlayerSkin DEFAULT_SKINS [Lnet/minecraft/client/resources/PlayerSkin;
 accessible field net/minecraft/client/renderer/entity/EntityRenderDispatcher equipmentAssets Lnet/minecraft/client/resources/model/EquipmentAssetManager;
 accessible field net/minecraft/client/model/geom/LayerDefinitions OUTER_ARMOR_DEFORMATION Lnet/minecraft/client/model/geom/builders/CubeDeformation;
 accessible field net/minecraft/client/model/geom/LayerDefinitions INNER_ARMOR_DEFORMATION Lnet/minecraft/client/model/geom/builders/CubeDeformation;
-accessible field net/minecraft/world/entity/player/Player POSES Ljava/util/Map;
+accessible field net/minecraft/world/entity/Avatar POSES Ljava/util/Map;
 accessible field net/minecraft/client/model/geom/EntityModelSet roots Ljava/util/Map;
 accessible field net/minecraft/client/Minecraft authenticationService Lcom/mojang/authlib/yggdrasil/YggdrasilAuthenticationService;
 accessible field net/minecraft/client/gui/render/pip/PictureInPictureRenderer texture Lcom/mojang/blaze3d/textures/GpuTexture;
 accessible field net/minecraft/client/gui/render/pip/PictureInPictureRenderer bufferSource Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;
 accessible field net/minecraft/client/gui/render/pip/GuiEntityRenderer entityRenderDispatcher Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;
+accessible field net/minecraft/world/entity/Avatar CROUCH_BB_HEIGHT F

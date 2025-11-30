@@ -1,7 +1,6 @@
 package it.crystalnest.fancy_entity_renderer.platform;
 
 import it.crystalnest.fancy_entity_renderer.Constants;
-import it.crystalnest.fancy_entity_renderer.platform.services.CompatHelper;
 import it.crystalnest.fancy_entity_renderer.platform.services.PlatformHelper;
 
 import java.util.ServiceLoader;
@@ -15,11 +14,6 @@ public final class Services {
    * Provides information about what platform the mod is running on.
    */
   public static final PlatformHelper PLATFORM = load(PlatformHelper.class);
-
-  /**
-   * Provides compatibility with other mods.
-   */
-  public static final CompatHelper COMPAT = load(CompatHelper.class);
 
   private Services() {}
 

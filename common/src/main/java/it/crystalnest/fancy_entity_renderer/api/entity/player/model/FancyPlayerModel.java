@@ -1,15 +1,14 @@
 package it.crystalnest.fancy_entity_renderer.api.entity.player.model;
 
 import it.crystalnest.fancy_entity_renderer.api.entity.player.state.FancyPlayerRenderState;
-import net.minecraft.client.model.HumanoidArmorModel;
-import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.model.geom.LayerDefinitions;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
-import net.minecraft.client.renderer.entity.state.PlayerRenderState;
+import net.minecraft.client.renderer.entity.ArmorModelSet;
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -44,11 +43,13 @@ public class FancyPlayerModel extends PlayerModel {
   /**
    * Returns the {@link ModelPart} for a baby player armor model.
    *
-   * @param isInner whether the armor layer is inner.
+   * @param isSlim whether the armor layer is slim.
    * @return correct armor model part.
    */
-  public static ModelPart getBabyArmorModel(boolean isInner) {
-    return LayerDefinition.create(HumanoidArmorModel.createBodyLayer(isInner ? LayerDefinitions.INNER_ARMOR_DEFORMATION : LayerDefinitions.OUTER_ARMOR_DEFORMATION), 64, 32).apply(HumanoidModel.BABY_TRANSFORMER).bakeRoot();
+  public static ArmorModelSet<PlayerModel> getBabyArmorModel(boolean isSlim) {
+    return PlayerModel
+      .createArmorMeshSet(LayerDefinitions.INNER_ARMOR_DEFORMATION, LayerDefinitions.OUTER_ARMOR_DEFORMATION)
+      .map(mesh -> new PlayerModel(LayerDefinition.create(mesh, 64, 32).apply(BABY_TRANSFORMER).bakeRoot(), isSlim));
   }
 
   /**
@@ -57,7 +58,7 @@ public class FancyPlayerModel extends PlayerModel {
    * @param state render state.
    */
   @Override
-  public void setupAnim(@NotNull PlayerRenderState state) {
+  public void setupAnim(@NotNull AvatarRenderState state) {
     super.setupAnim(state);
     update((FancyPlayerRenderState) state);
   }

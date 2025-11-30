@@ -1,15 +1,15 @@
 package it.crystalnest.fancy_entity_renderer.compat;
 
-import it.crystalnest.soul_fire_d.api.FireManager;
-import it.crystalnest.soul_fire_d.api.type.FireTypeChanger;
+import it.crystalnest.prometheus.api.FireManager;
+import it.crystalnest.prometheus.api.type.FireTypeChanger;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.resources.ResourceLocation;
 
 /**
- * Soul Fire'd compatibility.
+ * Prometheus compatibility.
  */
-public final class SoulFired {
-  private SoulFired() {}
+public final class Prometheus {
+  private Prometheus() {}
 
   /**
    * Updates the given state with the given fire type.

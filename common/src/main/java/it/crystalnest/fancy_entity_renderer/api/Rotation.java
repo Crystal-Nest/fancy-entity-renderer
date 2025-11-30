@@ -31,7 +31,7 @@ public class Rotation {
    * @param z {@link #z} in radians.
    * @return new rotation.
    */
-  public static Rotation createFromRad(float x, float y, float z) {
+  public static Rotation fromRad(float x, float y, float z) {
     return new Rotation(x, y, z);
   }
 
@@ -43,7 +43,7 @@ public class Rotation {
    * @param z {@link #z} in degrees.
    * @return new rotation.
    */
-  public static Rotation createFromDeg(float x, float y, float z) {
+  public static Rotation fromDeg(float x, float y, float z) {
     return new Rotation().setXDeg(x).setYDeg(y).setZDeg(z);
   }
 

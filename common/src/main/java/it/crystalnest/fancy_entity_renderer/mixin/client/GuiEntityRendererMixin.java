@@ -7,9 +7,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.render.pip.GuiEntityRenderer;
 import net.minecraft.client.gui.render.pip.PictureInPictureRenderer;
 import net.minecraft.client.gui.render.state.pip.GuiEntityRenderState;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.feature.FeatureRenderDispatcher;
+import net.minecraft.client.renderer.state.CameraRenderState;
+import org.joml.Quaternionf;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -51,13 +53,14 @@ public abstract class GuiEntityRendererMixin extends PictureInPictureRenderer<Gu
       poseStack.translate(guiState.translation().x, guiState.translation().y, guiState.translation().z);
       poseStack.scale(1, -1, -1);
       poseStack.mulPose(guiState.rotation());
+      FeatureRenderDispatcher dispatcher = Minecraft.getInstance().gameRenderer.getFeatureRenderDispatcher();
+      CameraRenderState camera = new CameraRenderState();
       if (guiState.overrideCameraAngle() != null) {
-        entityRenderDispatcher.overrideCameraOrientation(guiState.overrideCameraAngle());
+        camera.orientation = guiState.overrideCameraAngle().conjugate(new Quaternionf()).rotateY((float) Math.PI);
       }
-      entityRenderDispatcher.setRenderShadow(false);
-      // noinspection DataFlowIssue: Entity is null, but it won't get used anyway because extractRenderState was overridden.
-      entityRenderDispatcher.render(null, 0, 0, 0, 0, poseStack, bufferSource, LightTexture.FULL_BRIGHT, renderState.renderer);
-      entityRenderDispatcher.setRenderShadow(true);
+      entityRenderDispatcher.submit(renderState, camera, 0, 0, 0, poseStack, dispatcher.getSubmitNodeStorage());
+      dispatcher.renderAllFeatures();
+      // TODO LightTexture.FULL_BRIGHT
       ci.cancel();
     }
   }

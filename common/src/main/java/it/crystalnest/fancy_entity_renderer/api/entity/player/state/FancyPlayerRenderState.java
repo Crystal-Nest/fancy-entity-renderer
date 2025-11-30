@@ -4,7 +4,7 @@ import it.crystalnest.fancy_entity_renderer.api.Rotation;
 import it.crystalnest.fancy_entity_renderer.api.entity.player.FancyPlayerRenderer;
 import it.crystalnest.fancy_entity_renderer.api.entity.player.FancyPlayerWidget;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.client.renderer.entity.state.PlayerRenderState;
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.ApiStatus;
@@ -14,9 +14,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Extension of {@link PlayerRenderState}.
+ * Extension of {@link AvatarRenderState}.
  */
-public class FancyPlayerRenderState extends PlayerRenderState {
+public class FancyPlayerRenderState extends AvatarRenderState {
   /**
    * Internal {@link FancyPlayerRenderer} reference.
    */
@@ -147,6 +147,9 @@ public class FancyPlayerRenderState extends PlayerRenderState {
    * Whether to show the player's torso.
    */
   public boolean showBody = true;
+
+  // TODO: Check (before it was in the superclass).
+  public String name = "Steve";
 
   /**
    * Updates the scale and bounding box properties from the given height value.
