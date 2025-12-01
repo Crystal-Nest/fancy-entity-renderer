@@ -31,7 +31,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
-// TODO: Check if still needed
 /**
  * Injects into {@link GuiRenderer} to allow the rendering of multiple entities.
  */
@@ -99,7 +98,7 @@ public abstract class GuiRendererMixin {
    */
   @Inject(method = "<init>", at = @At(value = "TAIL"))
   private void onInit(GuiRenderState renderState, MultiBufferSource.BufferSource bufferSource, SubmitNodeCollector submitNodeCollector, FeatureRenderDispatcher featureRenderDispatcher, List<PictureInPictureRenderer<?>> renderers, CallbackInfo ci) {
-    guiEntityRenderer = (GuiEntityRenderer) renderers.get(GuiEntityRenderState.class.getModifiers());
+    guiEntityRenderer = (GuiEntityRenderer) pictureInPictureRenderers.get(GuiEntityRenderState.class);
   }
 
   /**

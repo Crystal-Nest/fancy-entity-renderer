@@ -14,6 +14,7 @@ public abstract class EntityRenderDispatcherMixin {
   @Inject(method = "getRenderer(Lnet/minecraft/client/renderer/entity/state/EntityRenderState;)Lnet/minecraft/client/renderer/entity/EntityRenderer;", at = @At(value = "HEAD"), cancellable = true)
   private <S extends EntityRenderState> void onGetRenderer(S renderState, CallbackInfoReturnable<EntityRenderer<?, ? super S>> cir) {
     if (renderState instanceof FancyPlayerRenderState state) {
+      state.renderer.extractRenderState(null, state, 0);
       cir.setReturnValue((EntityRenderer<?, ? super S>) state.renderer);
     }
   }

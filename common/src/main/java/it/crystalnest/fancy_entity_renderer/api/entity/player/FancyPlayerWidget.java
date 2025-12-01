@@ -1363,24 +1363,20 @@ public class FancyPlayerWidget extends AbstractWidget {
       float renderHeight = renderState.pose == Pose.CROUCHING ? Player.CROUCH_BB_HEIGHT : PLAYER_RENDER_HEIGHT;
       float eyeHeight = renderState.pose == Pose.CROUCHING ? PLAYER_CROUCHING_EYE_HEIGHT : Player.DEFAULT_EYE_HEIGHT;
       float adultEyeY = (renderHeight - eyeHeight) * height / renderHeight;
-      float eyeY = y + (renderState.isBaby ? (height + adultEyeY) * Player.DEFAULT_BABY_SCALE : adultEyeY);
-      float eyeX = (x + width / 2F);
-      double mouseXRelative = mouseX - eyeX;
-      double mouseYRelative = mouseY - eyeY;
+      float eyeY = (renderState.isBaby ? (height + adultEyeY) * Player.DEFAULT_BABY_SCALE : adultEyeY);
+      float eyeX = width / 2F;
+      double mouseXRelative = mouseX - (eyeX + x);
+      double mouseYRelative = mouseY - ((renderState.isUpsideDown ? height - eyeY : eyeY) + y);
       double xRot = Math.atan(mouseYRelative / 40F) * 20;
       double yRot = -Math.atan(mouseXRelative / 40F) * 20;
-      if (renderState.isUpsideDown) {
-        xRot = -xRot;
-        yRot = -yRot;
-      }
       if (renderState.bodyFollowsMouse) {
         renderState.modelRot.setXDeg(xRot);
         renderState.modelRot.setYDeg(yRot);
         renderState.modelRot.setZ(0);
       }
       if (renderState.headFollowsMouse) {
-        renderState.headRot.setXDeg(xRot);
-        renderState.headRot.setYDeg(yRot);
+        renderState.headRot.setXDeg(renderState.isUpsideDown ? -xRot : xRot);
+        renderState.headRot.setYDeg(renderState.isUpsideDown ? -yRot : yRot);
         renderState.headRot.setZ(0);
       }
     }

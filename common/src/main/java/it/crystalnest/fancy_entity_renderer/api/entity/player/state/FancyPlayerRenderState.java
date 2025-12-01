@@ -148,7 +148,7 @@ public class FancyPlayerRenderState extends AvatarRenderState {
    */
   public boolean showBody = true;
 
-  // TODO: Check (before it was in the superclass).
+  // TODO: Check (before it was in the superclass). Maybe we can remove this and use only nameTag...
   public String name = "Steve";
 
   /**

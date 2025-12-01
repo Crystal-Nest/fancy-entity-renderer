@@ -11,7 +11,6 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.feature.FeatureRenderDispatcher;
 import net.minecraft.client.renderer.state.CameraRenderState;
-import org.joml.Quaternionf;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -56,11 +55,10 @@ public abstract class GuiEntityRendererMixin extends PictureInPictureRenderer<Gu
       FeatureRenderDispatcher dispatcher = Minecraft.getInstance().gameRenderer.getFeatureRenderDispatcher();
       CameraRenderState camera = new CameraRenderState();
       if (guiState.overrideCameraAngle() != null) {
-        camera.orientation = guiState.overrideCameraAngle().conjugate(new Quaternionf()).rotateY((float) Math.PI);
+        camera.orientation = guiState.overrideCameraAngle();
       }
       entityRenderDispatcher.submit(renderState, camera, 0, 0, 0, poseStack, dispatcher.getSubmitNodeStorage());
       dispatcher.renderAllFeatures();
-      // TODO LightTexture.FULL_BRIGHT
       ci.cancel();
     }
   }

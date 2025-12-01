@@ -11,7 +11,6 @@ import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.ArmorModelSet;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -21,6 +20,7 @@ import net.minecraft.client.renderer.entity.player.AvatarRenderer;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
@@ -68,12 +68,10 @@ public class FancyPlayerRenderer extends AvatarRenderer<AbstractClientPlayer> {
    */
   public FancyPlayerRenderer(FancyPlayerRenderState state, boolean isSlim) {
     super(RENDER_CONTEXT, isSlim);
-//    entityRenderDispatcher.overrideCameraOrientation(new Quaternionf());
     adultModel = new FancyPlayerModel(RENDER_CONTEXT.getModelSet(), isSlim, false);
     babyModel = new FancyPlayerModel(RENDER_CONTEXT.getModelSet(), isSlim, true);
     model = adultModel;
     this.state = state;
-//    reusedState = state;
     layers.replaceAll(layer -> switch (layer) {
       case HumanoidArmorLayer<?, ?, ?> l -> new HumanoidArmorLayer<>(
         this,
@@ -95,13 +93,55 @@ public class FancyPlayerRenderer extends AvatarRenderer<AbstractClientPlayer> {
    *
    * @return current render state.
    */
-//  private FancyPlayerRenderState state() {
-//    return (FancyPlayerRenderState) reusedState;
-//  }
-
   @Override
   public @NotNull FancyPlayerRenderState createRenderState() {
     return state;
+  }
+
+  @Override
+  protected void submitNameTag(AvatarRenderState state, @NotNull PoseStack poseStack, @NotNull SubmitNodeCollector submitNodeCollector, @NotNull CameraRenderState camera) {
+    if (state.nameTag != null && state.nameTagAttachment != null) {
+      submitNameTag(state.nameTag.getVisualOrderText(), state.nameTagAttachment, poseStack, submitNodeCollector);
+
+    }
+  }
+
+  /**
+   * Sets up the model rotations depending on the pose.
+   *
+   * @param state render state.
+   * @param poseStack pose stack.
+   * @param bodyRot body rotation around the Y axis.
+   * @param scale render scale.
+   */
+  @Override
+  protected void setupRotations(@NotNull AvatarRenderState state, @NotNull PoseStack poseStack, float bodyRot, float scale) {
+    if (state.pose == Pose.SPIN_ATTACK) {
+      poseStack.mulPose(Axis.XN.rotationDegrees(90));
+    }
+    super.setupRotations(state, poseStack, bodyRot, scale);
+    if (state.isUpsideDown) {
+      if (state.pose == Pose.DYING || state.pose == Pose.SPIN_ATTACK) {
+        poseStack.translate(0.0F, (state.boundingBoxHeight + 0.1F) / scale, 0.0F);
+        poseStack.mulPose(Axis.ZP.rotationDegrees(180.0F));
+      } else if (state.pose == Pose.SLEEPING) {
+        poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
+      }
+    }
+  }
+
+  /**
+   * Renders the player model.
+   *
+   * @param state render state.
+   * @param poseStack pose stack.
+   * @param bufferSource buffer source.
+   * @param packedLight packed light.
+   */
+  @Override
+  public void submit(@NotNull AvatarRenderState state, @NotNull PoseStack poseStack, @NotNull SubmitNodeCollector submitNodeCollector, @NotNull CameraRenderState camera) {
+    model = state.isBaby ? babyModel : adultModel;
+    super.submit(state, poseStack, submitNodeCollector, camera);
   }
 
   /**
@@ -161,7 +201,7 @@ public class FancyPlayerRenderer extends AvatarRenderer<AbstractClientPlayer> {
         renderState.walkAnimationPos = 0;
         renderState.walkAnimationSpeed = 0;
       }
-      renderState.nameTag = Component.literal(state.name);
+      renderState.nameTag = state.showPlayerName && !state.isInvisibleToPlayer ? Component.literal(state.name) : null;
       if (state.pose == Pose.SLEEPING) {
         renderState.nameTagAttachment = new Vec3(Player.POSES.get(state.pose).eyeHeight() * state.scale - state.boundingBoxHeight / 1.35F, 0, 0);
       } else {
@@ -178,78 +218,26 @@ public class FancyPlayerRenderer extends AvatarRenderer<AbstractClientPlayer> {
     }
   }
 
-  /**
-   * Sets up the model rotations depending on the pose.
-   *
-   * @param state render state.
-   * @param poseStack pose stack.
-   * @param bodyRot body rotation around the Y axis.
-   * @param scale render scale.
-   */
-  @Override
-  protected void setupRotations(@NotNull AvatarRenderState state, @NotNull PoseStack poseStack, float bodyRot, float scale) {
-    if (state.pose == Pose.SPIN_ATTACK) {
-      poseStack.mulPose(Axis.XN.rotationDegrees(90));
+  public void submitNameTag(FormattedCharSequence text, Vec3 offset, PoseStack poseStack, SubmitNodeCollector submitNodeCollector) {
+    Minecraft minecraft = Minecraft.getInstance();
+    poseStack.pushPose();
+    float scale = state.scale * NAMETAG_SCALE;
+    float height = state.isBaby && state.pose != Pose.SPIN_ATTACK ? state.boundingBoxHeight * Player.DEFAULT_BABY_SCALE : state.boundingBoxHeight;
+    float offsetY = (state.pose == Pose.SLEEPING || state.pose == Pose.SWIMMING ? state.boundingBoxWidth : height) / scale + (float) offset.y;
+    poseStack.scale(scale, -scale, scale);
+    if (state.pinName) {
+      poseStack.rotateAround(new Quaternionf().rotateY(state.modelRot.getY()), 0, 0, 0);
     }
-    super.setupRotations(state, poseStack, bodyRot, scale);
+    poseStack.translate(0, -offsetY, 0);
     if (state.isUpsideDown) {
-      if (state.pose == Pose.DYING || state.pose == Pose.SPIN_ATTACK) {
-        poseStack.translate(0.0F, (state.boundingBoxHeight + 0.1F) / scale, 0.0F);
-        poseStack.mulPose(Axis.ZP.rotationDegrees(180.0F));
-      } else if (state.pose == Pose.SLEEPING) {
-        poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
-      }
+      poseStack.scale(1, -1, 1);
     }
-  }
-
-  /**
-   * Renders the player model.
-   *
-   * @param state render state.
-   * @param poseStack pose stack.
-   * @param bufferSource buffer source.
-   * @param packedLight packed light.
-   */
-  @Override
-  public void submit(@NotNull AvatarRenderState state, @NotNull PoseStack poseStack, @NotNull SubmitNodeCollector submitNodeCollector, @NotNull CameraRenderState camera) {
-    model = state.isBaby ? babyModel : adultModel;
-    super.submit(state, poseStack, submitNodeCollector, camera);
-  }
-
-  /**
-   * Renders the player name tag.
-   *
-   * @param renderState render state.
-   * @param nameTag name tag.
-   * @param poseStack pose stack.
-   * @param bufferSource buffer source.
-   * @param packedLight packed light.
-   */
-//  @Override
-  protected void renderNameTag(@NotNull AvatarRenderState renderState, @NotNull Component nameTag, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight) {
-    FancyPlayerRenderState state = createRenderState();
-    if (state.showPlayerName && !state.isInvisibleToPlayer) {
-      float scale = state.scale * NAMETAG_SCALE;
-      Font font = getFont();
-      poseStack.pushPose();
-      float height = renderState.isBaby && renderState.pose != Pose.SPIN_ATTACK ? state.boundingBoxHeight * Player.DEFAULT_BABY_SCALE : state.boundingBoxHeight;
-      // noinspection DataFlowIssue: nameTagAttachment can't be null, its value is always updated in extractRenderState.
-      float offsetY = (state.pose == Pose.SLEEPING || state.pose == Pose.SWIMMING ? state.boundingBoxWidth : height) / scale + (float) state.nameTagAttachment.y;
-      float offsetX = state.pose == Pose.SLEEPING ? -(float) state.nameTagAttachment.x : font.width(nameTag) / 2F;
-      poseStack.scale(scale, -scale, scale);
-      if (state.pinName) {
-        poseStack.rotateAround(new Quaternionf().rotateY(state.modelRot.getY()), 0, 0, 0);
-      }
-      poseStack.translate(-offsetX, -offsetY, 0);
-      if (renderState.isUpsideDown) {
-        poseStack.scale(1, -1, 1);
-      }
-      if (renderState.deathTime > 1) {
-        poseStack.rotateAround(Axis.ZP.rotationDegrees(Math.min(Mth.sqrt((renderState.deathTime - 1) / 20F * 1.6F), 1) * getFlipDegrees()), offsetX, offsetY, 0);
-      }
-      font.drawInBatch(nameTag, 0, 0, -2130706433, false, poseStack.last().pose(), bufferSource, Font.DisplayMode.SEE_THROUGH, (int) (Minecraft.getInstance().options.getBackgroundOpacity(0.25F) * 255) << 24, packedLight);
-      font.drawInBatch(nameTag, 0, 0, renderState.isDiscrete ? -2130706433 : -1, false, poseStack.last().pose(), bufferSource, Font.DisplayMode.NORMAL, 0, LightTexture.lightCoordsWithEmission(packedLight, 2));
-      poseStack.popPose();
+    if (state.deathTime > 1) {
+      poseStack.rotateAround(Axis.ZP.rotationDegrees(Math.min(Mth.sqrt((state.deathTime - 1) / 20F * 1.6F), 1) * 90), 0, offsetY, 0);
     }
+    float x = -minecraft.font.width(text) / 2F;
+    submitNodeCollector.submitText(poseStack, x, 0, text, false, Font.DisplayMode.SEE_THROUGH, state.lightCoords, -2130706433, (int)(minecraft.options.getBackgroundOpacity(0.25F) * 255F) << 24, 0);
+    submitNodeCollector.submitText(poseStack, x, 0, text, false, Font.DisplayMode.NORMAL, LightTexture.lightCoordsWithEmission(state.lightCoords, 2), state.isDiscrete ? -2130706433 : -1, 0, 0);
+    poseStack.popPose();
   }
 }

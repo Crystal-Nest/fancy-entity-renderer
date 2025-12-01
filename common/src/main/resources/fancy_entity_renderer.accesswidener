@@ -1,5 +1,5 @@
 accessWidener v2 named
-accessible field net/minecraft/client/resources/DefaultPlayerSkin DEFAULT_SKINS [Lnet/minecraft/client/resources/PlayerSkin;
+accessible field net/minecraft/client/resources/DefaultPlayerSkin DEFAULT_SKINS [Lnet/minecraft/world/entity/player/PlayerSkin;
 accessible field net/minecraft/client/renderer/entity/EntityRenderDispatcher equipmentAssets Lnet/minecraft/client/resources/model/EquipmentAssetManager;
 accessible field net/minecraft/client/model/geom/LayerDefinitions OUTER_ARMOR_DEFORMATION Lnet/minecraft/client/model/geom/builders/CubeDeformation;
 accessible field net/minecraft/client/model/geom/LayerDefinitions INNER_ARMOR_DEFORMATION Lnet/minecraft/client/model/geom/builders/CubeDeformation;
