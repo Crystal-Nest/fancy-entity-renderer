@@ -14,11 +14,20 @@ and this project adheres to [Crystal Nest Semantic Versioning](https://crystalne
 - Ported to 1.21.10.
 - Removed `FancyProfileFetcher` (superseded by `ProfileResolver`).
 - Renamed `Rotation#createFromDeg` and `Rotation#createFromRad` to `Rotation#fromDeg` and `Rotation#fromRad`.
+- `FancyPlayerModel#getBabyArmorModel(boolean)` now returns an `ArmorModelSet<PlayerModel>`.
+- Glowing now renders the player as a full, solid, colored, emissive texture.
+- Removed instance-specific renderers from `FancyPlayerWidget` and "global" instances are saved in `EntityRenderDispatcher` via mixin.
+- Renderer instances in `EntityRenderDispatcher` now properly update their context on resource reload.
+- Removed static `RENDER_CONTEXT` from `FancyPlayerRenderer`.
+- Removed private reference to the widget render state in `FancyPlayerRenderer`.
+- The constructor of `FancyPlayerRenderer` now requires a `EntityRendererProvider.Context` instance instead of a `FancyPlayerRenderState` one.
+- Added `FancyPlayerRenderer#mimicRenderState(FancyPlayerRenderState, float, boolean, boolean)` to specifically update the render state when mimicking an actual player.
+- Added `FancyPlayerRenderer#updateRenderState(FancyPlayerRenderState)` to update the render state (when not mimicking a player).
 
 ## [v0.4.3] - 2025/12/dd
 
 - 1.21/1.21.1 and 1.21.6/1.21.7/1.21.8 only.
-- Added compatibility with Soul Fire'd v6.0.0+ and Prometheus 1.0.0+.
+- Added compatibility with Soul Fire'd v6.0.0+ and Prometheus 1.1.0+.
 
 ## [v0.4.2] - 2025/11/26
 
@@ -126,6 +135,7 @@ and this project adheres to [Crystal Nest Semantic Versioning](https://crystalne
 [README]: https://github.com/crystal-nest/fancy-entity-renderer#readme
 
 [v0.5.0]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.5.0
+[v0.4.3]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.4.3
 [v0.4.2]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.4.2
 [v0.4.1]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.4.1
 [v0.4.0]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.4.0

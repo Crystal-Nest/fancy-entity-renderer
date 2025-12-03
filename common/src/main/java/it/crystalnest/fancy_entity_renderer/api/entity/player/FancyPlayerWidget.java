@@ -73,21 +73,6 @@ public class FancyPlayerWidget extends AbstractWidget {
    */
   protected final Random random = new Random();
 
-   /**
-   * Renderer for the wide player model.
-   */
-  private final FancyPlayerRenderer wideRenderer = new FancyPlayerRenderer(renderState, false);
-
-  /**
-   * Renderer for the slim player model.
-   */
-  private final FancyPlayerRenderer slimRenderer = new FancyPlayerRenderer(renderState, true);
-
-  /**
-   * Current player renderer.
-   */
-  protected FancyPlayerRenderer renderer = renderState.isSlim ? slimRenderer : wideRenderer;
-
   /**
    * Memory for overridable render state properties.
    */
@@ -136,7 +121,8 @@ public class FancyPlayerWidget extends AbstractWidget {
   protected void renderWidget(@NotNull GuiGraphics gfx, int mouseX, int mouseY, float partialTick) {
     updateRenderState(getX(), getY(), getWidth(), getHeight(), mouseX, mouseY, partialTick);
     float offsetX = 0;
-    float offsetY = (float) renderer.getRenderOffset(renderState).y;
+    // Taken from AvatarRenderer#getRenderOffset(AvatarRenderState)
+    float offsetY = renderState.isCrouching ? renderState.scale / -8 : 0;
     if (renderState.pose == Pose.SLEEPING) {
       offsetX += PLAYER_RENDER_HEIGHT * renderState.scale / 2;
       offsetY -= 0.25F * renderState.scale;
@@ -146,7 +132,6 @@ public class FancyPlayerWidget extends AbstractWidget {
         offsetY /= 1.5F;
       }
     }
-    renderState.renderer = renderer;
     gfx.submitEntityRenderState(
       renderState,
       1,
@@ -398,7 +383,6 @@ public class FancyPlayerWidget extends AbstractWidget {
     properties.isSlim = isSlim;
     if (!renderState.copyingPlayer && properties.skin == null) {
       updateIsSlim(properties.isSlim);
-      renderer = isSlim ? slimRenderer : wideRenderer;
     }
     return this;
   }
@@ -1333,7 +1317,6 @@ public class FancyPlayerWidget extends AbstractWidget {
     } else {
       updateIsSlim(properties.isSlim);
     }
-    renderer = renderState.isSlim ? slimRenderer : wideRenderer;
   }
 
   /**
