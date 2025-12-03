@@ -18,6 +18,6 @@ public final class Prometheus {
    * @param fireType fire type.
    */
   public static void setOnFire(EntityRenderState state, ResourceLocation fireType) {
-    ((FireTypeChanger) state).setFireType(FireManager.ensure(fireType));
+    ((FireTypeChanger) state).setFireType(fireType);
   }
 }
