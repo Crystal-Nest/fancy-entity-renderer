@@ -1,6 +1,5 @@
 package it.crystalnest.fancy_entity_renderer.compat;
 
-import it.crystalnest.prometheus.api.FireManager;
 import it.crystalnest.prometheus.api.type.FireTypeChanger;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.resources.ResourceLocation;
