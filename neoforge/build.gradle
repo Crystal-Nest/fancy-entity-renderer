@@ -4,7 +4,7 @@ plugins {
 }
 
 dependencies {
-  compileOnly "it.crystalnest:soul-fire-d-$name:$minecraft_version-$soul_fire_d_version"
+  compileOnly "it.crystalnest:prometheus-$name:$minecraft_version-$prometheus_version"
 }
 
 neoForge {
