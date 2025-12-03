@@ -22,9 +22,9 @@ https://github.com/user-attachments/assets/0fe2bd35-b13d-4632-8cc9-1154405800f4
 
 ## **Dependencies**
 
-| Mod                                                 | Loader | Requirement | Purpose                                 |
-|:----------------------------------------------------|:------:|:-----------:|:----------------------------------------|
-| [Soul Fire'd](https://modrinth.com/mod/soul-fire-d) |  All   |  Optional   | Customize the color of the fire overlay |
+| Mod                                                   | Loader | Requirement | Purpose                                 |
+|:------------------------------------------------------|:------:|:-----------:|:----------------------------------------|
+| [Prometheus](https://modrinth.com/mod/prometheus-api) |  All   |  Optional   | Customize the color of the fire overlay |
 
 ## **License and right of use**
 
