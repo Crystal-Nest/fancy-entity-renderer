@@ -115,7 +115,7 @@ processResources {
     "fabric_loader_version"        : fabric_loader_version,
     "neoforge_version"             : neoforge_version,
     "neoforge_loader_version_range": neoforge_loader_version_range,
-    "soul_fire_d_version"          : soul_fire_d_version
+    "prometheus_version"          : prometheus_version
   ]
   filesMatching(["pack.mcmeta", "fabric.mod.json", "META-INF/neoforge.mods.toml", "META-INF/mods.toml", "*.mixins.json"]) {
     expand expandProps
@@ -213,7 +213,7 @@ publisher {
     draft = false
   }
   modrinthDepends {
-    optional "soul-fire-d"
+    optional "prometheus"
     switch (loader) {
       case "Fabric":
         required "fabric-api"
@@ -223,7 +223,7 @@ publisher {
     }
   }
   curseDepends {
-    optional "soul-fire-d"
+    optional "prometheus"
     switch (loader) {
       case "Fabric":
         required "fabric-api"

@@ -9,6 +9,7 @@ import it.crystalnest.fancy_entity_renderer.Constants;
 import it.crystalnest.fancy_entity_renderer.api.Rotation;
 import it.crystalnest.fancy_entity_renderer.api.entity.RenderMode;
 import it.crystalnest.fancy_entity_renderer.api.entity.player.mock.FancyPlayerMock;
+import it.crystalnest.fancy_entity_renderer.compat.Prometheus;
 import it.crystalnest.fancy_entity_renderer.platform.Services;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -693,7 +694,7 @@ public class FancyPlayerWidget extends AbstractWidget {
 
   /**
    * Sets whether the player is on fire.<br>
-   * If Soul Fire'd is installed, you can use {@link #setOnFire(boolean, ResourceLocation)} to specify the kind of fire.
+   * If Prometheus is installed, you can use {@link #setOnFire(boolean, ResourceLocation)} to specify the kind of fire.
    *
    * @param onFire whether the player is on fire.
    * @return {@code this}.
@@ -709,15 +710,15 @@ public class FancyPlayerWidget extends AbstractWidget {
 
   /**
    * Sets whether the player is on fire and what kind of fire it is.<br>
-   * Effective only when Soul Fire'd is installed too.
+   * Effective only when Prometheus is installed too.
    *
    * @param onFire whether the player is on fire.
-   * @param fireType Soul Fire'd fire type.
+   * @param fireType Prometheus fire type.
    * @return {@code this}.
    */
   public FancyPlayerWidget setOnFire(boolean onFire, ResourceLocation fireType) {
-    if (Services.PLATFORM.isModLoaded("soul_fire_d")) {
-      Services.COMPAT.setOnFire(player, fireType);
+    if (Services.PLATFORM.isModLoaded("prometheus")) {
+      Prometheus.setOnFire(player, fireType);
     }
     return setOnFire(onFire);
   }

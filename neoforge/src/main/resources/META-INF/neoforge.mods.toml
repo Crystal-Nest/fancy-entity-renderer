@@ -29,9 +29,9 @@ issueTrackerURL="https://github.com/${github_user}/${mod_id_kebab}/issues" #opti
   ordering = "NONE"
   side = "BOTH"
 [[dependencies.${mod_id}]]
-  modId = "soul_fire_d"
+  modId = "prometheus"
   type = "optional"
-  versionRange = "[${soul_fire_d_version},)"
+  versionRange = "[${prometheus_version},)"
   ordering = "AFTER"
   side = "BOTH"
 
