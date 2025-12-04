@@ -5,6 +5,7 @@ import it.crystalnest.fancy_entity_renderer.platform.Services;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.CommonListenerCookie;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.Connection;
@@ -44,6 +45,11 @@ public class FancyPacketListenerMock extends ClientPacketListener {
           @Override
           public @NotNull Stream<RegistryEntry<?>> registries() {
             return Stream.empty();
+          }
+
+          @Override
+          public <T> HolderLookup.@NotNull RegistryLookup<T> lookupOrThrow(@NotNull ResourceKey<? extends Registry<? extends T>> registryKey) {
+            return Services.REGISTRY.mockRegistry(registryKey).asLookup();
           }
         },
         FeatureFlagSet.of(),

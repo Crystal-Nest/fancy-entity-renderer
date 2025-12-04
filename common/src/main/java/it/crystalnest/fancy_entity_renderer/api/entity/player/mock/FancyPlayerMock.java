@@ -8,6 +8,7 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.Parrot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.PlayerModelPart;
@@ -320,6 +321,19 @@ public class FancyPlayerMock extends AbstractClientPlayer {
   @Override
   public boolean isAutoSpinAttack() {
     return isAutoSpinAttack;
+  }
+
+  /**
+   * Returns the max health for this entity.<p>
+   * Overridden for compatibility with <b>Pehkui</b>:<br>
+   *  Pehkui mixins into {@link LivingEntity#getMaxHealth()} at {@code RETURN} and tries to read a value from its config;
+   *  however, this method is called inside {@link LivingEntity#LivingEntity LivingEntity constructor} and, when a {@link FancyPlayerMock} instance is loaded in the main menu, it's too early, making the game crash because the config is not ready.
+   *
+   * @return max health.
+   */
+  @Override
+  public float getMaxHealth() {
+    return 1;
   }
 
   /**
