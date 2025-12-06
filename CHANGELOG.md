@@ -9,7 +9,7 @@ and this project adheres to [Crystal Nest Semantic Versioning](https://crystalne
 
 - Nothing new.
 
-## [v0.5.0] - 2025/12/dd
+## [v0.5.0] - 2025/12/06
 
 - Ported to 1.21.10.
 - Removed `FancyProfileFetcher` (superseded by `ProfileResolver`).
@@ -24,7 +24,7 @@ and this project adheres to [Crystal Nest Semantic Versioning](https://crystalne
 - Added `FancyPlayerRenderer#mimicRenderState(FancyPlayerRenderState, float, boolean, boolean)` to specifically update the render state when mimicking an actual player.
 - Added `FancyPlayerRenderer#updateRenderState(FancyPlayerRenderState)` to update the render state (when not mimicking a player).
 
-## [v0.4.3] - 2025/12/dd
+## [v0.4.3] - 2025/12/06
 
 - 1.21/1.21.1 and 1.21.6/1.21.7/1.21.8 only.
 - Added compatibility with Soul Fire'd v6.0.0+ and Prometheus 1.1.0+.
