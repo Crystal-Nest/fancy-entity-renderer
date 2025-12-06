@@ -9,7 +9,7 @@ and this project adheres to [Crystal Nest Semantic Versioning](https://crystalne
 
 - Nothing new.
 
-## [v0.5.0] - 2025/12/06
+## [v0.5.0] - 2025/12/07
 
 - Ported to 1.21.10.
 - Removed `FancyProfileFetcher` (superseded by `ProfileResolver`).
