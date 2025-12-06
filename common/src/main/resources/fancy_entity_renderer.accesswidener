@@ -5,7 +5,6 @@ accessible field net/minecraft/client/model/geom/LayerDefinitions OUTER_ARMOR_DE
 accessible field net/minecraft/client/model/geom/LayerDefinitions INNER_ARMOR_DEFORMATION Lnet/minecraft/client/model/geom/builders/CubeDeformation;
 accessible field net/minecraft/world/entity/Avatar POSES Ljava/util/Map;
 accessible field net/minecraft/client/model/geom/EntityModelSet roots Ljava/util/Map;
-accessible field net/minecraft/client/Minecraft authenticationService Lcom/mojang/authlib/yggdrasil/YggdrasilAuthenticationService;
 accessible field net/minecraft/client/gui/render/pip/PictureInPictureRenderer texture Lcom/mojang/blaze3d/textures/GpuTexture;
 accessible field net/minecraft/client/gui/render/pip/PictureInPictureRenderer bufferSource Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;
 accessible field net/minecraft/client/gui/render/pip/GuiEntityRenderer entityRenderDispatcher Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;
