@@ -23,7 +23,9 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Avatar;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.animal.Parrot;
 import net.minecraft.world.entity.player.PlayerModelType;
@@ -60,7 +62,7 @@ public class FancyPlayerWidget extends AbstractWidget {
   /**
    * Ratio of a player's height to its width.
    */
-  public static final float PLAYER_SIZE_RATIO = Avatar.DEFAULT_BB_HEIGHT / Avatar.DEFAULT_BB_WIDTH;
+  public static final float PLAYER_SIZE_RATIO = Entity.DEFAULT_BB_HEIGHT / Entity.DEFAULT_BB_WIDTH;
 
   /**
    * Global render state.
@@ -1345,7 +1347,7 @@ public class FancyPlayerWidget extends AbstractWidget {
       float renderHeight = renderState.pose == Pose.CROUCHING ? Avatar.CROUCH_BB_HEIGHT : PLAYER_RENDER_HEIGHT;
       float eyeHeight = renderState.pose == Pose.CROUCHING ? PLAYER_CROUCHING_EYE_HEIGHT : Avatar.DEFAULT_EYE_HEIGHT;
       float adultEyeY = (renderHeight - eyeHeight) * height / renderHeight;
-      float eyeY = (renderState.isBaby ? (height + adultEyeY) * Avatar.DEFAULT_BABY_SCALE : adultEyeY);
+      float eyeY = (renderState.isBaby ? (height + adultEyeY) * LivingEntity.DEFAULT_BABY_SCALE : adultEyeY);
       float eyeX = width / 2F;
       double mouseXRelative = mouseX - (eyeX + x);
       double mouseYRelative = mouseY - ((renderState.isUpsideDown ? height - eyeY : eyeY) + y);

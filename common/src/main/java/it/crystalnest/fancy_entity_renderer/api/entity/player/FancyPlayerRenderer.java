@@ -23,6 +23,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Avatar;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.phys.Vec3;
@@ -84,7 +85,7 @@ public class FancyPlayerRenderer extends AvatarRenderer<AbstractClientPlayer> {
       Minecraft minecraft = Minecraft.getInstance();
       poseStack.pushPose();
       float scale = state.scale * NAMETAG_SCALE;
-      float height = state.isBaby && state.pose != Pose.SPIN_ATTACK ? state.boundingBoxHeight * Avatar.DEFAULT_BABY_SCALE : state.boundingBoxHeight;
+      float height = state.isBaby && state.pose != Pose.SPIN_ATTACK ? state.boundingBoxHeight * LivingEntity.DEFAULT_BABY_SCALE : state.boundingBoxHeight;
       float offsetY = (state.pose == Pose.SLEEPING || state.pose == Pose.SWIMMING ? state.boundingBoxWidth : height) / scale + (float) state.nameTagAttachment.y;
       poseStack.scale(scale, -scale, scale);
       if (state.pinName) {
