@@ -26,7 +26,6 @@ import net.minecraft.world.entity.Avatar;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.animal.Parrot;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.PlayerModelType;
 import net.minecraft.world.entity.player.PlayerSkin;
 import net.minecraft.world.item.Item;
@@ -61,7 +60,7 @@ public class FancyPlayerWidget extends AbstractWidget {
   /**
    * Ratio of a player's height to its width.
    */
-  public static final float PLAYER_SIZE_RATIO = Player.DEFAULT_BB_HEIGHT / Player.DEFAULT_BB_WIDTH;
+  public static final float PLAYER_SIZE_RATIO = Avatar.DEFAULT_BB_HEIGHT / Avatar.DEFAULT_BB_WIDTH;
 
   /**
    * Global render state.
@@ -811,48 +810,15 @@ public class FancyPlayerWidget extends AbstractWidget {
   }
 
   /**
-   * Sets the player pose.
+   * Safely checks and returns the {@link ItemStack} to use as wearable.
    *
-   * @param pose {@link Pose}.
-   * @return {@code this}.
+   * @param item item data.
+   * @param getter item data parser.
+   * @param <T> type of the item data.
+   * @return {@link ItemStack} to use as wearable.
    */
-  public FancyPlayerWidget setPose(Pose pose) {
-    if (Player.POSES.containsKey(pose) && pose != Pose.FALL_FLYING) {
-      renderState.pose = pose;
-      renderState.isAutoSpinAttack = pose == Pose.SPIN_ATTACK;
-      renderState.isCrouching = pose == Pose.CROUCHING;
-      renderState.isVisuallySwimming = pose == Pose.SWIMMING;
-      renderState.swimAmount = renderState.isVisuallySwimming ? 1 : 0;
-      renderState.hasRedOverlay = pose == Pose.DYING;
-      renderState.deathTime = renderState.hasRedOverlay ? 5 : 0;
-      if (pose == Pose.STANDING || pose == Pose.CROUCHING) {
-        renderState.displayFireAnimation = properties.displayFireAnimation;
-      } else {
-        properties.displayFireAnimation = renderState.displayFireAnimation;
-        renderState.displayFireAnimation = false;
-      }
-      if (pose == Pose.STANDING || pose == Pose.CROUCHING || pose == Pose.SPIN_ATTACK) {
-        renderState.headFollowsMouse = properties.headFollowsMouse;
-        renderState.bodyFollowsMouse = properties.bodyFollowsMouse;
-      } else {
-        properties.headFollowsMouse = renderState.headFollowsMouse;
-        properties.bodyFollowsMouse = renderState.bodyFollowsMouse;
-        renderState.headFollowsMouse = false;
-        renderState.bodyFollowsMouse = false;
-      }
-      if (pose == Pose.SWIMMING) {
-        properties.parrotOnLeftShoulder = renderState.parrotOnLeftShoulder;
-        properties.parrotOnRightShoulder = renderState.parrotOnRightShoulder;
-        renderState.parrotOnLeftShoulder = null;
-        renderState.parrotOnRightShoulder = null;
-      } else {
-        renderState.parrotOnLeftShoulder = properties.parrotOnLeftShoulder;
-        renderState.parrotOnRightShoulder = properties.parrotOnRightShoulder;
-      }
-    } else {
-      Constants.LOGGER.warn("Pose {} is not supported for Player entity!", pose);
-    }
-    return this;
+  private static <T> ItemStack getNullableItem(T item, Function<T, ItemStack> getter) {
+    return item == null ? ItemStack.EMPTY : getter.apply(item);
   }
 
   /**
@@ -1206,25 +1172,13 @@ public class FancyPlayerWidget extends AbstractWidget {
   }
 
   /**
-   * Safely checks and returns the {@link ItemStack} to use as wearable.
-   *
-   * @param item item data.
-   * @param getter item data parser.
-   * @param <T> type of the item data.
-   * @return {@link ItemStack} to use as wearable.
-   */
-  private <T> ItemStack getNullableItem(T item, Function<T, ItemStack> getter) {
-    return item == null ? ItemStack.EMPTY : getter.apply(item);
-  }
-
-  /**
    * Parses an item string into an {@link ItemStack} using the given provider.
    *
    * @param item item string, in the same format as for the command {@code /give}.
    * @param provider {@link HolderLookup.Provider} for registry access, for example from {@link Level#registryAccess()}.
    * @return {@link ItemStack} to use as wearable.
    */
-  private ItemStack parseItem(String item, HolderLookup.Provider provider) {
+  private static ItemStack parseItem(String item, HolderLookup.Provider provider) {
     try {
       ItemParser.ItemResult result = new ItemParser(provider).parse(new StringReader(item));
       return new ItemInput(result.item(), result.components()).createItemStack(1, false);
@@ -1232,6 +1186,51 @@ public class FancyPlayerWidget extends AbstractWidget {
       Constants.LOGGER.error("Error parsing {}", item, e);
       return ItemStack.EMPTY;
     }
+  }
+
+  /**
+   * Sets the player pose.
+   *
+   * @param pose {@link Pose}.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setPose(Pose pose) {
+    if (Avatar.POSES.containsKey(pose) && pose != Pose.FALL_FLYING) {
+      renderState.pose = pose;
+      renderState.isAutoSpinAttack = pose == Pose.SPIN_ATTACK;
+      renderState.isCrouching = pose == Pose.CROUCHING;
+      renderState.isVisuallySwimming = pose == Pose.SWIMMING;
+      renderState.swimAmount = renderState.isVisuallySwimming ? 1 : 0;
+      renderState.hasRedOverlay = pose == Pose.DYING;
+      renderState.deathTime = renderState.hasRedOverlay ? 5 : 0;
+      if (pose == Pose.STANDING || pose == Pose.CROUCHING) {
+        renderState.displayFireAnimation = properties.displayFireAnimation;
+      } else {
+        properties.displayFireAnimation = renderState.displayFireAnimation;
+        renderState.displayFireAnimation = false;
+      }
+      if (pose == Pose.STANDING || pose == Pose.CROUCHING || pose == Pose.SPIN_ATTACK) {
+        renderState.headFollowsMouse = properties.headFollowsMouse;
+        renderState.bodyFollowsMouse = properties.bodyFollowsMouse;
+      } else {
+        properties.headFollowsMouse = renderState.headFollowsMouse;
+        properties.bodyFollowsMouse = renderState.bodyFollowsMouse;
+        renderState.headFollowsMouse = false;
+        renderState.bodyFollowsMouse = false;
+      }
+      if (pose == Pose.SWIMMING) {
+        properties.parrotOnLeftShoulder = renderState.parrotOnLeftShoulder;
+        properties.parrotOnRightShoulder = renderState.parrotOnRightShoulder;
+        renderState.parrotOnLeftShoulder = null;
+        renderState.parrotOnRightShoulder = null;
+      } else {
+        renderState.parrotOnLeftShoulder = properties.parrotOnLeftShoulder;
+        renderState.parrotOnRightShoulder = properties.parrotOnRightShoulder;
+      }
+    } else {
+      Constants.LOGGER.warn("Pose {} is not supported for Player entity!", pose);
+    }
+    return this;
   }
 
   /**
@@ -1343,10 +1342,10 @@ public class FancyPlayerWidget extends AbstractWidget {
   protected void updateRenderState(int x, int y, int width, int height, int mouseX, int mouseY, float partialTick) {
     renderState.updateScale(height);
     if (renderState.bodyFollowsMouse || renderState.headFollowsMouse) {
-      float renderHeight = renderState.pose == Pose.CROUCHING ? Player.CROUCH_BB_HEIGHT : PLAYER_RENDER_HEIGHT;
-      float eyeHeight = renderState.pose == Pose.CROUCHING ? PLAYER_CROUCHING_EYE_HEIGHT : Player.DEFAULT_EYE_HEIGHT;
+      float renderHeight = renderState.pose == Pose.CROUCHING ? Avatar.CROUCH_BB_HEIGHT : PLAYER_RENDER_HEIGHT;
+      float eyeHeight = renderState.pose == Pose.CROUCHING ? PLAYER_CROUCHING_EYE_HEIGHT : Avatar.DEFAULT_EYE_HEIGHT;
       float adultEyeY = (renderHeight - eyeHeight) * height / renderHeight;
-      float eyeY = (renderState.isBaby ? (height + adultEyeY) * Player.DEFAULT_BABY_SCALE : adultEyeY);
+      float eyeY = (renderState.isBaby ? (height + adultEyeY) * Avatar.DEFAULT_BABY_SCALE : adultEyeY);
       float eyeX = width / 2F;
       double mouseXRelative = mouseX - (eyeX + x);
       double mouseYRelative = mouseY - ((renderState.isUpsideDown ? height - eyeY : eyeY) + y);
@@ -1385,13 +1384,13 @@ public class FancyPlayerWidget extends AbstractWidget {
      * Whether the whole model should rotate to follow the mouse.<br>
      * Overridable by {@link FancyPlayerRenderState#pose}.
      */
-    public boolean bodyFollowsMouse;
+    boolean bodyFollowsMouse;
 
     /**
      * Whether the head should rotate to follow the mouse.<br>
      * Overridable by {@link FancyPlayerRenderState#pose}.
      */
-    public boolean headFollowsMouse;
+    boolean headFollowsMouse;
 
     /**
      * Whether the model is slim or wide.<br>

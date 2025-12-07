@@ -24,6 +24,21 @@ public class Rotation {
   private float z;
 
   /**
+   * @param x {@link #x}.
+   * @param y {@link #y}.
+   * @param z {@link #z}.
+   */
+  public Rotation(float x, float y, float z) {
+    this.x = x;
+    this.y = y;
+    this.z = z;
+  }
+
+  public Rotation() {
+    this(0, 0, 0);
+  }
+
+  /**
    * Creates a new rotation from the given radians of rotations.
    *
    * @param x {@link #x} in radians.
@@ -48,36 +63,12 @@ public class Rotation {
   }
 
   /**
-   * @param x {@link #x}.
-   * @param y {@link #y}.
-   * @param z {@link #z}.
-   */
-  public Rotation(float x, float y, float z) {
-    this.x = x;
-    this.y = y;
-    this.z = z;
-  }
-
-  public Rotation() {
-    this(0, 0, 0);
-  }
-
-  /**
    * Returns the {@link #x} component.
    *
    * @return the {@link #x} component.
    */
   public float getX() {
     return x;
-  }
-
-  /**
-   * Returns the {@link #x} component in degrees.
-   *
-   * @return the {@link #x} component in degrees.
-   */
-  public float getXDeg() {
-    return (float) Math.toDegrees(x);
   }
 
   /**
@@ -89,6 +80,15 @@ public class Rotation {
   public Rotation setX(double x) {
     this.x = (float) x;
     return this;
+  }
+
+  /**
+   * Returns the {@link #x} component in degrees.
+   *
+   * @return the {@link #x} component in degrees.
+   */
+  public float getXDeg() {
+    return (float) Math.toDegrees(x);
   }
 
   /**
@@ -112,15 +112,6 @@ public class Rotation {
   }
 
   /**
-   * Returns the {@link #y} component in degrees.
-   *
-   * @return the {@link #y} component in degrees.
-   */
-  public float getYDeg() {
-    return (float) Math.toDegrees(y);
-  }
-
-  /**
    * Sets the value for the {@link #y} component.
    *
    * @param y {@link #y} component.
@@ -129,6 +120,15 @@ public class Rotation {
   public Rotation setY(double y) {
     this.y = (float) y;
     return this;
+  }
+
+  /**
+   * Returns the {@link #y} component in degrees.
+   *
+   * @return the {@link #y} component in degrees.
+   */
+  public float getYDeg() {
+    return (float) Math.toDegrees(y);
   }
 
   /**
@@ -152,15 +152,6 @@ public class Rotation {
   }
 
   /**
-   * Returns the {@link #z} component in degrees.
-   *
-   * @return the {@link #z} component in degrees.
-   */
-  public float getZDeg() {
-    return (float) Math.toDegrees(z);
-  }
-
-  /**
    * Sets the value for the {@link #z} component.
    *
    * @param z {@link #z} component.
@@ -169,6 +160,15 @@ public class Rotation {
   public Rotation setZ(double z) {
     this.z = (float) z;
     return this;
+  }
+
+  /**
+   * Returns the {@link #z} component in degrees.
+   *
+   * @return the {@link #z} component in degrees.
+   */
+  public float getZDeg() {
+    return (float) Math.toDegrees(z);
   }
 
   /**
@@ -245,6 +245,7 @@ public class Rotation {
   public Rotation add(double x, double y, double z) {
     return set(getX() + x, getY() + y, getZ() + z);
   }
+
   /**
    * Adds the given rotation amounts.
    *

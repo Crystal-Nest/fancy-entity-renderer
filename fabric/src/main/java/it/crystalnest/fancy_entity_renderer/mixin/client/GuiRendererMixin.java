@@ -226,7 +226,7 @@ public abstract class GuiRendererMixin {
    * @return Whether the renderer can be reused.
    */
   @Unique
-  private boolean canBeReusedFor(GuiEntityRenderer renderer, GuiEntityRenderState state, int width, int height) {
+  private static boolean canBeReusedFor(GuiEntityRenderer renderer, GuiEntityRenderState state, int width, int height) {
     return renderer.texture == null || (renderer.texture.getWidth(0) == width && renderer.texture.getHeight(0) == height);
   }
 }

@@ -22,8 +22,8 @@ import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Avatar;
 import net.minecraft.world.entity.Pose;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
@@ -79,12 +79,12 @@ public class FancyPlayerRenderer extends AvatarRenderer<AbstractClientPlayer> {
    */
   @Override
   protected void submitNameTag(@NotNull AvatarRenderState renderState, @NotNull PoseStack poseStack, @NotNull SubmitNodeCollector submitNodeCollector, @NotNull CameraRenderState camera) {
-    if (renderState instanceof FancyPlayerRenderState state && state.nameTag != null && state.nameTagAttachment != null) { // 7, 11
+    if (renderState instanceof FancyPlayerRenderState state && state.nameTag != null && state.nameTagAttachment != null) {
       FormattedCharSequence text = state.nameTag.getVisualOrderText();
       Minecraft minecraft = Minecraft.getInstance();
       poseStack.pushPose();
       float scale = state.scale * NAMETAG_SCALE;
-      float height = state.isBaby && state.pose != Pose.SPIN_ATTACK ? state.boundingBoxHeight * Player.DEFAULT_BABY_SCALE : state.boundingBoxHeight;
+      float height = state.isBaby && state.pose != Pose.SPIN_ATTACK ? state.boundingBoxHeight * Avatar.DEFAULT_BABY_SCALE : state.boundingBoxHeight;
       float offsetY = (state.pose == Pose.SLEEPING || state.pose == Pose.SWIMMING ? state.boundingBoxWidth : height) / scale + (float) state.nameTagAttachment.y;
       poseStack.scale(scale, -scale, scale);
       if (state.pinName) {
@@ -95,7 +95,7 @@ public class FancyPlayerRenderer extends AvatarRenderer<AbstractClientPlayer> {
         poseStack.rotateAround(Axis.ZP.rotationDegrees(Math.min(Mth.sqrt((state.deathTime - 1) / 20F * 1.6F), 1) * 90), 0, offsetY, 0);
       }
       float x = -minecraft.font.width(text) / 2F;
-      submitNodeCollector.submitText(poseStack, x, 0, text, false, Font.DisplayMode.SEE_THROUGH, state.lightCoords, -2130706433, (int)(minecraft.options.getBackgroundOpacity(0.25F) * 255F) << 24, 0);
+      submitNodeCollector.submitText(poseStack, x, 0, text, false, Font.DisplayMode.SEE_THROUGH, state.lightCoords, -2130706433, (int) (minecraft.options.getBackgroundOpacity(0.25F) * 255F) << 24, 0);
       submitNodeCollector.submitText(poseStack, x, 0, text, false, Font.DisplayMode.NORMAL, LightTexture.lightCoordsWithEmission(state.lightCoords, 2), state.isDiscrete ? -2130706433 : -1, 0, 0);
       poseStack.popPose();
     }
@@ -111,7 +111,8 @@ public class FancyPlayerRenderer extends AvatarRenderer<AbstractClientPlayer> {
     if (renderState instanceof FancyPlayerRenderState state) {
       if (state.mimickedPlayer != null) {
         float height = state.boundingBoxHeight;
-        boolean isBaby = state.isBaby, isUpsideDown = state.isUpsideDown;
+        boolean isBaby = state.isBaby;
+        boolean isUpsideDown = state.isUpsideDown;
         super.extractRenderState(state.mimickedPlayer, renderState, partialTick);
         mimicRenderState(state, height, isBaby, isUpsideDown);
       } else {
@@ -130,7 +131,7 @@ public class FancyPlayerRenderer extends AvatarRenderer<AbstractClientPlayer> {
    */
   @Override
   protected void setupRotations(@NotNull AvatarRenderState state, @NotNull PoseStack poseStack, float bodyRot, float scale) {
-    if (state.pose == Pose.SPIN_ATTACK) { // 6, 10
+    if (state.pose == Pose.SPIN_ATTACK) {
       poseStack.mulPose(Axis.XN.rotationDegrees(90));
     }
     super.setupRotations(state, poseStack, bodyRot, scale);
@@ -154,7 +155,7 @@ public class FancyPlayerRenderer extends AvatarRenderer<AbstractClientPlayer> {
    */
   @Override
   public void submit(@NotNull AvatarRenderState state, @NotNull PoseStack poseStack, @NotNull SubmitNodeCollector submitNodeCollector, @NotNull CameraRenderState camera) {
-    model = state.isBaby ? babyModel : adultModel; // 5, 9
+    model = state.isBaby ? babyModel : adultModel;
     super.submit(state, poseStack, submitNodeCollector, camera);
   }
 
@@ -200,7 +201,7 @@ public class FancyPlayerRenderer extends AvatarRenderer<AbstractClientPlayer> {
    * @param state render state.
    */
   protected void updateRenderState(@NotNull FancyPlayerRenderState state) {
-    state.eyeHeight = Player.POSES.get(state.pose).eyeHeight();
+    state.eyeHeight = Avatar.POSES.get(state.pose).eyeHeight();
     state.isDiscrete = state.isCrouching || state.isInvisible;
     if (state.isMoving && state.pose != Pose.DYING) {
       float step = state.speedValue * 0.33F;
@@ -218,7 +219,7 @@ public class FancyPlayerRenderer extends AvatarRenderer<AbstractClientPlayer> {
     }
     state.nameTag = state.showPlayerName && !state.isInvisibleToPlayer ? Component.literal(state.name) : null;
     if (state.pose == Pose.SLEEPING) {
-      state.nameTagAttachment = new Vec3(Player.POSES.get(state.pose).eyeHeight() * state.scale - state.boundingBoxHeight / 1.35F, 0, 0);
+      state.nameTagAttachment = new Vec3(Avatar.POSES.get(state.pose).eyeHeight() * state.scale - state.boundingBoxHeight / 1.35F, 0, 0);
     } else {
       state.nameTagAttachment = new Vec3(0, 0.25F * state.scale, 0);
     }
