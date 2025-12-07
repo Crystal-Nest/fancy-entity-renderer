@@ -849,7 +849,7 @@ public class FancyPlayerWidget extends AbstractWidget {
 
   /**
    * Sets the movement speed.<br>
-   * Effective only when the player is moving (see {@link #setMoving(boolean)}.
+   * Effective only when the player is moving (see {@link #setMoving(boolean)}).
    *
    * @param speed speed value.
    * @return {@code this}.
