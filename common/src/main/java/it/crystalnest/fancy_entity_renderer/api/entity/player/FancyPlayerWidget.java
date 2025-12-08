@@ -15,6 +15,7 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.commands.arguments.item.ItemInput;
@@ -87,6 +88,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    */
   public FancyPlayerWidget(int x, int y, int width, int height) {
     super(x, y, width, height, CommonComponents.EMPTY);
+    renderState.lightCoords = LightTexture.FULL_BRIGHT;
   }
 
   /**
@@ -108,6 +110,35 @@ public class FancyPlayerWidget extends AbstractWidget {
   private static <T> Optional<T> handlePlayerCopyError(Throwable error) {
     Constants.LOGGER.error("Copy of player failed with error!", error);
     return Optional.empty();
+  }
+
+  /**
+   * Safely checks and returns the {@link ItemStack} to use as wearable.
+   *
+   * @param item item data.
+   * @param getter item data parser.
+   * @param <T> type of the item data.
+   * @return {@link ItemStack} to use as wearable.
+   */
+  private static <T> ItemStack getNullableItem(T item, Function<T, ItemStack> getter) {
+    return item == null ? ItemStack.EMPTY : getter.apply(item);
+  }
+
+  /**
+   * Parses an item string into an {@link ItemStack} using the given provider.
+   *
+   * @param item item string, in the same format as for the command {@code /give}.
+   * @param provider {@link HolderLookup.Provider} for registry access, for example from {@link Level#registryAccess()}.
+   * @return {@link ItemStack} to use as wearable.
+   */
+  private static ItemStack parseItem(String item, HolderLookup.Provider provider) {
+    try {
+      ItemParser.ItemResult result = new ItemParser(provider).parse(new StringReader(item));
+      return new ItemInput(result.item(), result.components()).createItemStack(1, false);
+    } catch (CommandSyntaxException e) {
+      Constants.LOGGER.error("Error parsing {}", item, e);
+      return ItemStack.EMPTY;
+    }
   }
 
   /**
@@ -812,18 +843,6 @@ public class FancyPlayerWidget extends AbstractWidget {
   }
 
   /**
-   * Safely checks and returns the {@link ItemStack} to use as wearable.
-   *
-   * @param item item data.
-   * @param getter item data parser.
-   * @param <T> type of the item data.
-   * @return {@link ItemStack} to use as wearable.
-   */
-  private static <T> ItemStack getNullableItem(T item, Function<T, ItemStack> getter) {
-    return item == null ? ItemStack.EMPTY : getter.apply(item);
-  }
-
-  /**
    * Sets the right arm pose.<br>
    * {@link HumanoidModel.ArmPose#EMPTY} to remove.
    *
@@ -1171,23 +1190,6 @@ public class FancyPlayerWidget extends AbstractWidget {
   public FancyPlayerWidget setAllowedPoses(List<Pose> poses) {
     renderState.allowedPoses = poses;
     return this;
-  }
-
-  /**
-   * Parses an item string into an {@link ItemStack} using the given provider.
-   *
-   * @param item item string, in the same format as for the command {@code /give}.
-   * @param provider {@link HolderLookup.Provider} for registry access, for example from {@link Level#registryAccess()}.
-   * @return {@link ItemStack} to use as wearable.
-   */
-  private static ItemStack parseItem(String item, HolderLookup.Provider provider) {
-    try {
-      ItemParser.ItemResult result = new ItemParser(provider).parse(new StringReader(item));
-      return new ItemInput(result.item(), result.components()).createItemStack(1, false);
-    } catch (CommandSyntaxException e) {
-      Constants.LOGGER.error("Error parsing {}", item, e);
-      return ItemStack.EMPTY;
-    }
   }
 
   /**
