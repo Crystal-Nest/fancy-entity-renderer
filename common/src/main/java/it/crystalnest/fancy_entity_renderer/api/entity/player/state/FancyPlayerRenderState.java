@@ -5,7 +5,6 @@ import it.crystalnest.fancy_entity_renderer.api.entity.player.FancyPlayerWidget;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.world.entity.Pose;
-import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -84,20 +83,6 @@ public class FancyPlayerRenderState extends AvatarRenderState {
    * Whether to pin the player's name at the top of the bounding box.
    */
   public boolean pinName;
-
-  /**
-   * Item held in the right hand.<br>
-   * {@code null} if none.
-   */
-  @Nullable
-  public ItemStack rightHandHeldItem;
-
-  /**
-   * Item held in the left hand.<br>
-   * {@code null} if none.
-   */
-  @Nullable
-  public ItemStack leftHandHeldItem;
 
   /**
    * Player to mimic when mimicking a player.

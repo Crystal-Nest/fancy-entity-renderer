@@ -3,7 +3,7 @@ package it.crystalnest.fancy_entity_renderer.compat;
 import it.crystalnest.prometheus.api.FireManager;
 import it.crystalnest.prometheus.api.type.FireTypeChanger;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * Prometheus compatibility.
@@ -17,7 +17,7 @@ public final class Prometheus {
    * @param state render state.
    * @param fireType fire type.
    */
-  public static void setOnFire(EntityRenderState state, ResourceLocation fireType) {
+  public static void setOnFire(EntityRenderState state, Identifier fireType) {
     ((FireTypeChanger) state).setFireType(FireManager.ensure(fireType));
   }
 }

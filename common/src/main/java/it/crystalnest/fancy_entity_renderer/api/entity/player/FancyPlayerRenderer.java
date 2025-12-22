@@ -7,8 +7,8 @@ import it.crystalnest.fancy_entity_renderer.api.entity.player.model.FancyPlayerM
 import it.crystalnest.fancy_entity_renderer.api.entity.player.state.FancyPlayerRenderState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelLayers;
+import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -34,7 +34,7 @@ import org.joml.Quaternionf;
 /**
  * Custom player renderer.
  */
-public class FancyPlayerRenderer extends AvatarRenderer<AbstractClientPlayer> {
+public class FancyPlayerRenderer extends AvatarRenderer<@NotNull AbstractClientPlayer> {
   /**
    * Adult player model.
    */
@@ -224,11 +224,11 @@ public class FancyPlayerRenderer extends AvatarRenderer<AbstractClientPlayer> {
     } else {
       state.nameTagAttachment = new Vec3(0, 0.25F * state.scale, 0);
     }
-    if (state.rightHandHeldItem != null) {
-      itemModelResolver.updateForTopItem(state.rightHandItem, state.rightHandHeldItem, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, null, null, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND.ordinal());
+    if (!state.rightHandItemStack.isEmpty()) {
+      itemModelResolver.updateForTopItem(state.rightHandItemState, state.rightHandItemStack, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, null, null, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND.ordinal());
     }
-    if (state.leftHandHeldItem != null) {
-      itemModelResolver.updateForTopItem(state.leftHandItem, state.leftHandHeldItem, ItemDisplayContext.THIRD_PERSON_LEFT_HAND, null, null, ItemDisplayContext.THIRD_PERSON_LEFT_HAND.ordinal());
+    if (!state.leftHandItemStack.isEmpty()) {
+      itemModelResolver.updateForTopItem(state.leftHandItemState, state.leftHandItemStack, ItemDisplayContext.THIRD_PERSON_LEFT_HAND, null, null, ItemDisplayContext.THIRD_PERSON_LEFT_HAND.ordinal());
     }
     state.elytraRotX = (float) (Math.PI / 16);
     state.elytraRotZ = (float) (Math.PI / 10);

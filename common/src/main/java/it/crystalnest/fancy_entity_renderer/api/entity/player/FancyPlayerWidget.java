@@ -22,13 +22,13 @@ import net.minecraft.commands.arguments.item.ItemInput;
 import net.minecraft.commands.arguments.item.ItemParser;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.CommonComponents;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Avatar;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
-import net.minecraft.world.entity.animal.Parrot;
+import net.minecraft.world.entity.animal.parrot.Parrot;
 import net.minecraft.world.entity.player.PlayerModelType;
 import net.minecraft.world.entity.player.PlayerSkin;
 import net.minecraft.world.item.Item;
@@ -101,18 +101,6 @@ public class FancyPlayerWidget extends AbstractWidget {
   }
 
   /**
-   * Handles errors happening when trying to fetch user profiles.
-   *
-   * @param error error.
-   * @param <T> expected return value type.
-   * @return {@link Optional#empty()} to delegate value handling to the caller.
-   */
-  private static <T> Optional<T> handlePlayerCopyError(Throwable error) {
-    Constants.LOGGER.error("Copy of player failed with error!", error);
-    return Optional.empty();
-  }
-
-  /**
    * Safely checks and returns the {@link ItemStack} to use as wearable.
    *
    * @param item item data.
@@ -122,6 +110,18 @@ public class FancyPlayerWidget extends AbstractWidget {
    */
   private static <T> ItemStack getNullableItem(T item, Function<T, ItemStack> getter) {
     return item == null ? ItemStack.EMPTY : getter.apply(item);
+  }
+
+  /**
+   * Handles errors happening when trying to fetch user profiles.
+   *
+   * @param error error.
+   * @param <T> expected return value type.
+   * @return {@link Optional#empty()} to delegate value handling to the caller.
+   */
+  private static <T> Optional<T> handlePlayerCopyError(Throwable error) {
+    Constants.LOGGER.error("Copy of player failed with error!", error);
+    return Optional.empty();
   }
 
   /**
@@ -719,7 +719,7 @@ public class FancyPlayerWidget extends AbstractWidget {
 
   /**
    * Sets whether the player is on fire.<br>
-   * If Prometheus is installed, you can use {@link #setOnFire(boolean, ResourceLocation)} to specify the kind of fire.
+   * If Prometheus is installed, you can use {@link #setOnFire(boolean, Identifier)} to specify the kind of fire.
    *
    * @param onFire whether the player is on fire.
    * @return {@code this}.
@@ -741,7 +741,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @param fireType Prometheus fire type.
    * @return {@code this}.
    */
-  public FancyPlayerWidget setOnFire(boolean onFire, ResourceLocation fireType) {
+  public FancyPlayerWidget setOnFire(boolean onFire, Identifier fireType) {
     if (Services.PLATFORM.isModLoaded("prometheus")) {
       Prometheus.setOnFire(renderState, fireType);
     }
@@ -899,7 +899,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setRightHandItem(@Nullable String item, HolderLookup.Provider provider) {
-    renderState.rightHandHeldItem = getNullableItem(item, i -> parseItem(i, provider));
+    renderState.rightHandItemStack = getNullableItem(item, i -> parseItem(i, provider));
     return this;
   }
 
@@ -912,7 +912,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setLeftHandItem(@Nullable String item, HolderLookup.Provider provider) {
-    renderState.leftHandHeldItem = getNullableItem(item, i -> parseItem(i, provider));
+    renderState.leftHandItemStack = getNullableItem(item, i -> parseItem(i, provider));
     return this;
   }
 
@@ -924,7 +924,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setRightHandItem(@Nullable Item item) {
-    renderState.rightHandHeldItem = getNullableItem(item, Item::getDefaultInstance);
+    renderState.rightHandItemStack = getNullableItem(item, Item::getDefaultInstance);
     return this;
   }
 
@@ -936,7 +936,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setLeftHandItem(@Nullable Item item) {
-    renderState.leftHandHeldItem = getNullableItem(item, Item::getDefaultInstance);
+    renderState.leftHandItemStack = getNullableItem(item, Item::getDefaultInstance);
     return this;
   }
 
@@ -948,7 +948,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setRightHandItem(@Nullable ItemStack item) {
-    renderState.rightHandHeldItem = getNullableItem(item, i -> i);
+    renderState.rightHandItemStack = getNullableItem(item, i -> i);
     return this;
   }
 
@@ -960,7 +960,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setLeftHandItem(@Nullable ItemStack item) {
-    renderState.leftHandHeldItem = getNullableItem(item, i -> i);
+    renderState.leftHandItemStack = getNullableItem(item, i -> i);
     return this;
   }
 
