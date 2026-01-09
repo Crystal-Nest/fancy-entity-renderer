@@ -31,6 +31,7 @@ public class FancyPlayerModel extends PlayerModel<AbstractClientPlayer> {
    */
   @Override
   public void setupAnim(@NotNull AbstractClientPlayer entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+    head.zRot = 0;
     super.setupAnim(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
     update((FancyPlayerMock) entity);
   }
