@@ -7,7 +7,6 @@ import it.crystalnest.fancy_entity_renderer.api.entity.player.model.FancyPlayerM
 import it.crystalnest.fancy_entity_renderer.api.entity.player.state.FancyPlayerRenderState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.LightTexture;
@@ -60,7 +59,7 @@ public class FancyPlayerRenderer extends AvatarRenderer<AbstractClientPlayer> {
         ArmorModelSet.bake(
           isSlim ? ModelLayers.PLAYER_SLIM_ARMOR : ModelLayers.PLAYER_ARMOR,
           context.getModelSet(),
-          part -> new PlayerModel(part, isSlim)
+          part -> new FancyPlayerModel(part, isSlim)
         ),
         FancyPlayerModel.getBabyArmorModel(isSlim),
         context.getEquipmentRenderer()
