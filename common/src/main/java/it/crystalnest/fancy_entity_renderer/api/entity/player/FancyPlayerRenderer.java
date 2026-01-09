@@ -60,7 +60,7 @@ public class FancyPlayerRenderer extends AvatarRenderer<@NotNull AbstractClientP
         ArmorModelSet.bake(
           isSlim ? ModelLayers.PLAYER_SLIM_ARMOR : ModelLayers.PLAYER_ARMOR,
           context.getModelSet(),
-          part -> new PlayerModel(part, isSlim)
+          part -> new FancyPlayerModel(part, isSlim)
         ),
         FancyPlayerModel.getBabyArmorModel(isSlim),
         context.getEquipmentRenderer()

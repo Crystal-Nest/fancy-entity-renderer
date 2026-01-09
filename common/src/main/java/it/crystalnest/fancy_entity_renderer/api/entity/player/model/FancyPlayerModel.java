@@ -25,6 +25,14 @@ public class FancyPlayerModel extends PlayerModel {
   }
 
   /**
+   * @param part model part.
+   * @param isSlim whether the player is slim.
+   */
+  public FancyPlayerModel(ModelPart part, boolean isSlim) {
+    super(part, isSlim);
+  }
+
+  /**
    * Returns the correct {@link ModelPart} depending on whether the player is slim and/or baby.
    *
    * @param modelSet entity model set.
