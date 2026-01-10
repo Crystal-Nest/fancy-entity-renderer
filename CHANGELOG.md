@@ -9,6 +9,11 @@ and this project adheres to [Crystal Nest Semantic Versioning](https://crystalne
 
 - Nothing new.
 
+## [v0.4.4] - 2026/01/09
+
+- 1.21 and 1.21.1 only.
+- Fixed head z rotation.
+
 ## [v0.5.1] - 2025/12/22
 
 - Ported to 1.21.11.
@@ -144,6 +149,7 @@ and this project adheres to [Crystal Nest Semantic Versioning](https://crystalne
 
 [v0.5.1]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.5.1
 [v0.5.0]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.5.0
+[v0.4.4]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.4.4
 [v0.4.3]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.4.3
 [v0.4.2]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.4.2
 [v0.4.1]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.4.1
