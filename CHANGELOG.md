@@ -9,6 +9,11 @@ and this project adheres to [Crystal Nest Semantic Versioning](https://crystalne
 
 - Nothing new.
 
+## [v0.5.2] - 2026/01/11
+
+- 1.21.10+ only.
+- Fixed [#20](https://github.com/Crystal-Nest/fancy-entity-renderer/issues/20), armor layer not rotating along with the model.
+
 ## [v0.4.4] - 2026/01/09
 
 - 1.21 and 1.21.1 only.
@@ -147,6 +152,7 @@ and this project adheres to [Crystal Nest Semantic Versioning](https://crystalne
 [Unreleased]: https://github.com/crystal-nest/fancy-entity-renderer
 [README]: https://github.com/crystal-nest/fancy-entity-renderer#readme
 
+[v0.5.2]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.5.2
 [v0.5.1]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.5.1
 [v0.5.0]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.5.0
 [v0.4.4]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.4.4
