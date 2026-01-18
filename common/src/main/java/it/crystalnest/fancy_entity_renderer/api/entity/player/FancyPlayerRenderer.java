@@ -193,6 +193,7 @@ public class FancyPlayerRenderer extends AvatarRenderer<AbstractClientPlayer> {
     }
     state.isBaby = isBaby;
     state.isUpsideDown = isUpsideDown;
+    state.nameTag = state.showPlayerName && !state.isInvisibleToPlayer ? state.nameTag : null;
   }
 
   /**
