@@ -8,7 +8,6 @@ import it.crystalnest.fancy_entity_renderer.api.entity.player.state.FancyPlayerR
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.model.geom.ModelLayers;
-import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -194,6 +193,7 @@ public class FancyPlayerRenderer extends AvatarRenderer<@NotNull AbstractClientP
     }
     state.isBaby = isBaby;
     state.isUpsideDown = isUpsideDown;
+    state.nameTag = state.showPlayerName && !state.isInvisibleToPlayer ? state.nameTag : null;
   }
 
   /**
