@@ -9,6 +9,10 @@ and this project adheres to [Crystal Nest Semantic Versioning](https://crystalne
 
 - Nothing new.
 
+## [v0.5.3] - 2026/01/19
+
+- Fixed a bug where it was impossible to control the visibility of the nametag when mimicking a player.
+
 ## [v0.5.2] - 2026/01/11
 
 - 1.21.10+ only.
@@ -152,6 +156,7 @@ and this project adheres to [Crystal Nest Semantic Versioning](https://crystalne
 [Unreleased]: https://github.com/crystal-nest/fancy-entity-renderer
 [README]: https://github.com/crystal-nest/fancy-entity-renderer#readme
 
+[v0.5.3]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.5.3
 [v0.5.2]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.5.2
 [v0.5.1]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.5.1
 [v0.5.0]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.5.0
