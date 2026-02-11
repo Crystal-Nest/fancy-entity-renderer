@@ -166,10 +166,12 @@ and this project adheres to [Crystal Nest Semantic Versioning](https://crystalne
 [Unreleased]: https://github.com/crystal-nest/fancy-entity-renderer
 [README]: https://github.com/crystal-nest/fancy-entity-renderer#readme
 
+[v0.5.4]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.5.4
 [v0.5.3]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.5.3
 [v0.5.2]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.5.2
 [v0.5.1]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.5.1
 [v0.5.0]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.5.0
+[v0.4.5]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.4.4
 [v0.4.4]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.4.4
 [v0.4.3]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.4.3
 [v0.4.2]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.4.2
