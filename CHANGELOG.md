@@ -9,6 +9,16 @@ and this project adheres to [Crystal Nest Semantic Versioning](https://crystalne
 
 - Nothing new.
 
+## [v0.5.4] - 2026/02/11
+
+- 1.21.10+ only.
+- Fixed [#21](https://github.com/Crystal-Nest/fancy-entity-renderer/issues/21), incompatibility with owo-lib.
+
+## [v0.4.5] - 2026/02/11
+
+- 1.21.6, 1.21.7, and 1.21.8 only.
+- Fixed [#21](https://github.com/Crystal-Nest/fancy-entity-renderer/issues/21), incompatibility with owo-lib.
+
 ## [v0.5.3] - 2026/01/19
 
 - Fixed a bug where it was impossible to control the visibility of the nametag when mimicking a player.
