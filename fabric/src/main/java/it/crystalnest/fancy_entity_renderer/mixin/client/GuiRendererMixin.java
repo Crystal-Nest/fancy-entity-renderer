@@ -1,11 +1,13 @@
 package it.crystalnest.fancy_entity_renderer.mixin.client;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.render.GuiRenderer;
 import net.minecraft.client.gui.render.pip.GuiEntityRenderer;
 import net.minecraft.client.gui.render.pip.PictureInPictureRenderer;
@@ -16,7 +18,6 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -113,28 +114,30 @@ public abstract class GuiRendererMixin {
   }
 
   /**
-   * @author CrystalSpider
-   * @reason The original method {@link GuiRenderer#preparePictureInPicture()} handles all renderers and states in the same way.
-   * However, for multiple entities to be rendered at the same time, {@link GuiEntityRenderer}s and {@link GuiEntityRenderState}s must be treated differently with a double prepare pass.
+   * Wraps the call to {@link GuiRenderState#forEachPictureInPicture(Consumer)} inside the method {@link GuiRenderer#preparePictureInPicture()}.<br>
+   * Prepares multiple {@link GuiEntityRenderState}s per frame with a double pass.
+   *
+   * @param instance {@link GuiRenderState} invoking (owning) the wrapped method.
+   * @param action the consumer passed to the wrapped method.
+   * @param original the original (wrapped) method.
+   * @param i local variable storing the GUI scale at the injection point.
    */
-  @Overwrite
-  private void preparePictureInPicture() {
-    // Get the GUI scale.
-    int i = Minecraft.getInstance().getWindow().getGuiScale();
+  @WrapOperation(method = "preparePictureInPicture", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/render/state/GuiRenderState;forEachPictureInPicture(Ljava/util/function/Consumer;)V"))
+  private void redirectForEachPictureInPicture(GuiRenderState instance, Consumer<PictureInPictureRenderState> action, Operation<Void> original, @Local int i) {
     // Empty the render states prepared this frame.
     preparedGuiEntityRenderStates.clear();
-    // Make first prepare pass for GuiEntityRenderStates and prepare all others.
-    renderState.forEachPictureInPicture(state -> {
+    // Make the first prepare pass for GuiEntityRenderStates and prepare all others.
+    original.call(instance, (Consumer<PictureInPictureRenderState>) state -> {
       if (state instanceof GuiEntityRenderState guiEntityRenderState) {
         if (prepareGuiEntityRenderState(guiEntityRenderState, i, true)) {
           preparedGuiEntityRenderStates.add(guiEntityRenderState);
         }
       } else {
-        preparePictureInPictureState(state, i);
+        action.accept(state);
       }
     });
-    // Make second prepare pass for GuiEntityRenderStates.
-    renderState.forEachPictureInPicture(state -> {
+    // Make the second prepare pass for GuiEntityRenderStates.
+    original.call(instance, (Consumer<PictureInPictureRenderState>) state -> {
       if (state instanceof GuiEntityRenderState guiEntityRenderState && preparedGuiEntityRenderStates.add(guiEntityRenderState)) {
         prepareGuiEntityRenderState(guiEntityRenderState, i, false);
       }
