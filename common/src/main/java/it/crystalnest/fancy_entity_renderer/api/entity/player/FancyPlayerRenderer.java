@@ -100,30 +100,8 @@ public class FancyPlayerRenderer extends AvatarRenderer<@NotNull AbstractClientP
         poseStack.rotateAround(Axis.ZP.rotationDegrees(Math.min(Mth.sqrt((state.deathTime - 1) / 20F * 1.6F), 1) * 90), 0, offsetY, 0);
       }
       float x = -minecraft.font.width(text) / 2F;
-      submitNodeCollector.submitText(
-        poseStack,
-        x,
-        offset,
-        text,
-        false,
-        Font.DisplayMode.SEE_THROUGH,
-        state.lightCoords,
-        -2130706433,
-        (int) (minecraft.options.getBackgroundOpacity(0.25F) * 255F) << 24,
-        0
-      );
-      submitNodeCollector.submitText(
-        poseStack,
-        x,
-        offset,
-        text,
-        false,
-        Font.DisplayMode.NORMAL,
-        LightCoordsUtil.lightCoordsWithEmission(state.lightCoords, 2),
-        state.isDiscrete ? -2130706433 : -1,
-        0,
-        0
-      );
+      submitNodeCollector.submitText(poseStack, x, offset, text, false, Font.DisplayMode.SEE_THROUGH, state.lightCoords, -2130706433, (int) (minecraft.options.getBackgroundOpacity(0.25F) * 255F) << 24, 0);
+      submitNodeCollector.submitText(poseStack, x, offset, text, false, Font.DisplayMode.NORMAL, LightCoordsUtil.lightCoordsWithEmission(state.lightCoords, 2), state.isDiscrete ? -2130706433 : -1, 0, 0);
       poseStack.popPose();
     } else {
       super.submitNameDisplay(renderState, poseStack, submitNodeCollector, camera);
