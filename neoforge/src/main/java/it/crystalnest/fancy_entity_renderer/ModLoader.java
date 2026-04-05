@@ -1,6 +1,5 @@
 package it.crystalnest.fancy_entity_renderer;
 
-import net.minecraft.client.Minecraft;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import org.jetbrains.annotations.ApiStatus;
@@ -18,7 +17,6 @@ public final class ModLoader {
    * @param bus Event bus.
    */
   public ModLoader(IEventBus bus) {
-      Minecraft.getInstance().getWindow();
   }
 
 }
