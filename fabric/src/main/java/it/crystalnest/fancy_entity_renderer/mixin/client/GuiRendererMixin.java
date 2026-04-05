@@ -40,6 +40,7 @@ import java.util.function.Consumer;
  */
 @Mixin(GuiRenderer.class)
 public abstract class GuiRendererMixin {
+
     /**
      * Set of already prepared {@code GuiEntityRenderState}s in the current frame.
      */
