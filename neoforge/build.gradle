@@ -4,19 +4,12 @@ plugins {
 }
 
 dependencies {
-  compileOnly "it.crystalnest:prometheus-$name:$minecraft_version-$prometheus_version"
+  compileOnly "it.crystalnest:prometheus-$name:$prometheus_minecraft_version-$prometheus_version"
+  compileOnly "it.crystalnest:cobweb-common:$cobweb_minecraft_version-$cobweb_version"
 }
 
 neoForge {
   version = neoforge_version
-  def at = project(":common").file("src/main/resources/META-INF/accesstransformer.cfg")
-  if (at.exists()) {
-    accessTransformers.from(at.absolutePath)
-  }
-  parchment {
-    minecraftVersion = parchment_minecraft
-    mappingsVersion = parchment_version
-  }
   runs {
     configureEach {
       systemProperty("neoforge.enabledGameTestNamespaces", mod_id)

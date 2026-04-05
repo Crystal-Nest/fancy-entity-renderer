@@ -6,17 +6,18 @@ import it.crystalnest.fancy_entity_renderer.api.entity.player.state.FancyPlayerR
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.render.pip.GuiEntityRenderer;
 import net.minecraft.client.gui.render.pip.PictureInPictureRenderer;
-import net.minecraft.client.gui.render.state.pip.GuiEntityRenderState;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.feature.FeatureRenderDispatcher;
-import net.minecraft.client.renderer.state.CameraRenderState;
+import net.minecraft.client.renderer.state.gui.pip.GuiEntityRenderState;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.joml.Quaternionf;
 
 /**
  * Injects into {@link GuiEntityRenderer} to handle Fancy Entity Widgets.
@@ -45,7 +46,7 @@ public abstract class GuiEntityRendererMixin extends PictureInPictureRenderer<Gu
    * @param poseStack {@link PoseStack}.
    * @param ci {@link CallbackInfo}.
    */
-  @Inject(method = "renderToTexture(Lnet/minecraft/client/gui/render/state/pip/GuiEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;)V", at = @At(value = "HEAD"), cancellable = true)
+  @Inject(method = "renderToTexture(Lnet/minecraft/client/renderer/state/gui/pip/GuiEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;)V", at = @At(value = "HEAD"), cancellable = true)
   private void onRenderToTexture(GuiEntityRenderState guiState, PoseStack poseStack, CallbackInfo ci) {
     if (guiState.renderState() instanceof FancyPlayerRenderState renderState) {
       Minecraft.getInstance().gameRenderer.getLighting().setupFor(Lighting.Entry.ENTITY_IN_UI);
@@ -55,7 +56,7 @@ public abstract class GuiEntityRendererMixin extends PictureInPictureRenderer<Gu
       FeatureRenderDispatcher dispatcher = Minecraft.getInstance().gameRenderer.getFeatureRenderDispatcher();
       CameraRenderState camera = new CameraRenderState();
       if (guiState.overrideCameraAngle() != null) {
-        camera.orientation = guiState.overrideCameraAngle();
+        camera.orientation = guiState.overrideCameraAngle().conjugate(new Quaternionf()).rotateY((float) Math.PI);
       }
       entityRenderDispatcher.submit(renderState, camera, 0, 0, 0, poseStack, dispatcher.getSubmitNodeStorage());
       dispatcher.renderAllFeatures();

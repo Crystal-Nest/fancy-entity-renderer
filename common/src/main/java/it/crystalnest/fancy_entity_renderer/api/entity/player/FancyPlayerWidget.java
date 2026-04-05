@@ -10,12 +10,11 @@ import it.crystalnest.fancy_entity_renderer.api.entity.player.state.FancyPlayerR
 import it.crystalnest.fancy_entity_renderer.compat.Prometheus;
 import it.crystalnest.fancy_entity_renderer.platform.Services;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.commands.arguments.item.ItemInput;
@@ -23,6 +22,7 @@ import net.minecraft.commands.arguments.item.ItemParser;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.world.entity.Avatar;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.HumanoidArm;
@@ -58,7 +58,12 @@ public class FancyPlayerWidget extends AbstractWidget {
   /**
    * Player eye height when crouching.
    */
-  public static final float PLAYER_CROUCHING_EYE_HEIGHT = Avatar.POSES.get(Pose.CROUCHING).eyeHeight();
+  public static final float PLAYER_CROUCHING_EYE_HEIGHT = 1.27F;
+
+  /**
+   * Player hitbox height when crouching.
+   */
+  public static final float PLAYER_CROUCHING_HEIGHT = 1.5F;
 
   /**
    * Ratio of a player's height to its width.
@@ -88,7 +93,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    */
   public FancyPlayerWidget(int x, int y, int width, int height) {
     super(x, y, width, height, CommonComponents.EMPTY);
-    renderState.lightCoords = LightTexture.FULL_BRIGHT;
+    renderState.lightCoords = LightCoordsUtil.FULL_BRIGHT;
   }
 
   /**
@@ -133,8 +138,8 @@ public class FancyPlayerWidget extends AbstractWidget {
    */
   private static ItemStack parseItem(String item, HolderLookup.Provider provider) {
     try {
-      ItemParser.ItemResult result = new ItemParser(provider).parse(new StringReader(item));
-      return new ItemInput(result.item(), result.components()).createItemStack(1, false);
+      ItemInput result = new ItemParser(provider).parse(new StringReader(item));
+      return result.createItemStack(1);
     } catch (CommandSyntaxException e) {
       Constants.LOGGER.error("Error parsing {}", item, e);
       return ItemStack.EMPTY;
@@ -150,7 +155,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @param partialTick partial tick.
    */
   @Override
-  protected void renderWidget(@NotNull GuiGraphics gfx, int mouseX, int mouseY, float partialTick) {
+  protected void extractWidgetRenderState(@NotNull GuiGraphicsExtractor gfx, int mouseX, int mouseY, float partialTick) {
     updateRenderState(getX(), getY(), getWidth(), getHeight(), mouseX, mouseY, partialTick);
     float offsetX = 0;
     // Taken from AvatarRenderer#getRenderOffset(AvatarRenderState)
@@ -164,7 +169,7 @@ public class FancyPlayerWidget extends AbstractWidget {
         offsetY /= 1.5F;
       }
     }
-    gfx.submitEntityRenderState(
+    gfx.entity(
       renderState,
       1,
       new Vector3f(
@@ -1199,7 +1204,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setPose(Pose pose) {
-    if (Avatar.POSES.containsKey(pose) && pose != Pose.FALL_FLYING) {
+    if (isSupportedPose(pose)) {
       renderState.pose = pose;
       renderState.isAutoSpinAttack = pose == Pose.SPIN_ATTACK;
       renderState.isCrouching = pose == Pose.CROUCHING;
@@ -1329,7 +1334,23 @@ public class FancyPlayerWidget extends AbstractWidget {
    */
   private void updateIsSlim(boolean isSlim) {
     renderState.isSlim = isSlim;
-    renderState.skin = DefaultPlayerSkin.DEFAULT_SKINS[random.nextInt(9) + (isSlim ? 0 : 9)];
+    renderState.skin = getRandomDefaultSkin(isSlim);
+  }
+
+  private PlayerSkin getRandomDefaultSkin(boolean isSlim) {
+    PlayerModelType modelType = isSlim ? PlayerModelType.SLIM : PlayerModelType.WIDE;
+    PlayerSkin skin;
+    do {
+      skin = DefaultPlayerSkin.get(new UUID(random.nextLong(), random.nextLong()));
+    } while (skin.model() != modelType);
+    return skin;
+  }
+
+  private static boolean isSupportedPose(Pose pose) {
+    return switch (pose) {
+      case STANDING, SLEEPING, SWIMMING, SPIN_ATTACK, CROUCHING, DYING -> true;
+      default -> false;
+    };
   }
 
   /**
@@ -1346,7 +1367,7 @@ public class FancyPlayerWidget extends AbstractWidget {
   protected void updateRenderState(int x, int y, int width, int height, int mouseX, int mouseY, float partialTick) {
     renderState.updateScale(height);
     if (renderState.bodyFollowsMouse || renderState.headFollowsMouse) {
-      float renderHeight = renderState.pose == Pose.CROUCHING ? Avatar.CROUCH_BB_HEIGHT : PLAYER_RENDER_HEIGHT;
+      float renderHeight = renderState.pose == Pose.CROUCHING ? PLAYER_CROUCHING_HEIGHT : PLAYER_RENDER_HEIGHT;
       float eyeHeight = renderState.pose == Pose.CROUCHING ? PLAYER_CROUCHING_EYE_HEIGHT : Avatar.DEFAULT_EYE_HEIGHT;
       float adultEyeY = (renderHeight - eyeHeight) * height / renderHeight;
       float eyeY = (renderState.isBaby ? (height + adultEyeY) * LivingEntity.DEFAULT_BABY_SCALE : adultEyeY);

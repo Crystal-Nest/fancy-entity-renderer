@@ -4,19 +4,22 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
+import com.mojang.blaze3d.textures.GpuTexture;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
+import it.crystalnest.fancy_entity_renderer.mixin.client.accessor.PictureInPictureRendererAccessor;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.render.GuiRenderer;
 import net.minecraft.client.gui.render.pip.GuiEntityRenderer;
 import net.minecraft.client.gui.render.pip.PictureInPictureRenderer;
-import net.minecraft.client.gui.render.state.GuiRenderState;
-import net.minecraft.client.gui.render.state.pip.GuiEntityRenderState;
-import net.minecraft.client.gui.render.state.pip.PictureInPictureRenderState;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.feature.FeatureRenderDispatcher;
+import net.minecraft.client.renderer.state.gui.GuiRenderState;
+import net.minecraft.client.renderer.state.gui.pip.GuiEntityRenderState;
+import net.minecraft.client.renderer.state.gui.pip.PictureInPictureRenderState;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -88,7 +91,8 @@ public abstract class GuiRendererMixin {
    */
   @Unique
   private static boolean canBeReusedFor(GuiEntityRenderer renderer, GuiEntityRenderState state, int width, int height) {
-    return renderer.texture == null || (renderer.texture.getWidth(0) == width && renderer.texture.getHeight(0) == height);
+    GpuTexture texture = ((PictureInPictureRendererAccessor) renderer).fer$getTexture();
+    return texture == null || (texture.getWidth(0) == width && texture.getHeight(0) == height);
   }
 
   /**
@@ -140,7 +144,7 @@ public abstract class GuiRendererMixin {
    * @param original the original (wrapped) method.
    * @param i local variable storing the GUI scale at the injection point.
    */
-  @WrapOperation(method = "preparePictureInPicture", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/render/state/GuiRenderState;forEachPictureInPicture(Ljava/util/function/Consumer;)V"))
+  @WrapOperation(method = "preparePictureInPicture", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/state/gui/GuiRenderState;forEachPictureInPicture(Ljava/util/function/Consumer;)V"))
   private void redirectForEachPictureInPicture(GuiRenderState instance, Consumer<PictureInPictureRenderState> action, Operation<Void> original, @Local int i) {
     // Empty the render states prepared this frame.
     preparedGuiEntityRenderStates.clear();
@@ -228,7 +232,10 @@ public abstract class GuiRendererMixin {
       }
     }
     // No suitable renderer was found -> create a new one.
-    GuiEntityRenderer renderer = new GuiEntityRenderer(guiEntityRenderer.bufferSource, guiEntityRenderer.entityRenderDispatcher);
+    GuiEntityRenderer renderer = new GuiEntityRenderer(
+      ((PictureInPictureRendererAccessor) guiEntityRenderer).fer$getBufferSource(),
+      Minecraft.getInstance().getEntityRenderDispatcher()
+    );
     renderersThisFrame.put(state, renderer);
     return renderer;
   }

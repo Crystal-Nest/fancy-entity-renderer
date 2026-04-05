@@ -9,7 +9,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.ArmorModelSet;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -17,15 +16,16 @@ import net.minecraft.client.renderer.entity.layers.CapeLayer;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.player.AvatarRenderer;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
-import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Avatar;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
@@ -34,6 +34,10 @@ import org.joml.Quaternionf;
  * Custom player renderer.
  */
 public class FancyPlayerRenderer extends AvatarRenderer<@NotNull AbstractClientPlayer> {
+  private static final float SLEEPING_EYE_HEIGHT = 0.2F;
+  private static final float CROUCHING_EYE_HEIGHT = 1.27F;
+  private static final float PRONE_EYE_HEIGHT = 0.4F;
+
   /**
    * Adult player model.
    */
@@ -78,11 +82,12 @@ public class FancyPlayerRenderer extends AvatarRenderer<@NotNull AbstractClientP
    * @param camera camera state.
    */
   @Override
-  protected void submitNameTag(@NotNull AvatarRenderState renderState, @NotNull PoseStack poseStack, @NotNull SubmitNodeCollector submitNodeCollector, @NotNull CameraRenderState camera) {
+  protected void submitNameDisplay(@NotNull AvatarRenderState renderState, @NotNull PoseStack poseStack, @NotNull SubmitNodeCollector submitNodeCollector, @NotNull CameraRenderState camera) {
     if (renderState instanceof FancyPlayerRenderState state && state.nameTag != null && state.nameTagAttachment != null) {
       FormattedCharSequence text = state.nameTag.getVisualOrderText();
       Minecraft minecraft = Minecraft.getInstance();
       poseStack.pushPose();
+      int offset = state.showExtraEars ? -10 : 0;
       float scale = state.scale * NAMETAG_SCALE;
       float height = state.isBaby && state.pose != Pose.SPIN_ATTACK ? state.boundingBoxHeight * LivingEntity.DEFAULT_BABY_SCALE : state.boundingBoxHeight;
       float offsetY = (state.pose == Pose.SLEEPING || state.pose == Pose.SWIMMING ? state.boundingBoxWidth : height) / scale + (float) state.nameTagAttachment.y;
@@ -95,9 +100,33 @@ public class FancyPlayerRenderer extends AvatarRenderer<@NotNull AbstractClientP
         poseStack.rotateAround(Axis.ZP.rotationDegrees(Math.min(Mth.sqrt((state.deathTime - 1) / 20F * 1.6F), 1) * 90), 0, offsetY, 0);
       }
       float x = -minecraft.font.width(text) / 2F;
-      submitNodeCollector.submitText(poseStack, x, 0, text, false, Font.DisplayMode.SEE_THROUGH, state.lightCoords, -2130706433, (int) (minecraft.options.getBackgroundOpacity(0.25F) * 255F) << 24, 0);
-      submitNodeCollector.submitText(poseStack, x, 0, text, false, Font.DisplayMode.NORMAL, LightTexture.lightCoordsWithEmission(state.lightCoords, 2), state.isDiscrete ? -2130706433 : -1, 0, 0);
+      submitNodeCollector.submitText(
+        poseStack,
+        x,
+        offset,
+        text,
+        false,
+        Font.DisplayMode.SEE_THROUGH,
+        state.lightCoords,
+        -2130706433,
+        (int) (minecraft.options.getBackgroundOpacity(0.25F) * 255F) << 24,
+        0
+      );
+      submitNodeCollector.submitText(
+        poseStack,
+        x,
+        offset,
+        text,
+        false,
+        Font.DisplayMode.NORMAL,
+        LightCoordsUtil.lightCoordsWithEmission(state.lightCoords, 2),
+        state.isDiscrete ? -2130706433 : -1,
+        0,
+        0
+      );
       poseStack.popPose();
+    } else {
+      super.submitNameDisplay(renderState, poseStack, submitNodeCollector, camera);
     }
   }
 
@@ -202,7 +231,7 @@ public class FancyPlayerRenderer extends AvatarRenderer<@NotNull AbstractClientP
    * @param state render state.
    */
   protected void updateRenderState(@NotNull FancyPlayerRenderState state) {
-    state.eyeHeight = Avatar.POSES.get(state.pose).eyeHeight();
+    state.eyeHeight = getEyeHeight(state.pose);
     state.isDiscrete = state.isCrouching || state.isInvisible;
     if (state.isMoving && state.pose != Pose.DYING) {
       float step = state.speedValue * 0.33F;
@@ -220,7 +249,7 @@ public class FancyPlayerRenderer extends AvatarRenderer<@NotNull AbstractClientP
     }
     state.nameTag = state.showPlayerName && !state.isInvisibleToPlayer ? Component.literal(state.name) : null;
     if (state.pose == Pose.SLEEPING) {
-      state.nameTagAttachment = new Vec3(Avatar.POSES.get(state.pose).eyeHeight() * state.scale - state.boundingBoxHeight / 1.35F, 0, 0);
+      state.nameTagAttachment = new Vec3(getEyeHeight(state.pose) * state.scale - state.boundingBoxHeight / 1.35F, 0, 0);
     } else {
       state.nameTagAttachment = new Vec3(0, 0.25F * state.scale, 0);
     }
@@ -232,5 +261,14 @@ public class FancyPlayerRenderer extends AvatarRenderer<@NotNull AbstractClientP
     }
     state.elytraRotX = (float) (Math.PI / 16);
     state.elytraRotZ = (float) (Math.PI / 10);
+  }
+
+  private static float getEyeHeight(Pose pose) {
+    return switch (pose) {
+      case SLEEPING -> SLEEPING_EYE_HEIGHT;
+      case FALL_FLYING, SWIMMING, SPIN_ATTACK -> PRONE_EYE_HEIGHT;
+      case CROUCHING -> CROUCHING_EYE_HEIGHT;
+      default -> Avatar.DEFAULT_EYE_HEIGHT;
+    };
   }
 }

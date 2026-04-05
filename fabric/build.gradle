@@ -1,26 +1,25 @@
 plugins {
   id "multiloader-loader"
-  id "fabric-loom"
+  id "net.fabricmc.fabric-loom"
 }
+
+def minecraftClientJar = files(new File(gradle.gradleUserHomeDir, "caches/fabric-loom/${minecraft_version}/minecraft-client.jar"))
 
 dependencies {
   minecraft "com.mojang:minecraft:$minecraft_version"
-  mappings loom.layered {
-    officialMojangMappings()
-    parchment("org.parchmentmc.data:parchment-$parchment_minecraft:$parchment_version@zip")
-  }
-  modImplementation "net.fabricmc:fabric-loader:$fabric_loader_version"
-  modImplementation "net.fabricmc.fabric-api:fabric-api:$fabric_version"
-  modCompileOnly "it.crystalnest:prometheus-$name:$minecraft_version-$prometheus_version"
+  implementation "net.fabricmc:fabric-loader:$fabric_loader_version"
+  implementation "net.fabricmc.fabric-api:fabric-api:$fabric_version"
+  compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-fabric:$mixin_extras_version"))
+  compileOnly "it.crystalnest:prometheus-$name:$prometheus_minecraft_version-$prometheus_version"
+  compileOnly "it.crystalnest:cobweb-common:$cobweb_minecraft_version-$cobweb_version"
 }
 
 loom {
-  def aw = project(":common").file("src/main/resources/${mod_id}.accesswidener")
-  if (aw.exists()) {
-    accessWidenerPath.set(aw)
-  }
-  mixin {
-    defaultRefmapName.set("${mod_id}.refmap.json")
+  mods {
+    "${mod_id}" {
+      sourceSet sourceSets.main
+      sourceSet("main", ":common")
+    }
   }
   runs {
     client {
@@ -38,6 +37,50 @@ loom {
   }
 }
 
-publisher {
-  setArtifact(remapJar)
+tasks.named("compileJava", JavaCompile) {
+  classpath += minecraftClientJar + configurations.minecraftLibraries
+}
+
+tasks.named("javadoc", Javadoc) {
+  classpath += minecraftClientJar + configurations.minecraftLibraries
+}
+
+tasks.register("repairMergedMinecraftJar") {
+  dependsOn "configureClientLaunch"
+
+  doLast {
+    def mergedJars = fileTree(rootProject.file(".gradle/loom-cache/minecraftMaven/net/minecraft")).matching {
+      include "minecraft-merged-*/${minecraft_version}/minecraft-merged-*-${minecraft_version}.jar"
+    }.files
+    if (mergedJars.empty) {
+      throw new GradleException("Could not find Loom merged Minecraft jars for ${minecraft_version}.")
+    }
+
+    def clientJar = minecraftClientJar.singleFile
+    mergedJars.each { File mergedJar ->
+      if (!zipTree(mergedJar).matching { include "**/*.class" }.files.empty) {
+        return
+      }
+
+      def mergedJarTempDir = new File(temporaryDir, mergedJar.name.replace(".jar", ""))
+      delete(mergedJarTempDir)
+      copy {
+        from(zipTree(mergedJar))
+        from(zipTree(clientJar))
+        into(mergedJarTempDir)
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
+      }
+      ant.zip(destfile: mergedJar) {
+        fileset(dir: mergedJarTempDir)
+      }
+    }
+  }
+}
+
+tasks.named("runClient") {
+  dependsOn "repairMergedMinecraftJar"
+}
+
+tasks.matching { it.name == "runClientRenderDoc" }.configureEach {
+  dependsOn "repairMergedMinecraftJar"
 }
