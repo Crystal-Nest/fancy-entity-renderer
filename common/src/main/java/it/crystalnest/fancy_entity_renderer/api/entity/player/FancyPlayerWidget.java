@@ -8,6 +8,7 @@ import it.crystalnest.fancy_entity_renderer.api.Rotation;
 import it.crystalnest.fancy_entity_renderer.api.entity.RenderMode;
 import it.crystalnest.fancy_entity_renderer.api.entity.player.state.FancyPlayerRenderState;
 import it.crystalnest.fancy_entity_renderer.compat.Prometheus;
+import it.crystalnest.fancy_entity_renderer.mixin.accessor.HolderSetNamedAccessor;
 import it.crystalnest.fancy_entity_renderer.platform.Services;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -20,10 +21,15 @@ import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.commands.arguments.item.ItemInput;
 import net.minecraft.commands.arguments.item.ItemParser;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.resources.MultiPackResourceManager;
+import net.minecraft.tags.TagLoader;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.world.entity.Avatar;
 import net.minecraft.world.entity.Entity;
@@ -43,10 +49,12 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 /**
  * Custom player widget.
@@ -1486,9 +1494,62 @@ public class FancyPlayerWidget extends AbstractWidget {
     private static final HolderLookup.Provider PROVIDER = createProvider();
 
     private static HolderLookup.Provider createProvider() {
-      HolderLookup.Provider provider = VanillaRegistries.createLookup();
+      HolderLookup.Provider baseProvider = VanillaRegistries.createLookup();
+      HolderLookup.Provider provider;
+      try (MultiPackResourceManager dataResources = new MultiPackResourceManager(
+        PackType.SERVER_DATA,
+        Minecraft.getInstance().getResourcePackRepository().openAllSelected()
+      )) {
+        provider = HolderLookup.Provider.create(baseProvider.listRegistries().map(lookup -> withLoadedTags(dataResources, lookup)));
+      }
       BuiltInRegistries.DATA_COMPONENT_INITIALIZERS.build(provider).forEach(pending -> pending.apply());
       return provider;
+    }
+
+    private static <T> HolderLookup.RegistryLookup<T> withLoadedTags(
+      MultiPackResourceManager dataResources,
+      HolderLookup.RegistryLookup<T> original
+    ) {
+      @SuppressWarnings("unchecked")
+      net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<T>> registryKey =
+        (net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<T>>) original.key();
+      Map<TagKey<T>, List<net.minecraft.core.Holder<T>>> loadedTags = TagLoader.loadTagsForRegistry(
+        dataResources,
+        registryKey,
+        TagLoader.ElementLookup.fromGetters(registryKey, original, original)
+      );
+      if (loadedTags.isEmpty()) {
+        return original;
+      }
+      Map<TagKey<T>, HolderSet.Named<T>> namedTags = new java.util.HashMap<>();
+      loadedTags.forEach((tag, holders) -> namedTags.put(tag, createNamedTagSet(original, tag, holders)));
+      return new HolderLookup.RegistryLookup.Delegate<>() {
+        @Override
+        public HolderLookup.RegistryLookup<T> parent() {
+          return original;
+        }
+
+        @Override
+        public Optional<HolderSet.Named<T>> get(TagKey<T> id) {
+          return Optional.ofNullable(namedTags.get(id)).or(() -> original.get(id));
+        }
+
+        @Override
+        public Stream<HolderSet.Named<T>> listTags() {
+          return Stream.concat(namedTags.values().stream(), original.listTags().filter(tag -> !namedTags.containsKey(tag.key())));
+        }
+      };
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> HolderSet.Named<T> createNamedTagSet(
+      HolderLookup.RegistryLookup<T> owner,
+      TagKey<T> key,
+      List<net.minecraft.core.Holder<T>> contents
+    ) {
+      HolderSet.Named<T> named = HolderSetNamedAccessor.fer$create(owner, key);
+      ((HolderSetNamedAccessor<T>) named).fer$bind(contents);
+      return named;
     }
 
     private static void bootstrap() {
