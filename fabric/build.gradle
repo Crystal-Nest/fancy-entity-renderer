@@ -27,6 +27,7 @@ loom {
       setConfigName("Fabric Client")
       ideConfigGenerated(true)
       runDir("run/client")
+      vmArg "-Dfabric.gameJarPath.client=${new File(gradle.gradleUserHomeDir, "caches/fabric-loom/${minecraft_version}/minecraft-client.jar").absolutePath}"
     }
     server {
       server()
@@ -43,44 +44,4 @@ tasks.named("compileJava", JavaCompile) {
 
 tasks.named("javadoc", Javadoc) {
   classpath += minecraftClientJar + configurations.minecraftLibraries
-}
-
-tasks.register("repairMergedMinecraftJar") {
-  dependsOn "configureClientLaunch"
-
-  doLast {
-    def mergedJars = fileTree(rootProject.file(".gradle/loom-cache/minecraftMaven/net/minecraft")).matching {
-      include "minecraft-merged-*/${minecraft_version}/minecraft-merged-*-${minecraft_version}.jar"
-    }.files
-    if (mergedJars.empty) {
-      throw new GradleException("Could not find Loom merged Minecraft jars for ${minecraft_version}.")
-    }
-
-    def clientJar = minecraftClientJar.singleFile
-    mergedJars.each { File mergedJar ->
-      if (!zipTree(mergedJar).matching { include "**/*.class" }.files.empty) {
-        return
-      }
-
-      def mergedJarTempDir = new File(temporaryDir, mergedJar.name.replace(".jar", ""))
-      delete(mergedJarTempDir)
-      copy {
-        from(zipTree(mergedJar))
-        from(zipTree(clientJar))
-        into(mergedJarTempDir)
-        duplicatesStrategy = DuplicatesStrategy.INCLUDE
-      }
-      ant.zip(destfile: mergedJar) {
-        fileset(dir: mergedJarTempDir)
-      }
-    }
-  }
-}
-
-tasks.named("runClient") {
-  dependsOn "repairMergedMinecraftJar"
-}
-
-tasks.matching { it.name == "runClientRenderDoc" }.configureEach {
-  dependsOn "repairMergedMinecraftJar"
 }
