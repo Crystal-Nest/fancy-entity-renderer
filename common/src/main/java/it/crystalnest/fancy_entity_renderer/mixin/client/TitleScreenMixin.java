@@ -16,20 +16,22 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  */
 @Mixin(TitleScreen.class)
 public abstract class TitleScreenMixin extends Screen {
-  protected TitleScreenMixin(Component title) {
-    super(title);
-  }
 
-  @Inject(method = "init", at = @At("TAIL"))
-  private void fer$addDevTestButton(CallbackInfo ci) {
-    if (!Services.PLATFORM.isDevEnv() || minecraft == null) {
-      return;
+    protected TitleScreenMixin(Component title) {
+        super(title);
     }
 
-    addRenderableWidget(
-      Button.builder(Component.literal("FER Test"), button -> minecraft.setScreen(new FerDevTestScreen((TitleScreen) (Object) this)))
-        .bounds(20, 20, 88, 20)
-        .build()
-    );
-  }
+    @Inject(method = "init", at = @At("TAIL"))
+    private void fer$addDevTestButton(CallbackInfo ci) {
+        if (!Services.PLATFORM.isDevEnv() || minecraft == null) {
+            return;
+        }
+
+        addRenderableWidget(
+                Button.builder(Component.literal("FER Test"), button -> minecraft.setScreen(new FerDevTestScreen((TitleScreen) (Object) this)))
+                        .bounds(20, 20, 88, 20)
+                        .build()
+        );
+    }
+
 }
