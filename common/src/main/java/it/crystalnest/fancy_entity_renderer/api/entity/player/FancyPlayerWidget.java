@@ -20,6 +20,8 @@ import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.commands.arguments.item.ItemInput;
 import net.minecraft.commands.arguments.item.ItemParser;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.LightCoordsUtil;
@@ -130,6 +132,17 @@ public class FancyPlayerWidget extends AbstractWidget {
   }
 
   /**
+   * Creates an {@link ItemStack} from a registry item in a way that is safe for GUI-only contexts such as the title screen.
+   *
+   * @param item item.
+   * @return {@link ItemStack} to use as wearable.
+   */
+  private static ItemStack createItemStack(Item item) {
+    GuiItemContext.bootstrap();
+    return item.getDefaultInstance();
+  }
+
+  /**
    * Parses an item string into an {@link ItemStack} using the given provider.
    *
    * @param item item string, in the same format as for the command {@code /give}.
@@ -138,9 +151,10 @@ public class FancyPlayerWidget extends AbstractWidget {
    */
   private static ItemStack parseItem(String item, HolderLookup.Provider provider) {
     try {
+      GuiItemContext.bootstrap();
       ItemInput result = new ItemParser(provider).parse(new StringReader(item));
       return result.createItemStack(1);
-    } catch (CommandSyntaxException e) {
+    } catch (CommandSyntaxException | RuntimeException e) {
       Constants.LOGGER.error("Error parsing {}", item, e);
       return ItemStack.EMPTY;
     }
@@ -929,7 +943,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setRightHandItem(@Nullable Item item) {
-    renderState.rightHandItemStack = getNullableItem(item, Item::getDefaultInstance);
+    renderState.rightHandItemStack = getNullableItem(item, FancyPlayerWidget::createItemStack);
     return this;
   }
 
@@ -941,7 +955,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setLeftHandItem(@Nullable Item item) {
-    renderState.leftHandItemStack = getNullableItem(item, Item::getDefaultInstance);
+    renderState.leftHandItemStack = getNullableItem(item, FancyPlayerWidget::createItemStack);
     return this;
   }
 
@@ -1029,7 +1043,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setHeadWearable(@Nullable Item item) {
-    renderState.headEquipment = getNullableItem(item, Item::getDefaultInstance);
+    renderState.headEquipment = getNullableItem(item, FancyPlayerWidget::createItemStack);
     return this;
   }
 
@@ -1041,7 +1055,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setChestWearable(@Nullable Item item) {
-    renderState.chestEquipment = getNullableItem(item, Item::getDefaultInstance);
+    renderState.chestEquipment = getNullableItem(item, FancyPlayerWidget::createItemStack);
     return this;
   }
 
@@ -1053,7 +1067,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setLegsWearable(@Nullable Item item) {
-    renderState.legsEquipment = getNullableItem(item, Item::getDefaultInstance);
+    renderState.legsEquipment = getNullableItem(item, FancyPlayerWidget::createItemStack);
     return this;
   }
 
@@ -1065,7 +1079,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setFeetWearable(@Nullable Item item) {
-    renderState.feetEquipment = getNullableItem(item, Item::getDefaultInstance);
+    renderState.feetEquipment = getNullableItem(item, FancyPlayerWidget::createItemStack);
     return this;
   }
 
@@ -1463,5 +1477,25 @@ public class FancyPlayerWidget extends AbstractWidget {
     private OverridableProperties(@NotNull String name) {
       this.name = name;
     }
+  }
+
+  /**
+   * Lazy holder to avoid building lookup data unless item-backed widget state is actually used.
+   */
+  private static final class GuiItemContext {
+    private static final HolderLookup.Provider PROVIDER = createProvider();
+
+    private static HolderLookup.Provider createProvider() {
+      HolderLookup.Provider provider = VanillaRegistries.createLookup();
+      BuiltInRegistries.DATA_COMPONENT_INITIALIZERS.build(provider).forEach(pending -> pending.apply());
+      return provider;
+    }
+
+    private static void bootstrap() {
+      // Trigger static initialization exactly once to bind GUI-safe item components.
+      PROVIDER.listRegistryKeys();
+    }
+
+    private GuiItemContext() {}
   }
 }

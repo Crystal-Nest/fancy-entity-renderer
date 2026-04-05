@@ -40,31 +40,31 @@ public final class FerDevTestScreen extends Screen {
     super.init();
     cards.clear();
 
-    addRenderableOnly(new StringWidget(0, 16, width, 12, TITLE, font));
-    addRenderableOnly(new MultiLineTextWidget(0, 34, DESCRIPTION, font).setMaxWidth(width - 80).setCentered(true));
-
     int margin = 28;
     int gapX = 28;
-    int titleY = 72;
-    int labelHeight = 12;
-    int firstRowHeight = 188;
-    int secondRowHeight = 156;
-    int rowGap = 32;
+    int contentTop = 92;
+    int cardSpacing = 52;
+    int heavyTankHeight = 188;
+    int rogueHeight = 212;
+    int tinyTroubleHeight = 156;
+    int spinDemoHeight = 172;
     int columnWidth = Math.max(120, (width - margin * 2 - gapX) / 2);
     int leftX = margin;
     int rightX = margin + columnWidth + gapX;
-    int secondRowY = titleY + labelHeight + firstRowHeight + rowGap;
+    int leftY = contentTop;
+    int rightY = contentTop;
+
+    addRenderableOnly(new StringWidget(margin, 20, width - margin * 2, 12, TITLE, font));
+    addRenderableOnly(new MultiLineTextWidget(margin, 36, DESCRIPTION, font).setMaxWidth(width - margin * 2));
 
     addCard(
       leftX,
-      titleY,
+      leftY,
       Math.min(columnWidth, 158),
-      firstRowHeight,
+      heavyTankHeight,
       Component.literal("Heavy Tank"),
       widget -> widget
         .setName("Heavy Tank")
-        .setShowName(true)
-        .setPinName(true)
         .setBodyRotation(0, -18, 0)
         .setHeadRotation(-6, 12, 0)
         .setHeadWearable(Items.NETHERITE_HELMET)
@@ -74,16 +74,16 @@ public final class FerDevTestScreen extends Screen {
         .setRightHandItem(Items.MACE)
         .setLeftHandItem(Items.SHIELD)
     );
+    leftY += heavyTankHeight + cardSpacing;
 
     addCard(
       rightX,
-      titleY,
+      rightY,
       Math.min(columnWidth, 174),
-      firstRowHeight + 24,
+      rogueHeight,
       Component.literal("Mouse-Follow Rogue"),
       widget -> widget
         .setName("Mouse-Follow Rogue")
-        .setShowName(true)
         .setSlim(true)
         .setPose(Pose.CROUCHING)
         .setBodyFollowsMouse(true)
@@ -96,16 +96,16 @@ public final class FerDevTestScreen extends Screen {
         .setChestWearable(Items.ELYTRA)
         .setFeetWearable(Items.CHAINMAIL_BOOTS)
     );
+    rightY += rogueHeight + cardSpacing;
 
     addCard(
       leftX,
-      secondRowY,
+      leftY,
       Math.min(columnWidth, 126),
-      secondRowHeight,
+      tinyTroubleHeight,
       Component.literal("Tiny Trouble"),
       widget -> widget
         .setName("Tiny Trouble")
-        .setShowName(true)
         .setBaby(true)
         .setSlim(true)
         .setOnFire(true)
@@ -119,21 +119,18 @@ public final class FerDevTestScreen extends Screen {
 
     addCard(
       rightX,
-      secondRowY,
+      rightY,
       Math.min(columnWidth, 166),
-      secondRowHeight + 16,
+      spinDemoHeight,
       Component.literal("Spin Demo"),
       widget -> widget
         .setName("Spin Demo")
-        .setShowName(true)
         .setPose(Pose.SPIN_ATTACK)
         .setAttackArm(HumanoidArm.RIGHT)
         .setAttackTime(0.35F)
         .setMoving(true)
         .setMovementSpeed(1.8F)
-        .setGlowing(0x55FFAA)
         .setRightHandItem(Items.DIAMOND_SWORD)
-        .setLeftHandItem(Items.SHIELD)
         .setChestWearable(Items.DIAMOND_CHESTPLATE)
         .setLegsWearable(Items.DIAMOND_LEGGINGS)
         .setFeetWearable(Items.DIAMOND_BOOTS)
