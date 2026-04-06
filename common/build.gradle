@@ -1,31 +1,39 @@
 plugins {
   id "multiloader-common"
-  id "net.fabricmc.fabric-loom"
+  id "net.neoforged.moddev"
 }
 
-def minecraftClientJar = files(new File(gradle.gradleUserHomeDir, "caches/fabric-loom/${minecraft_version}/minecraft-client.jar"))
+neoForge {
+  neoFormVersion = neo_form_version
+  def at = file("src/main/resources/META-INF/accesstransformer.cfg")
+  if (at.exists()) {
+    accessTransformers.from(at.absolutePath)
+  }
+}
 
 dependencies {
-  minecraft "com.mojang:minecraft:$minecraft_version"
-  compileOnly group: "org.spongepowered", name: "mixin", version: "0.8.5"
-  compileOnly group: "io.github.llamalad7", name: "mixinextras-common", version: "$mixin_extras_version"
-  annotationProcessor group: "io.github.llamalad7", name: "mixinextras-common", version: "$mixin_extras_version"
-  compileOnly "it.crystalnest:prometheus-$name:$prometheus_minecraft_version-$prometheus_version"
-  compileOnly "it.crystalnest:cobweb-common:$cobweb_minecraft_version-$cobweb_version"
+  compileOnly group: "org.spongepowered", name: "mixin", version: "0.8.7"
+  compileOnly group: "io.github.llamalad7", name: "mixinextras-common", version: "0.5.3"
+  annotationProcessor group: "io.github.llamalad7", name: "mixinextras-common", version: "0.5.3"
 }
 
 configurations {
+  commonJava {
+    canBeResolved = false
+    canBeConsumed = true
+  }
+  commonResources {
+    canBeResolved = false
+    canBeConsumed = true
+  }
+}
+
+artifacts {
+  commonJava sourceSets.main.java.sourceDirectories.singleFile
+  commonResources sourceSets.main.resources.sourceDirectories.singleFile
 }
 
 // Disable publishing tasks where common is not published
 tasks.named("publishModrinth").get().setEnabled(false)
 tasks.named("publishCurseforge").get().setEnabled(false)
 tasks.named("publishGitHub").get().setEnabled(false)
-
-tasks.named("compileJava", JavaCompile) {
-  classpath += minecraftClientJar + configurations.minecraftLibraries
-}
-
-tasks.named("javadoc", Javadoc) {
-  classpath += minecraftClientJar + configurations.minecraftLibraries
-}

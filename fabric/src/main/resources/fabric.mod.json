@@ -20,6 +20,7 @@
       "${group}.${mod_id}.ModLoader"
     ]
   },
+  "accessWidener": "${mod_id}.accesswidener",
   "mixins": [
     "${mod_id}.mixins.json",
     "${mod_id}.fabric.mixins.json"
@@ -27,7 +28,7 @@
   "depends": {
     "fabricloader": ">=${fabric_loader_version}",
     "fabric-api": "*",
-    "minecraft": "^${minecraft_version}",
+    "minecraft": "~${minecraft_version}",
     "java": ">=${java_version}"
   },
   "suggests": {

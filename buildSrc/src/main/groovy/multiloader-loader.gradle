@@ -2,27 +2,44 @@ plugins {
   id "multiloader-common"
 }
 
-dependencies {
-  compileOnly(project(":common")) {
-    capabilities {
-      requireCapability "$group:$mod_id"
-    }
+configurations {
+  commonJava{
+    canBeResolved = true
+  }
+  commonResources{
+    canBeResolved = true
   }
 }
 
-tasks.named("compileJava", JavaCompile) {
-  source(project(":common").sourceSets.main.allSource)
+dependencies {
+  compileOnly(project(":common")) {
+    def loaderAttribute = Attribute.of("io.github.mcgradleconventions.loader", String)
+    attributes {
+      attribute(loaderAttribute, "common")
+    }
+  }
+  commonJava project(path: ":common", configuration: "commonJava")
+  commonResources project(path: ":common", configuration: "commonResources")
+}
+
+tasks.named('compileJava', JavaCompile) {
+  dependsOn(configurations.commonJava)
+  source(configurations.commonJava)
 }
 
 processResources {
-  from(project(":common").sourceSets.main.resources)
+  dependsOn(configurations.commonResources)
+  from(configurations.commonResources)
 }
 
-tasks.named("javadoc", Javadoc) {
-  source(project(":common").sourceSets.main.allJava)
+tasks.named("javadoc", Javadoc).configure {
+  dependsOn(configurations.commonJava)
+  source(configurations.commonJava)
 }
 
 tasks.named("sourcesJar", Jar) {
-  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-  from(project(":common").sourceSets.main.allSource)
+  dependsOn(configurations.commonJava)
+  from(configurations.commonJava)
+  dependsOn(configurations.commonResources)
+  from(configurations.commonResources)
 }
