@@ -2,16 +2,17 @@
   "required": true,
   "minVersion": "0.8",
   "package": "${group}.${mod_id}.mixin",
-  "refmap": "${mod_id}.refmap.json",
   "compatibilityLevel": "JAVA_${java_version}",
-  "mixins": [],
+  "mixins": [
+    "accessor.HolderSetNamedAccessor"
+  ],
   "client": [
     "client.EntityRenderDispatcherMixin",
-    "client.GuiEntityRendererMixin"
+    "client.GuiEntityRendererMixin",
+    "client.TitleScreenMixin"
   ],
   "server": [],
   "injectors": {
     "defaultRequire": 1
   }
 }
-

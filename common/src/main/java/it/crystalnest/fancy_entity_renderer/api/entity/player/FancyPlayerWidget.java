@@ -8,21 +8,29 @@ import it.crystalnest.fancy_entity_renderer.api.Rotation;
 import it.crystalnest.fancy_entity_renderer.api.entity.RenderMode;
 import it.crystalnest.fancy_entity_renderer.api.entity.player.state.FancyPlayerRenderState;
 import it.crystalnest.fancy_entity_renderer.compat.Prometheus;
+import it.crystalnest.fancy_entity_renderer.mixin.accessor.HolderSetNamedAccessor;
 import it.crystalnest.fancy_entity_renderer.platform.Services;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.commands.arguments.item.ItemInput;
 import net.minecraft.commands.arguments.item.ItemParser;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.HolderSet;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.resources.MultiPackResourceManager;
+import net.minecraft.tags.TagLoader;
+import net.minecraft.tags.TagKey;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.world.entity.Avatar;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.HumanoidArm;
@@ -41,10 +49,12 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 /**
  * Custom player widget.
@@ -58,7 +68,12 @@ public class FancyPlayerWidget extends AbstractWidget {
   /**
    * Player eye height when crouching.
    */
-  public static final float PLAYER_CROUCHING_EYE_HEIGHT = Avatar.POSES.get(Pose.CROUCHING).eyeHeight();
+  public static final float PLAYER_CROUCHING_EYE_HEIGHT = 1.27F;
+
+  /**
+   * Player hitbox height when crouching.
+   */
+  public static final float PLAYER_CROUCHING_HEIGHT = 1.5F;
 
   /**
    * Ratio of a player's height to its width.
@@ -88,7 +103,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    */
   public FancyPlayerWidget(int x, int y, int width, int height) {
     super(x, y, width, height, CommonComponents.EMPTY);
-    renderState.lightCoords = LightTexture.FULL_BRIGHT;
+    renderState.lightCoords = LightCoordsUtil.FULL_BRIGHT;
   }
 
   /**
@@ -125,6 +140,17 @@ public class FancyPlayerWidget extends AbstractWidget {
   }
 
   /**
+   * Creates an {@link ItemStack} from a registry item in a way that is safe for GUI-only contexts such as the title screen.
+   *
+   * @param item item.
+   * @return {@link ItemStack} to use as wearable.
+   */
+  private static ItemStack createItemStack(Item item) {
+    GuiItemContext.bootstrap();
+    return item.getDefaultInstance();
+  }
+
+  /**
    * Parses an item string into an {@link ItemStack} using the given provider.
    *
    * @param item item string, in the same format as for the command {@code /give}.
@@ -133,9 +159,10 @@ public class FancyPlayerWidget extends AbstractWidget {
    */
   private static ItemStack parseItem(String item, HolderLookup.Provider provider) {
     try {
-      ItemParser.ItemResult result = new ItemParser(provider).parse(new StringReader(item));
-      return new ItemInput(result.item(), result.components()).createItemStack(1, false);
-    } catch (CommandSyntaxException e) {
+      GuiItemContext.bootstrap();
+      ItemInput result = new ItemParser(provider).parse(new StringReader(item));
+      return result.createItemStack(1);
+    } catch (CommandSyntaxException | RuntimeException e) {
       Constants.LOGGER.error("Error parsing {}", item, e);
       return ItemStack.EMPTY;
     }
@@ -150,7 +177,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @param partialTick partial tick.
    */
   @Override
-  protected void renderWidget(@NotNull GuiGraphics gfx, int mouseX, int mouseY, float partialTick) {
+  protected void extractWidgetRenderState(@NotNull GuiGraphicsExtractor gfx, int mouseX, int mouseY, float partialTick) {
     updateRenderState(getX(), getY(), getWidth(), getHeight(), mouseX, mouseY, partialTick);
     float offsetX = 0;
     // Taken from AvatarRenderer#getRenderOffset(AvatarRenderState)
@@ -164,7 +191,7 @@ public class FancyPlayerWidget extends AbstractWidget {
         offsetY /= 1.5F;
       }
     }
-    gfx.submitEntityRenderState(
+    gfx.entity(
       renderState,
       1,
       new Vector3f(
@@ -924,7 +951,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setRightHandItem(@Nullable Item item) {
-    renderState.rightHandItemStack = getNullableItem(item, Item::getDefaultInstance);
+    renderState.rightHandItemStack = getNullableItem(item, FancyPlayerWidget::createItemStack);
     return this;
   }
 
@@ -936,7 +963,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setLeftHandItem(@Nullable Item item) {
-    renderState.leftHandItemStack = getNullableItem(item, Item::getDefaultInstance);
+    renderState.leftHandItemStack = getNullableItem(item, FancyPlayerWidget::createItemStack);
     return this;
   }
 
@@ -1024,7 +1051,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setHeadWearable(@Nullable Item item) {
-    renderState.headEquipment = getNullableItem(item, Item::getDefaultInstance);
+    renderState.headEquipment = getNullableItem(item, FancyPlayerWidget::createItemStack);
     return this;
   }
 
@@ -1036,7 +1063,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setChestWearable(@Nullable Item item) {
-    renderState.chestEquipment = getNullableItem(item, Item::getDefaultInstance);
+    renderState.chestEquipment = getNullableItem(item, FancyPlayerWidget::createItemStack);
     return this;
   }
 
@@ -1048,7 +1075,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setLegsWearable(@Nullable Item item) {
-    renderState.legsEquipment = getNullableItem(item, Item::getDefaultInstance);
+    renderState.legsEquipment = getNullableItem(item, FancyPlayerWidget::createItemStack);
     return this;
   }
 
@@ -1060,7 +1087,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setFeetWearable(@Nullable Item item) {
-    renderState.feetEquipment = getNullableItem(item, Item::getDefaultInstance);
+    renderState.feetEquipment = getNullableItem(item, FancyPlayerWidget::createItemStack);
     return this;
   }
 
@@ -1199,7 +1226,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setPose(Pose pose) {
-    if (Avatar.POSES.containsKey(pose) && pose != Pose.FALL_FLYING) {
+    if (isSupportedPose(pose)) {
       renderState.pose = pose;
       renderState.isAutoSpinAttack = pose == Pose.SPIN_ATTACK;
       renderState.isCrouching = pose == Pose.CROUCHING;
@@ -1329,7 +1356,23 @@ public class FancyPlayerWidget extends AbstractWidget {
    */
   private void updateIsSlim(boolean isSlim) {
     renderState.isSlim = isSlim;
-    renderState.skin = DefaultPlayerSkin.DEFAULT_SKINS[random.nextInt(9) + (isSlim ? 0 : 9)];
+    renderState.skin = getRandomDefaultSkin(isSlim);
+  }
+
+  private PlayerSkin getRandomDefaultSkin(boolean isSlim) {
+    PlayerModelType modelType = isSlim ? PlayerModelType.SLIM : PlayerModelType.WIDE;
+    PlayerSkin skin;
+    do {
+      skin = DefaultPlayerSkin.get(new UUID(random.nextLong(), random.nextLong()));
+    } while (skin.model() != modelType);
+    return skin;
+  }
+
+  private static boolean isSupportedPose(Pose pose) {
+    return switch (pose) {
+      case STANDING, SLEEPING, SWIMMING, SPIN_ATTACK, CROUCHING, DYING -> true;
+      default -> false;
+    };
   }
 
   /**
@@ -1346,7 +1389,7 @@ public class FancyPlayerWidget extends AbstractWidget {
   protected void updateRenderState(int x, int y, int width, int height, int mouseX, int mouseY, float partialTick) {
     renderState.updateScale(height);
     if (renderState.bodyFollowsMouse || renderState.headFollowsMouse) {
-      float renderHeight = renderState.pose == Pose.CROUCHING ? Avatar.CROUCH_BB_HEIGHT : PLAYER_RENDER_HEIGHT;
+      float renderHeight = renderState.pose == Pose.CROUCHING ? PLAYER_CROUCHING_HEIGHT : PLAYER_RENDER_HEIGHT;
       float eyeHeight = renderState.pose == Pose.CROUCHING ? PLAYER_CROUCHING_EYE_HEIGHT : Avatar.DEFAULT_EYE_HEIGHT;
       float adultEyeY = (renderHeight - eyeHeight) * height / renderHeight;
       float eyeY = (renderState.isBaby ? (height + adultEyeY) * LivingEntity.DEFAULT_BABY_SCALE : adultEyeY);
@@ -1442,5 +1485,78 @@ public class FancyPlayerWidget extends AbstractWidget {
     private OverridableProperties(@NotNull String name) {
       this.name = name;
     }
+  }
+
+  /**
+   * Lazy holder to avoid building lookup data unless item-backed widget state is actually used.
+   */
+  private static final class GuiItemContext {
+    private static final HolderLookup.Provider PROVIDER = createProvider();
+
+    private static HolderLookup.Provider createProvider() {
+      HolderLookup.Provider baseProvider = VanillaRegistries.createLookup();
+      HolderLookup.Provider provider;
+      try (MultiPackResourceManager dataResources = new MultiPackResourceManager(
+        PackType.SERVER_DATA,
+        Minecraft.getInstance().getResourcePackRepository().openAllSelected()
+      )) {
+        provider = HolderLookup.Provider.create(baseProvider.listRegistries().map(lookup -> withLoadedTags(dataResources, lookup)));
+      }
+      BuiltInRegistries.DATA_COMPONENT_INITIALIZERS.build(provider).forEach(pending -> pending.apply());
+      return provider;
+    }
+
+    private static <T> HolderLookup.RegistryLookup<T> withLoadedTags(
+      MultiPackResourceManager dataResources,
+      HolderLookup.RegistryLookup<T> original
+    ) {
+      @SuppressWarnings("unchecked")
+      net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<T>> registryKey =
+        (net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<T>>) original.key();
+      Map<TagKey<T>, List<net.minecraft.core.Holder<T>>> loadedTags = TagLoader.loadTagsForRegistry(
+        dataResources,
+        registryKey,
+        TagLoader.ElementLookup.fromGetters(registryKey, original, original)
+      );
+      if (loadedTags.isEmpty()) {
+        return original;
+      }
+      Map<TagKey<T>, HolderSet.Named<T>> namedTags = new java.util.HashMap<>();
+      loadedTags.forEach((tag, holders) -> namedTags.put(tag, createNamedTagSet(original, tag, holders)));
+      return new HolderLookup.RegistryLookup.Delegate<>() {
+        @Override
+        public HolderLookup.RegistryLookup<T> parent() {
+          return original;
+        }
+
+        @Override
+        public Optional<HolderSet.Named<T>> get(TagKey<T> id) {
+          return Optional.ofNullable(namedTags.get(id)).or(() -> original.get(id));
+        }
+
+        @Override
+        public Stream<HolderSet.Named<T>> listTags() {
+          return Stream.concat(namedTags.values().stream(), original.listTags().filter(tag -> !namedTags.containsKey(tag.key())));
+        }
+      };
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> HolderSet.Named<T> createNamedTagSet(
+      HolderLookup.RegistryLookup<T> owner,
+      TagKey<T> key,
+      List<net.minecraft.core.Holder<T>> contents
+    ) {
+      HolderSet.Named<T> named = HolderSetNamedAccessor.fer$create(owner, key);
+      ((HolderSetNamedAccessor<T>) named).fer$bind(contents);
+      return named;
+    }
+
+    private static void bootstrap() {
+      // Trigger static initialization exactly once to bind GUI-safe item components.
+      PROVIDER.listRegistryKeys();
+    }
+
+    private GuiItemContext() {}
   }
 }

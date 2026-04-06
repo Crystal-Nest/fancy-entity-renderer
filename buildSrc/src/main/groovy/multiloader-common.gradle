@@ -1,4 +1,5 @@
 plugins {
+  id "idea"
   id "java-library"
   id "maven-publish"
   id "com.hypherionmc.modutils.modpublisher"
@@ -116,7 +117,10 @@ processResources {
     "fabric_loader_version"        : fabric_loader_version,
     "neoforge_version"             : neoforge_version,
     "neoforge_loader_version_range": neoforge_loader_version_range,
-    "prometheus_version"           : prometheus_version
+    "prometheus_version"           : prometheus_version,
+    "prometheus_minecraft_version" : prometheus_minecraft_version,
+    "cobweb_version"               : cobweb_version,
+    "cobweb_minecraft_version"     : cobweb_minecraft_version
   ]
   filesMatching(["pack.mcmeta", "fabric.mod.json", "META-INF/neoforge.mods.toml", "META-INF/mods.toml", "*.mixins.json"]) {
     expand expandProps
@@ -201,7 +205,7 @@ publisher {
   }
   setGameVersions(minecraft_version)
   setDisplayName("[$loader - $minecraft_version] $mod_title v$mod_version")
-  setJavaVersions([JavaVersion.VERSION_21]) // Remember to update this to match java_version gradle property.
+  setJavaVersions([JavaVersion.VERSION_25]) // Remember to update this to match java_version gradle property.
   setCurseEnvironment("client") // "server", "client" or "both".
   github {
     repo = "$github_user/$mod_id_kebab"

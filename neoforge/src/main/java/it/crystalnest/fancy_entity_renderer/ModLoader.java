@@ -10,10 +10,13 @@ import org.jetbrains.annotations.ApiStatus;
 @ApiStatus.Internal
 @Mod(Constants.MOD_ID)
 public final class ModLoader {
+
   /**
    * Mod initialization.
    *
    * @param bus Event bus.
    */
-  public ModLoader(IEventBus bus) {}
+  public ModLoader(IEventBus bus) {
+  }
+
 }
