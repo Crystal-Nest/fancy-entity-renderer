@@ -95,6 +95,7 @@ public final class FerDevTestScreen extends Screen {
                         .setHeadWearable(Items.CHAINMAIL_HELMET)
                         .setChestWearable(Items.ELYTRA)
                         .setFeetWearable(Items.CHAINMAIL_BOOTS)
+                        .setRightParrot(Parrot.Variant.GRAY)
         );
         rightY += rogueHeight + cardSpacing;
 
