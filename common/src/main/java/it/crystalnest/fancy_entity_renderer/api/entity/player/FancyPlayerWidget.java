@@ -22,14 +22,15 @@ import net.minecraft.commands.arguments.item.ItemInput;
 import net.minecraft.commands.arguments.item.ItemParser;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderSet;
+import net.minecraft.core.component.DataComponentInitializers;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.MultiPackResourceManager;
-import net.minecraft.tags.TagLoader;
 import net.minecraft.tags.TagKey;
+import net.minecraft.tags.TagLoader;
 import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.world.entity.Avatar;
 import net.minecraft.world.entity.Entity;
@@ -47,6 +48,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 import java.util.Map;
@@ -1502,7 +1504,7 @@ public class FancyPlayerWidget extends AbstractWidget {
       )) {
         provider = HolderLookup.Provider.create(baseProvider.listRegistries().map(lookup -> withLoadedTags(dataResources, lookup)));
       }
-      BuiltInRegistries.DATA_COMPONENT_INITIALIZERS.build(provider).forEach(pending -> pending.apply());
+      BuiltInRegistries.DATA_COMPONENT_INITIALIZERS.build(provider).forEach(DataComponentInitializers.PendingComponents::apply);
       return provider;
     }
 
@@ -1525,17 +1527,17 @@ public class FancyPlayerWidget extends AbstractWidget {
       loadedTags.forEach((tag, holders) -> namedTags.put(tag, createNamedTagSet(original, tag, holders)));
       return new HolderLookup.RegistryLookup.Delegate<>() {
         @Override
-        public HolderLookup.RegistryLookup<T> parent() {
+        public HolderLookup.@NonNull RegistryLookup<T> parent() {
           return original;
         }
 
         @Override
-        public Optional<HolderSet.Named<T>> get(TagKey<T> id) {
+        public @NonNull Optional<HolderSet.Named<T>> get(@NonNull TagKey<T> id) {
           return Optional.ofNullable(namedTags.get(id)).or(() -> original.get(id));
         }
 
         @Override
-        public Stream<HolderSet.Named<T>> listTags() {
+        public @NonNull Stream<HolderSet.Named<T>> listTags() {
           return Stream.concat(namedTags.values().stream(), original.listTags().filter(tag -> !namedTags.containsKey(tag.key())));
         }
       };

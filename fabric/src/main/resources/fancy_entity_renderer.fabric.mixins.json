@@ -5,7 +5,6 @@
   "compatibilityLevel": "JAVA_${java_version}",
   "mixins": [],
   "client": [
-    "client.accessor.PictureInPictureRendererAccessor",
     "client.GuiRendererMixin"
   ],
   "server": [],
