@@ -57,7 +57,7 @@ public class FancyPlayerModel extends PlayerModel {
   public static ArmorModelSet<PlayerModel> getBabyArmorModel(boolean isSlim) {
     return PlayerModel
       .createArmorMeshSet(LayerDefinitions.INNER_ARMOR_DEFORMATION, LayerDefinitions.OUTER_ARMOR_DEFORMATION)
-      .map(mesh -> new PlayerModel(LayerDefinition.create(mesh, 64, 32).apply(BABY_TRANSFORMER).bakeRoot(), isSlim));
+      .map(mesh -> new FancyPlayerModel(LayerDefinition.create(mesh, 64, 32).apply(BABY_TRANSFORMER).bakeRoot(), isSlim));
   }
 
   /**
