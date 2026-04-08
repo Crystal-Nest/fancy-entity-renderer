@@ -8,7 +8,6 @@ import it.crystalnest.fancy_entity_renderer.api.Rotation;
 import it.crystalnest.fancy_entity_renderer.api.entity.RenderMode;
 import it.crystalnest.fancy_entity_renderer.api.entity.player.state.FancyPlayerRenderState;
 import it.crystalnest.fancy_entity_renderer.compat.Prometheus;
-import it.crystalnest.fancy_entity_renderer.mixin.accessor.HolderSetNamedAccessor;
 import it.crystalnest.fancy_entity_renderer.platform.Services;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -18,15 +17,19 @@ import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.client.sounds.SoundManager;
-import net.minecraft.commands.arguments.item.ItemInput;
 import net.minecraft.commands.arguments.item.ItemParser;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderSet;
+import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentInitializers;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.MultiPackResourceManager;
 import net.minecraft.tags.TagKey;
@@ -42,6 +45,10 @@ import net.minecraft.world.entity.player.PlayerModelType;
 import net.minecraft.world.entity.player.PlayerSkin;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.equipment.trim.ArmorTrim;
+import net.minecraft.world.item.equipment.trim.TrimMaterials;
+import net.minecraft.world.item.equipment.trim.TrimPatterns;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -56,6 +63,7 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -70,12 +78,7 @@ public class FancyPlayerWidget extends AbstractWidget {
   /**
    * Player eye height when crouching.
    */
-  public static final float PLAYER_CROUCHING_EYE_HEIGHT = 1.27F;
-
-  /**
-   * Player hitbox height when crouching.
-   */
-  public static final float PLAYER_CROUCHING_HEIGHT = 1.5F;
+  public static final float PLAYER_CROUCHING_EYE_HEIGHT = Avatar.POSES.get(Pose.CROUCHING).eyeHeight();
 
   /**
    * Ratio of a player's height to its width.
@@ -125,7 +128,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @param <T> type of the item data.
    * @return {@link ItemStack} to use as wearable.
    */
-  private static <T> ItemStack getNullableItem(T item, Function<T, ItemStack> getter) {
+  private static <T> ItemStack getNullableItem(@Nullable T item, Function<@NotNull T, ItemStack> getter) {
     return item == null ? ItemStack.EMPTY : getter.apply(item);
   }
 
@@ -162,9 +165,8 @@ public class FancyPlayerWidget extends AbstractWidget {
   private static ItemStack parseItem(String item, HolderLookup.Provider provider) {
     try {
       GuiItemContext.bootstrap();
-      ItemInput result = new ItemParser(provider).parse(new StringReader(item));
-      return result.createItemStack(1);
-    } catch (CommandSyntaxException | RuntimeException e) {
+      return new ItemParser(provider).parse(new StringReader(item)).createItemStack(1);
+    } catch (CommandSyntaxException e) {
       Constants.LOGGER.error("Error parsing {}", item, e);
       return ItemStack.EMPTY;
     }
@@ -1228,7 +1230,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setPose(Pose pose) {
-    if (isSupportedPose(pose)) {
+    if (Avatar.POSES.containsKey(pose) && pose != Pose.FALL_FLYING) {
       renderState.pose = pose;
       renderState.isAutoSpinAttack = pose == Pose.SPIN_ATTACK;
       renderState.isCrouching = pose == Pose.CROUCHING;
@@ -1358,23 +1360,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    */
   private void updateIsSlim(boolean isSlim) {
     renderState.isSlim = isSlim;
-    renderState.skin = getRandomDefaultSkin(isSlim);
-  }
-
-  private PlayerSkin getRandomDefaultSkin(boolean isSlim) {
-    PlayerModelType modelType = isSlim ? PlayerModelType.SLIM : PlayerModelType.WIDE;
-    PlayerSkin skin;
-    do {
-      skin = DefaultPlayerSkin.get(new UUID(random.nextLong(), random.nextLong()));
-    } while (skin.model() != modelType);
-    return skin;
-  }
-
-  private static boolean isSupportedPose(Pose pose) {
-    return switch (pose) {
-      case STANDING, SLEEPING, SWIMMING, SPIN_ATTACK, CROUCHING, DYING -> true;
-      default -> false;
-    };
+    renderState.skin = DefaultPlayerSkin.DEFAULT_SKINS[random.nextInt(9) + (isSlim ? 0 : 9)];
   }
 
   /**
@@ -1391,7 +1377,7 @@ public class FancyPlayerWidget extends AbstractWidget {
   protected void updateRenderState(int x, int y, int width, int height, int mouseX, int mouseY, float partialTick) {
     renderState.updateScale(height);
     if (renderState.bodyFollowsMouse || renderState.headFollowsMouse) {
-      float renderHeight = renderState.pose == Pose.CROUCHING ? PLAYER_CROUCHING_HEIGHT : PLAYER_RENDER_HEIGHT;
+      float renderHeight = renderState.pose == Pose.CROUCHING ? Avatar.CROUCH_BB_HEIGHT : PLAYER_RENDER_HEIGHT;
       float eyeHeight = renderState.pose == Pose.CROUCHING ? PLAYER_CROUCHING_EYE_HEIGHT : Avatar.DEFAULT_EYE_HEIGHT;
       float adultEyeY = (renderHeight - eyeHeight) * height / renderHeight;
       float eyeY = (renderState.isBaby ? (height + adultEyeY) * LivingEntity.DEFAULT_BABY_SCALE : adultEyeY);
@@ -1495,62 +1481,47 @@ public class FancyPlayerWidget extends AbstractWidget {
   private static final class GuiItemContext {
     private static final HolderLookup.Provider PROVIDER = createProvider();
 
+    private GuiItemContext() {}
+
     private static HolderLookup.Provider createProvider() {
       HolderLookup.Provider baseProvider = VanillaRegistries.createLookup();
       HolderLookup.Provider provider;
-      try (MultiPackResourceManager dataResources = new MultiPackResourceManager(
-        PackType.SERVER_DATA,
-        Minecraft.getInstance().getResourcePackRepository().openAllSelected()
-      )) {
+      try (MultiPackResourceManager dataResources = new MultiPackResourceManager(PackType.SERVER_DATA, Minecraft.getInstance().getResourcePackRepository().openAllSelected())) {
         provider = HolderLookup.Provider.create(baseProvider.listRegistries().map(lookup -> withLoadedTags(dataResources, lookup)));
       }
       BuiltInRegistries.DATA_COMPONENT_INITIALIZERS.build(provider).forEach(DataComponentInitializers.PendingComponents::apply);
       return provider;
     }
 
-    private static <T> HolderLookup.RegistryLookup<T> withLoadedTags(
-      MultiPackResourceManager dataResources,
-      HolderLookup.RegistryLookup<T> original
-    ) {
+    private static <T> HolderLookup.RegistryLookup<T> withLoadedTags(MultiPackResourceManager dataResources, HolderLookup.RegistryLookup<T> original) {
       @SuppressWarnings("unchecked")
-      net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<T>> registryKey =
-        (net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<T>>) original.key();
-      Map<TagKey<T>, List<net.minecraft.core.Holder<T>>> loadedTags = TagLoader.loadTagsForRegistry(
-        dataResources,
-        registryKey,
-        TagLoader.ElementLookup.fromGetters(registryKey, original, original)
-      );
-      if (loadedTags.isEmpty()) {
-        return original;
+      ResourceKey<? extends Registry<T>> registryKey = (ResourceKey<? extends Registry<T>>) original.key();
+      Map<TagKey<T>, List<Holder<T>>> loadedTags = TagLoader.loadTagsForRegistry(dataResources, registryKey, TagLoader.ElementLookup.fromGetters(registryKey, original, original));
+      if (!loadedTags.isEmpty()) {
+        Map<TagKey<T>, HolderSet.Named<T>> namedTags = loadedTags.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> createNamedTagSet(original, entry.getKey(), entry.getValue())));
+        return new HolderLookup.RegistryLookup.Delegate<>() {
+          @Override
+          public HolderLookup.@NonNull RegistryLookup<T> parent() {
+            return original;
+          }
+
+          @Override
+          public @NonNull Optional<HolderSet.Named<T>> get(@NonNull TagKey<T> id) {
+            return Optional.ofNullable(namedTags.get(id)).or(() -> original.get(id));
+          }
+
+          @Override
+          public @NonNull Stream<HolderSet.Named<T>> listTags() {
+            return Stream.concat(namedTags.values().stream(), original.listTags().filter(tag -> !namedTags.containsKey(tag.key())));
+          }
+        };
       }
-      Map<TagKey<T>, HolderSet.Named<T>> namedTags = new java.util.HashMap<>();
-      loadedTags.forEach((tag, holders) -> namedTags.put(tag, createNamedTagSet(original, tag, holders)));
-      return new HolderLookup.RegistryLookup.Delegate<>() {
-        @Override
-        public HolderLookup.@NonNull RegistryLookup<T> parent() {
-          return original;
-        }
-
-        @Override
-        public @NonNull Optional<HolderSet.Named<T>> get(@NonNull TagKey<T> id) {
-          return Optional.ofNullable(namedTags.get(id)).or(() -> original.get(id));
-        }
-
-        @Override
-        public @NonNull Stream<HolderSet.Named<T>> listTags() {
-          return Stream.concat(namedTags.values().stream(), original.listTags().filter(tag -> !namedTags.containsKey(tag.key())));
-        }
-      };
+      return original;
     }
 
-    @SuppressWarnings("unchecked")
-    private static <T> HolderSet.Named<T> createNamedTagSet(
-      HolderLookup.RegistryLookup<T> owner,
-      TagKey<T> key,
-      List<net.minecraft.core.Holder<T>> contents
-    ) {
-      HolderSet.Named<T> named = HolderSetNamedAccessor.fer$create(owner, key);
-      ((HolderSetNamedAccessor<T>) named).fer$bind(contents);
+    private static <T> HolderSet.Named<T> createNamedTagSet(HolderLookup.RegistryLookup<T> owner, TagKey<T> key, List<Holder<T>> contents) {
+      HolderSet.Named<T> named = new HolderSet.Named<>(owner, key);
+      named.bind(contents);
       return named;
     }
 
@@ -1558,7 +1529,5 @@ public class FancyPlayerWidget extends AbstractWidget {
       // Trigger static initialization exactly once to bind GUI-safe item components.
       PROVIDER.listRegistryKeys();
     }
-
-    private GuiItemContext() {}
   }
 }

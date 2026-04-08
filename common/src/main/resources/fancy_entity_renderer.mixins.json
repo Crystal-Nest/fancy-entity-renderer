@@ -3,12 +3,12 @@
   "minVersion": "0.8",
   "package": "${group}.${mod_id}.mixin",
   "compatibilityLevel": "JAVA_${java_version}",
-  "mixins": [
-    "accessor.HolderSetNamedAccessor"
-  ],
+  "mixins": [],
   "client": [
     "client.EntityRenderDispatcherMixin",
     "client.GuiEntityRendererMixin",
+    "client.HumanoidArmorLayerMixin",
+    "client.ItemInHandLayerMixin",
     "client.TitleScreenMixin"
   ],
   "server": [],

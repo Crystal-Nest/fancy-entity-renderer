@@ -9,3 +9,5 @@ accessible field net/minecraft/client/gui/render/pip/PictureInPictureRenderer te
 accessible field net/minecraft/client/gui/render/pip/PictureInPictureRenderer bufferSource Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;
 accessible field net/minecraft/client/gui/render/pip/GuiEntityRenderer entityRenderDispatcher Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;
 accessible field net/minecraft/world/entity/Avatar CROUCH_BB_HEIGHT F
+accessible method net/minecraft/core/HolderSet$Named <init> (Lnet/minecraft/core/HolderOwner;Lnet/minecraft/tags/TagKey;)V
+accessible method net/minecraft/core/HolderSet$Named bind (Ljava/util/List;)V

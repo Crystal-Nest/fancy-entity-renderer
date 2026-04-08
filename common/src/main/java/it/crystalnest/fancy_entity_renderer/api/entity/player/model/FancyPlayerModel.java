@@ -1,7 +1,6 @@
 package it.crystalnest.fancy_entity_renderer.api.entity.player.model;
 
 import it.crystalnest.fancy_entity_renderer.api.entity.player.state.FancyPlayerRenderState;
-import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.model.geom.LayerDefinitions;
 import net.minecraft.client.model.geom.ModelLayers;
@@ -42,7 +41,7 @@ public class FancyPlayerModel extends PlayerModel {
    * @return correct model part.
    */
   private static ModelPart getModelPart(EntityModelSet modelSet, boolean isSlim, boolean isBaby) {
-    LayerDefinition layerDefinition = LayerDefinitions.createRoots().get(isSlim ? ModelLayers.PLAYER_SLIM : ModelLayers.PLAYER);
+    LayerDefinition layerDefinition = modelSet.roots.get(isSlim ? ModelLayers.PLAYER_SLIM : ModelLayers.PLAYER);
     if (isBaby) {
       layerDefinition = layerDefinition.apply(BABY_TRANSFORMER);
     }
@@ -57,7 +56,7 @@ public class FancyPlayerModel extends PlayerModel {
    */
   public static ArmorModelSet<PlayerModel> getBabyArmorModel(boolean isSlim) {
     return PlayerModel
-      .createArmorMeshSet(new CubeDeformation(0.5F), new CubeDeformation(1.0F))
+      .createArmorMeshSet(LayerDefinitions.INNER_ARMOR_DEFORMATION, LayerDefinitions.OUTER_ARMOR_DEFORMATION)
       .map(mesh -> new PlayerModel(LayerDefinition.create(mesh, 64, 32).apply(BABY_TRANSFORMER).bakeRoot(), isSlim));
   }
 
