@@ -8,16 +8,17 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 /**
- *
+ * Injects into {@link ItemInHandLayer} to handle baby player models.
  */
 @Mixin(ItemInHandLayer.class)
 public abstract class ItemInHandLayerMixin {
   /**
+   * Modifies the return value of {@link ItemInHandLayer#useBabyOffset(ArmedEntityRenderState)}.<br>
+   * Returns the appropriate result considering fancy player renders.
    *
-   *
-   * @param original
-   * @param state
-   * @return
+   * @param original original check value.
+   * @param state render state.
+   * @return whether to consider valid the original baby check value.
    */
   @ModifyReturnValue(method = "useBabyOffset", at = @At(value = "RETURN"))
   private boolean modifyBabyCheck(boolean original, ArmedEntityRenderState state) {
