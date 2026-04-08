@@ -83,7 +83,6 @@ public class FancyPlayerRenderer extends AvatarRenderer<@NotNull AbstractClientP
       FormattedCharSequence text = state.nameTag.getVisualOrderText();
       Minecraft minecraft = Minecraft.getInstance();
       poseStack.pushPose();
-      int offset = state.showExtraEars ? -10 : 0;
       float scale = state.scale * NAMETAG_SCALE;
       float height = state.isBaby && state.pose != Pose.SPIN_ATTACK ? state.boundingBoxHeight * LivingEntity.DEFAULT_BABY_SCALE : state.boundingBoxHeight;
       float offsetY = (state.pose == Pose.SLEEPING || state.pose == Pose.SWIMMING ? state.boundingBoxWidth : height) / scale + (float) state.nameTagAttachment.y;
@@ -95,9 +94,10 @@ public class FancyPlayerRenderer extends AvatarRenderer<@NotNull AbstractClientP
       if (state.deathTime > 1) {
         poseStack.rotateAround(Axis.ZP.rotationDegrees(Math.min(Mth.sqrt((state.deathTime - 1) / 20F * 1.6F), 1) * 90), 0, offsetY, 0);
       }
-      float x = -minecraft.font.width(text) / 2F;
-      submitNodeCollector.submitText(poseStack, x, offset, text, false, Font.DisplayMode.SEE_THROUGH, state.lightCoords, -2130706433, (int) (minecraft.options.getBackgroundOpacity(0.25F) * 255F) << 24, 0);
-      submitNodeCollector.submitText(poseStack, x, offset, text, false, Font.DisplayMode.NORMAL, LightCoordsUtil.lightCoordsWithEmission(state.lightCoords, 2), state.isDiscrete ? -2130706433 : -1, 0, 0);
+      float x = -minecraft.font.width(text) / 2F + (state.pose == Pose.SLEEPING ? (float) state.nameTagAttachment.x : 0);
+      float y = state.showExtraEars ? -10 : 0;
+      submitNodeCollector.submitText(poseStack, x, y, text, false, Font.DisplayMode.SEE_THROUGH, state.lightCoords, -2130706433, (int) (minecraft.options.getBackgroundOpacity(0.25F) * 255F) << 24, 0);
+      submitNodeCollector.submitText(poseStack, x, y, text, false, Font.DisplayMode.NORMAL, LightCoordsUtil.lightCoordsWithEmission(state.lightCoords, 2), state.isDiscrete ? -2130706433 : -1, 0, 0);
       poseStack.popPose();
     }
   }

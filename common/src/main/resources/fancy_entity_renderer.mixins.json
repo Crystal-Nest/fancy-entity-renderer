@@ -9,7 +9,7 @@
     "client.GuiEntityRendererMixin",
     "client.HumanoidArmorLayerMixin",
     "client.ItemInHandLayerMixin",
-    "client.TitleScreenMixin"
+    "client.ScreensMixin"
   ],
   "server": [],
   "injectors": {

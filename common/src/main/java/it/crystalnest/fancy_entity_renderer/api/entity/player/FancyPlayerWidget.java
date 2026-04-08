@@ -23,9 +23,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentInitializers;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.resources.Identifier;
@@ -45,10 +43,6 @@ import net.minecraft.world.entity.player.PlayerModelType;
 import net.minecraft.world.entity.player.PlayerSkin;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.equipment.trim.ArmorTrim;
-import net.minecraft.world.item.equipment.trim.TrimMaterials;
-import net.minecraft.world.item.equipment.trim.TrimPatterns;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -170,6 +164,17 @@ public class FancyPlayerWidget extends AbstractWidget {
       Constants.LOGGER.error("Error parsing {}", item, e);
       return ItemStack.EMPTY;
     }
+  }
+
+  /**
+   * Returns a provider for looking up data usually available only with a loaded {@link Level}.
+   * <p>
+   * <strong>Use the Level provider if within a menu with a loaded Level.</strong>
+   *
+   * @return lookup provider.
+   */
+  public static HolderLookup.Provider getGuiProvider() {
+    return GuiItemContext.PROVIDER;
   }
 
   /**
@@ -489,6 +494,7 @@ public class FancyPlayerWidget extends AbstractWidget {
     properties.name = name;
     if (!renderState.copyingPlayer) {
       renderState.name = name;
+      renderState.showExtraEars = "deadmau5".equalsIgnoreCase(name);
     }
     return this;
   }
@@ -867,8 +873,7 @@ public class FancyPlayerWidget extends AbstractWidget {
       properties.parrotOnLeftShoulder = renderState.parrotOnLeftShoulder;
       properties.parrotOnRightShoulder = renderState.parrotOnRightShoulder;
     } else {
-      renderState.parrotOnLeftShoulder = properties.parrotOnLeftShoulder;
-      renderState.parrotOnRightShoulder = properties.parrotOnRightShoulder;
+      setParrots(properties.parrotOnLeftShoulder, properties.parrotOnRightShoulder);
     }
     return this;
   }
@@ -944,6 +949,30 @@ public class FancyPlayerWidget extends AbstractWidget {
    */
   public FancyPlayerWidget setLeftHandItem(@Nullable String item, HolderLookup.Provider provider) {
     renderState.leftHandItemStack = getNullableItem(item, i -> parseItem(i, provider));
+    return this;
+  }
+
+  /**
+   * Sets the item the player is holding in its right hand.<br>
+   * Pass a valid item to set it, pass {@code null} to empty the hand.
+   *
+   * @param item item string, in the same format as for the command {@code /give}.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setRightHandItem(@Nullable String item) {
+    renderState.rightHandItemStack = getNullableItem(item, i -> parseItem(i, GuiItemContext.PROVIDER));
+    return this;
+  }
+
+  /**
+   * Sets the item the player is holding in its left hand.<br>
+   * Pass a valid item to set it, pass {@code null} to empty the hand.
+   *
+   * @param item item string, in the same format as for the command {@code /give}.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setLeftHandItem(@Nullable String item) {
+    renderState.leftHandItemStack = getNullableItem(item, i -> parseItem(i, GuiItemContext.PROVIDER));
     return this;
   }
 
@@ -1044,6 +1073,54 @@ public class FancyPlayerWidget extends AbstractWidget {
    */
   public FancyPlayerWidget setFeetWearable(@Nullable String item, HolderLookup.Provider provider) {
     renderState.feetEquipment = getNullableItem(item, i -> parseItem(i, provider));
+    return this;
+  }
+
+  /**
+   * Sets the item the player is wearing on its head.<br>
+   * Pass a valid item string to set it, pass {@code null} to remove it.
+   *
+   * @param item item string, in the same format as for the command {@code /give}.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setHeadWearable(@Nullable String item) {
+    renderState.headEquipment = getNullableItem(item, i -> parseItem(i, GuiItemContext.PROVIDER));
+    return this;
+  }
+
+  /**
+   * Sets the item the player is wearing on its chest.<br>
+   * Pass a valid item to set it, pass {@code null} to remove it.
+   *
+   * @param item item string, in the same format as for the command {@code /give}.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setChestWearable(@Nullable String item) {
+    renderState.chestEquipment = getNullableItem(item, i -> parseItem(i, GuiItemContext.PROVIDER));
+    return this;
+  }
+
+  /**
+   * Sets the item the player is wearing on its legs.<br>
+   * Pass a valid item to set it, pass {@code null} to remove it.
+   *
+   * @param item item string, in the same format as for the command {@code /give}.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setLegsWearable(@Nullable String item) {
+    renderState.legsEquipment = getNullableItem(item, i -> parseItem(i, GuiItemContext.PROVIDER));
+    return this;
+  }
+
+  /**
+   * Sets the item the player is wearing on its feet.<br>
+   * Pass a valid item to set it, pass {@code null} to remove it.
+   *
+   * @param item item string, in the same format as for the command {@code /give}.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setFeetWearable(@Nullable String item) {
+    renderState.feetEquipment = getNullableItem(item, i -> parseItem(i, GuiItemContext.PROVIDER));
     return this;
   }
 
@@ -1239,14 +1316,14 @@ public class FancyPlayerWidget extends AbstractWidget {
       renderState.hasRedOverlay = pose == Pose.DYING;
       renderState.deathTime = renderState.hasRedOverlay ? 5 : 0;
       if (pose == Pose.STANDING || pose == Pose.CROUCHING) {
-        renderState.displayFireAnimation = properties.displayFireAnimation;
+        setOnFire(properties.displayFireAnimation);
       } else {
         properties.displayFireAnimation = renderState.displayFireAnimation;
         renderState.displayFireAnimation = false;
       }
       if (pose == Pose.STANDING || pose == Pose.CROUCHING || pose == Pose.SPIN_ATTACK) {
-        renderState.headFollowsMouse = properties.headFollowsMouse;
-        renderState.bodyFollowsMouse = properties.bodyFollowsMouse;
+        setHeadFollowsMouse(properties.headFollowsMouse);
+        setBodyFollowsMouse(properties.bodyFollowsMouse);
       } else {
         properties.headFollowsMouse = renderState.headFollowsMouse;
         properties.bodyFollowsMouse = renderState.bodyFollowsMouse;
@@ -1259,8 +1336,7 @@ public class FancyPlayerWidget extends AbstractWidget {
         renderState.parrotOnLeftShoulder = null;
         renderState.parrotOnRightShoulder = null;
       } else {
-        renderState.parrotOnLeftShoulder = properties.parrotOnLeftShoulder;
-        renderState.parrotOnRightShoulder = properties.parrotOnRightShoulder;
+        setParrots(properties.parrotOnLeftShoulder, properties.parrotOnRightShoulder);
       }
     } else {
       Constants.LOGGER.warn("Pose {} is not supported for Player entity!", pose);
@@ -1299,6 +1375,7 @@ public class FancyPlayerWidget extends AbstractWidget {
     renderState.copyingPlayer = false;
     updateSkin(properties.skin);
     renderState.name = properties.name;
+    renderState.showExtraEars = "deadmau5".equalsIgnoreCase(renderState.name);
     return this;
   }
 
@@ -1334,6 +1411,7 @@ public class FancyPlayerWidget extends AbstractWidget {
       renderState.copyingPlayer = true;
       properties.name = renderState.name;
       renderState.name = profile.name();
+      renderState.showExtraEars = "deadmau5".equalsIgnoreCase(renderState.name);
       skin.ifPresentOrElse(this::updateSkin, () -> handlePlayerCopyError(renderState.name));
     });
     return this;
@@ -1475,11 +1553,8 @@ public class FancyPlayerWidget extends AbstractWidget {
     }
   }
 
-  /**
-   * Lazy holder to avoid building lookup data unless item-backed widget state is actually used.
-   */
   private static final class GuiItemContext {
-    private static final HolderLookup.Provider PROVIDER = createProvider();
+    public static final HolderLookup.Provider PROVIDER = createProvider();
 
     private GuiItemContext() {}
 

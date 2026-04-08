@@ -11,3 +11,9 @@ accessible field net/minecraft/client/gui/render/pip/GuiEntityRenderer entityRen
 accessible field net/minecraft/world/entity/Avatar CROUCH_BB_HEIGHT F
 accessible method net/minecraft/core/HolderSet$Named <init> (Lnet/minecraft/core/HolderOwner;Lnet/minecraft/tags/TagKey;)V
 accessible method net/minecraft/core/HolderSet$Named bind (Ljava/util/List;)V
+accessible method net/minecraft/client/gui/components/AbstractSelectionList addEntry (Lnet/minecraft/client/gui/components/AbstractSelectionList$Entry;I)I
+accessible class net/minecraft/client/gui/components/OptionsList$Entry
+accessible field net/minecraft/client/gui/components/AbstractSelectionList children Ljava/util/List;
+accessible method net/minecraft/client/gui/components/OptionsList$Entry <init> (Ljava/util/List;Lnet/minecraft/client/gui/screens/Screen;)V
+accessible field net/minecraft/client/gui/components/OptionsList$Entry children Ljava/util/List;
+accessible field net/minecraft/client/gui/components/OptionsList$Entry screen Lnet/minecraft/client/gui/screens/Screen;
