@@ -9,9 +9,19 @@ and this project adheres to [Crystal Nest Semantic Versioning](https://crystalne
 
 - Nothing new.
 
-## [v0.5.4] - 2026/04/06
+## [v0.6.0] - 2026/04/09
+
+- Ported to 26.1.2.
+
+## [v0.6.0] - 2026/04/09
 
 - Ported to 26.1.x.
+- Added dev testing menu screens.
+- Added lookup provider for in-GUI contexts, allowing to use data-driven elements even when no world is loaded.
+- Fixed [#20](https://github.com/Crystal-Nest/fancy-entity-renderer/issues/20), baby armor layer not rotating along with the model.
+- Added proper handling of `deadmau5` ears.
+- Improved nametag handling, especially for swimming and sleeping poses.
+- Fix some issues where calling methods in a different order than expected could cause some properties to not be applied correctly.
 
 ## [v0.5.4] - 2026/02/11
 
@@ -170,6 +180,7 @@ and this project adheres to [Crystal Nest Semantic Versioning](https://crystalne
 [Unreleased]: https://github.com/crystal-nest/fancy-entity-renderer
 [README]: https://github.com/crystal-nest/fancy-entity-renderer#readme
 
+[v0.6.0]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.6.0
 [v0.5.4]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.5.4
 [v0.5.3]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.5.3
 [v0.5.2]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.5.2

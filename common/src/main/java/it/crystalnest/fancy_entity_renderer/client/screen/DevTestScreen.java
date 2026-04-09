@@ -47,11 +47,6 @@ public final class DevTestScreen extends OptionsSubScreen {
     int columnWidth = 17 * 4;
     int columnHeight = 24 * 4;
 
-    // TODO:
-    //  Fix name tag positioning when sleeping and swimming
-    //  Use the correct provider in the pause menu screen
-    //  Finish with GuiItemContext
-
     List<FancyPlayerWidget> widgets = List.of(
       buildWidget(columnWidth, columnHeight, widget -> widget
         .setName("Suffering Follower")
@@ -249,33 +244,32 @@ public final class DevTestScreen extends OptionsSubScreen {
         .setPose(Pose.DYING)
       ),
       buildWidget(columnWidth, columnHeight, widget -> {
-          // Dyed leather helmet.
-          ItemStack dyed = Items.LEATHER_HELMET.getDefaultInstance();
-          dyed.set(DataComponents.DYED_COLOR, DyedItemColor.applyDyes((DyedItemColor) null, List.of(DyeColor.PURPLE)));
-          // Trimmed netherite chestplate.
-          ItemStack trimmed = Items.NETHERITE_CHESTPLATE.getDefaultInstance();
-          trimmed.set(
-            DataComponents.TRIM,
-            new ArmorTrim(
-              FancyPlayerWidget.getGuiProvider().lookupOrThrow(Registries.TRIM_MATERIAL).getOrThrow(TrimMaterials.AMETHYST),
-              FancyPlayerWidget.getGuiProvider().lookupOrThrow(Registries.TRIM_PATTERN).getOrThrow(TrimPatterns.SILENCE)
-            )
-          );
-          // Enchanted diamond sword.
-          ItemStack enchanted = Items.DIAMOND_SWORD.getDefaultInstance();
-          enchanted.enchant(FancyPlayerWidget.getGuiProvider().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.SHARPNESS), 5);
-          return widget
-            .setName("Fancy")
-            .setShowName(true)
-            .setSlim(true)
-            .setHeadWearable(dyed)
-            .setChestWearable(trimmed)
-            .setLegsWearable("diamond_leggings[trim={material:\"minecraft:gold\",pattern:\"minecraft:silence\"}] 1")
-            .setRightHandItem(enchanted)
-            .setHeadFollowsMouse(true)
-            .setBodyFollowsMouse(true);
-        }
-      )
+        // Dyed leather helmet.
+        ItemStack dyed = Items.LEATHER_HELMET.getDefaultInstance();
+        dyed.set(DataComponents.DYED_COLOR, DyedItemColor.applyDyes((DyedItemColor) null, List.of(DyeColor.PURPLE)));
+        // Trimmed netherite chestplate.
+        ItemStack trimmed = Items.NETHERITE_CHESTPLATE.getDefaultInstance();
+        trimmed.set(
+          DataComponents.TRIM,
+          new ArmorTrim(
+            FancyPlayerWidget.getGuiProvider().lookupOrThrow(Registries.TRIM_MATERIAL).getOrThrow(TrimMaterials.AMETHYST),
+            FancyPlayerWidget.getGuiProvider().lookupOrThrow(Registries.TRIM_PATTERN).getOrThrow(TrimPatterns.SILENCE)
+          )
+        );
+        // Enchanted diamond sword.
+        ItemStack enchanted = Items.DIAMOND_SWORD.getDefaultInstance();
+        enchanted.enchant(FancyPlayerWidget.getGuiProvider().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.SHARPNESS), 5);
+        return widget
+          .setName("Fancy")
+          .setShowName(true)
+          .setSlim(true)
+          .setHeadWearable(dyed)
+          .setChestWearable(trimmed)
+          .setLegsWearable("diamond_leggings[trim={material:\"minecraft:gold\",pattern:\"minecraft:silence\"}] 1")
+          .setRightHandItem(enchanted)
+          .setHeadFollowsMouse(true)
+          .setBodyFollowsMouse(true);
+      })
     );
     for (int i = 0; i < widgets.size(); i += 2) {
       MyEntry entry = MyEntry.create(widgets.get(i), i < widgets.size() - 1 ? widgets.get(i + 1) : null, this);

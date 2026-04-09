@@ -70,14 +70,29 @@ public class FancyPlayerWidget extends AbstractWidget {
   public static final float PLAYER_RENDER_HEIGHT = 1.875F;
 
   /**
+   * Baby player render height.
+   */
+  public static final float BABY_PLAYER_RENDER_HEIGHT = 0.99F + (PLAYER_RENDER_HEIGHT - Avatar.DEFAULT_BB_HEIGHT); // 0.99F taken from humanoid mobs baby height.
+
+  /**
    * Player eye height when crouching.
    */
   public static final float PLAYER_CROUCHING_EYE_HEIGHT = Avatar.POSES.get(Pose.CROUCHING).eyeHeight();
 
   /**
+   * Baby player eye height.
+   */
+  public static final float BABY_PLAYER_EYE_HEIGHT = BABY_PLAYER_RENDER_HEIGHT - (PLAYER_RENDER_HEIGHT - Avatar.DEFAULT_EYE_HEIGHT);
+
+  /**
    * Ratio of a player's height to its width.
    */
   public static final float PLAYER_SIZE_RATIO = Entity.DEFAULT_BB_HEIGHT / Entity.DEFAULT_BB_WIDTH;
+
+  static {
+    // Trigger static initialization exactly once to bind GUI-safe item components.
+    GuiItemContext.bootstrap();
+  }
 
   /**
    * Global render state.
@@ -139,17 +154,6 @@ public class FancyPlayerWidget extends AbstractWidget {
   }
 
   /**
-   * Creates an {@link ItemStack} from a registry item in a way that is safe for GUI-only contexts such as the title screen.
-   *
-   * @param item item.
-   * @return {@link ItemStack} to use as wearable.
-   */
-  private static ItemStack createItemStack(Item item) {
-    GuiItemContext.bootstrap();
-    return item.getDefaultInstance();
-  }
-
-  /**
    * Parses an item string into an {@link ItemStack} using the given provider.
    *
    * @param item item string, in the same format as for the command {@code /give}.
@@ -158,7 +162,6 @@ public class FancyPlayerWidget extends AbstractWidget {
    */
   private static ItemStack parseItem(String item, HolderLookup.Provider provider) {
     try {
-      GuiItemContext.bootstrap();
       return new ItemParser(provider).parse(new StringReader(item)).createItemStack(1);
     } catch (CommandSyntaxException e) {
       Constants.LOGGER.error("Error parsing {}", item, e);
@@ -192,12 +195,11 @@ public class FancyPlayerWidget extends AbstractWidget {
     // Taken from AvatarRenderer#getRenderOffset(AvatarRenderState)
     float offsetY = renderState.isCrouching ? renderState.scale / -8 : 0;
     if (renderState.pose == Pose.SLEEPING) {
-      offsetX += PLAYER_RENDER_HEIGHT * renderState.scale / 2;
-      offsetY -= 0.25F * renderState.scale;
+      offsetX = PLAYER_RENDER_HEIGHT * renderState.scale / 2;
+      offsetY -= 0.23F * renderState.scale;
       if (renderState.isBaby) {
-        // TODO: Why these values?
-        offsetX /= 1.75F;
-        offsetY /= 1.5F;
+        offsetX = BABY_PLAYER_RENDER_HEIGHT * renderState.scale / 2;
+        offsetY += 0.05F * renderState.scale;
       }
     }
     gfx.entity(
@@ -955,24 +957,28 @@ public class FancyPlayerWidget extends AbstractWidget {
   /**
    * Sets the item the player is holding in its right hand.<br>
    * Pass a valid item to set it, pass {@code null} to empty the hand.
+   * <p>
+   * <strong>Use the {@link #setRightHandItem(String, HolderLookup.Provider)} overload passing the Level provider if within a menu with a loaded Level.</strong>
    *
    * @param item item string, in the same format as for the command {@code /give}.
    * @return {@code this}.
    */
   public FancyPlayerWidget setRightHandItem(@Nullable String item) {
-    renderState.rightHandItemStack = getNullableItem(item, i -> parseItem(i, GuiItemContext.PROVIDER));
+    renderState.rightHandItemStack = getNullableItem(item, i -> parseItem(i, getGuiProvider()));
     return this;
   }
 
   /**
    * Sets the item the player is holding in its left hand.<br>
    * Pass a valid item to set it, pass {@code null} to empty the hand.
+   * <p>
+   * <strong>Use the {@link #setLeftHandItem(String, HolderLookup.Provider)} overload passing the Level provider if within a menu with a loaded Level.</strong>
    *
    * @param item item string, in the same format as for the command {@code /give}.
    * @return {@code this}.
    */
   public FancyPlayerWidget setLeftHandItem(@Nullable String item) {
-    renderState.leftHandItemStack = getNullableItem(item, i -> parseItem(i, GuiItemContext.PROVIDER));
+    renderState.leftHandItemStack = getNullableItem(item, i -> parseItem(i, getGuiProvider()));
     return this;
   }
 
@@ -984,7 +990,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setRightHandItem(@Nullable Item item) {
-    renderState.rightHandItemStack = getNullableItem(item, FancyPlayerWidget::createItemStack);
+    renderState.rightHandItemStack = getNullableItem(item, Item::getDefaultInstance);
     return this;
   }
 
@@ -996,7 +1002,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setLeftHandItem(@Nullable Item item) {
-    renderState.leftHandItemStack = getNullableItem(item, FancyPlayerWidget::createItemStack);
+    renderState.leftHandItemStack = getNullableItem(item, Item::getDefaultInstance);
     return this;
   }
 
@@ -1079,48 +1085,56 @@ public class FancyPlayerWidget extends AbstractWidget {
   /**
    * Sets the item the player is wearing on its head.<br>
    * Pass a valid item string to set it, pass {@code null} to remove it.
+   * <p>
+   * <strong>Use the {@link #setHeadWearable(String, HolderLookup.Provider)} overload passing the Level provider if within a menu with a loaded Level.</strong>
    *
    * @param item item string, in the same format as for the command {@code /give}.
    * @return {@code this}.
    */
   public FancyPlayerWidget setHeadWearable(@Nullable String item) {
-    renderState.headEquipment = getNullableItem(item, i -> parseItem(i, GuiItemContext.PROVIDER));
+    renderState.headEquipment = getNullableItem(item, i -> parseItem(i, getGuiProvider()));
     return this;
   }
 
   /**
    * Sets the item the player is wearing on its chest.<br>
    * Pass a valid item to set it, pass {@code null} to remove it.
+   * <p>
+   * <strong>Use the {@link #setChestWearable(String, HolderLookup.Provider)} overload passing the Level provider if within a menu with a loaded Level.</strong>
    *
    * @param item item string, in the same format as for the command {@code /give}.
    * @return {@code this}.
    */
   public FancyPlayerWidget setChestWearable(@Nullable String item) {
-    renderState.chestEquipment = getNullableItem(item, i -> parseItem(i, GuiItemContext.PROVIDER));
+    renderState.chestEquipment = getNullableItem(item, i -> parseItem(i, getGuiProvider()));
     return this;
   }
 
   /**
    * Sets the item the player is wearing on its legs.<br>
    * Pass a valid item to set it, pass {@code null} to remove it.
+   * <p>
+   * <strong>Use the {@link #setLegsWearable(String, HolderLookup.Provider)} overload passing the Level provider if within a menu with a loaded Level.</strong>
    *
    * @param item item string, in the same format as for the command {@code /give}.
    * @return {@code this}.
    */
   public FancyPlayerWidget setLegsWearable(@Nullable String item) {
-    renderState.legsEquipment = getNullableItem(item, i -> parseItem(i, GuiItemContext.PROVIDER));
+    renderState.legsEquipment = getNullableItem(item, i -> parseItem(i, getGuiProvider()));
     return this;
   }
 
   /**
    * Sets the item the player is wearing on its feet.<br>
    * Pass a valid item to set it, pass {@code null} to remove it.
+   * <p>
+   * <strong>Use the {@link #setFeetWearable(String, HolderLookup.Provider)} overload passing the Level provider if within a menu with a loaded Level.</strong>
    *
    * @param item item string, in the same format as for the command {@code /give}.
    * @return {@code this}.
    */
   public FancyPlayerWidget setFeetWearable(@Nullable String item) {
-    renderState.feetEquipment = getNullableItem(item, i -> parseItem(i, GuiItemContext.PROVIDER));
+    renderState.feetEquipment = getNullableItem(item, i -> parseItem(i, getGuiProvider()));
     return this;
   }
 
@@ -1132,7 +1146,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setHeadWearable(@Nullable Item item) {
-    renderState.headEquipment = getNullableItem(item, FancyPlayerWidget::createItemStack);
+    renderState.headEquipment = getNullableItem(item, Item::getDefaultInstance);
     return this;
   }
 
@@ -1144,7 +1158,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setChestWearable(@Nullable Item item) {
-    renderState.chestEquipment = getNullableItem(item, FancyPlayerWidget::createItemStack);
+    renderState.chestEquipment = getNullableItem(item, Item::getDefaultInstance);
     return this;
   }
 
@@ -1156,7 +1170,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setLegsWearable(@Nullable Item item) {
-    renderState.legsEquipment = getNullableItem(item, FancyPlayerWidget::createItemStack);
+    renderState.legsEquipment = getNullableItem(item, Item::getDefaultInstance);
     return this;
   }
 
@@ -1168,7 +1182,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setFeetWearable(@Nullable Item item) {
-    renderState.feetEquipment = getNullableItem(item, FancyPlayerWidget::createItemStack);
+    renderState.feetEquipment = getNullableItem(item, Item::getDefaultInstance);
     return this;
   }
 
@@ -1553,11 +1567,29 @@ public class FancyPlayerWidget extends AbstractWidget {
     }
   }
 
+  /**
+   * In-GUI context.
+   */
   private static final class GuiItemContext {
+    /**
+     * Data lookup provider for in-GUI contexts.
+     */
     public static final HolderLookup.Provider PROVIDER = createProvider();
 
     private GuiItemContext() {}
 
+    /**
+     * Bootstrap the data lookup provider.
+     */
+    private static void bootstrap() {
+      PROVIDER.listRegistryKeys();
+    }
+
+    /**
+     * Instantiate the provider.
+     *
+     * @return provider instance.
+     */
     private static HolderLookup.Provider createProvider() {
       HolderLookup.Provider baseProvider = VanillaRegistries.createLookup();
       HolderLookup.Provider provider;
@@ -1568,6 +1600,15 @@ public class FancyPlayerWidget extends AbstractWidget {
       return provider;
     }
 
+    /**
+     * Returns a registry lookup with tags loaded from the given data resources.<br>
+     * If no tags are found, returns the original lookup unchanged.
+     *
+     * @param dataResources data resource manager to load tags from.
+     * @param original original registry lookup.
+     * @param <T> registry element type.
+     * @return registry lookup with loaded tags, or the original if no tags were found.
+     */
     private static <T> HolderLookup.RegistryLookup<T> withLoadedTags(MultiPackResourceManager dataResources, HolderLookup.RegistryLookup<T> original) {
       @SuppressWarnings("unchecked")
       ResourceKey<? extends Registry<T>> registryKey = (ResourceKey<? extends Registry<T>>) original.key();
@@ -1594,15 +1635,19 @@ public class FancyPlayerWidget extends AbstractWidget {
       return original;
     }
 
+    /**
+     * Creates a {@link HolderSet.Named} bound to the given contents.
+     *
+     * @param owner registry lookup that owns the tag.
+     * @param key tag key.
+     * @param contents list of holders to bind to the named tag set.
+     * @param <T> registry element type.
+     * @return bound named tag set.
+     */
     private static <T> HolderSet.Named<T> createNamedTagSet(HolderLookup.RegistryLookup<T> owner, TagKey<T> key, List<Holder<T>> contents) {
       HolderSet.Named<T> named = new HolderSet.Named<>(owner, key);
       named.bind(contents);
       return named;
-    }
-
-    private static void bootstrap() {
-      // Trigger static initialization exactly once to bind GUI-safe item components.
-      PROVIDER.listRegistryKeys();
     }
   }
 }

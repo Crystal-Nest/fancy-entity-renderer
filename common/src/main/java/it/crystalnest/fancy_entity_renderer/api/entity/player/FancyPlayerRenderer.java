@@ -70,6 +70,25 @@ public class FancyPlayerRenderer extends AvatarRenderer<@NotNull AbstractClientP
   }
 
   /**
+   * Returns the proper Y offset for the nametag.
+   *
+   * @param state render state.
+   * @param y initial y offset.
+   * @param scale nametag scale.
+   * @return Y offset.
+   */
+  private static float getOffsetY(FancyPlayerRenderState state, float y, float scale) {
+    float offsetY = y;
+    switch (state.pose) {
+      case Pose.SLEEPING -> offsetY += state.boundingBoxWidth / scale;
+      case Pose.SWIMMING -> offsetY += (state.boundingBoxWidth + 8 * (state.isBaby ? LivingEntity.DEFAULT_BABY_SCALE : 1)) / scale;
+      case Pose.SPIN_ATTACK -> offsetY += state.boundingBoxHeight / scale;
+      default -> offsetY += (state.isBaby ? state.boundingBoxHeight * LivingEntity.DEFAULT_BABY_SCALE : state.boundingBoxHeight) / scale;
+    }
+    return offsetY;
+  }
+
+  /**
    * Submits the texts for the name tag.
    *
    * @param renderState render state.
@@ -84,8 +103,7 @@ public class FancyPlayerRenderer extends AvatarRenderer<@NotNull AbstractClientP
       Minecraft minecraft = Minecraft.getInstance();
       poseStack.pushPose();
       float scale = state.scale * NAMETAG_SCALE;
-      float height = state.isBaby && state.pose != Pose.SPIN_ATTACK ? state.boundingBoxHeight * LivingEntity.DEFAULT_BABY_SCALE : state.boundingBoxHeight;
-      float offsetY = (state.pose == Pose.SLEEPING || state.pose == Pose.SWIMMING ? state.boundingBoxWidth : height) / scale + (float) state.nameTagAttachment.y;
+      float offsetY = getOffsetY(state, (float) state.nameTagAttachment.y, scale);
       poseStack.scale(scale, -scale, scale);
       if (state.pinName) {
         poseStack.rotateAround(new Quaternionf().rotateY(state.modelRot.getY()), 0, 0, 0);
@@ -94,7 +112,7 @@ public class FancyPlayerRenderer extends AvatarRenderer<@NotNull AbstractClientP
       if (state.deathTime > 1) {
         poseStack.rotateAround(Axis.ZP.rotationDegrees(Math.min(Mth.sqrt((state.deathTime - 1) / 20F * 1.6F), 1) * 90), 0, offsetY, 0);
       }
-      float x = -minecraft.font.width(text) / 2F + (state.pose == Pose.SLEEPING ? (float) state.nameTagAttachment.x : 0);
+      float x = -minecraft.font.width(text) / 2F - (state.pose == Pose.SLEEPING ? (float) state.nameTagAttachment.x / scale : 0);
       float y = state.showExtraEars ? -10 : 0;
       submitNodeCollector.submitText(poseStack, x, y, text, false, Font.DisplayMode.SEE_THROUGH, state.lightCoords, -2130706433, (int) (minecraft.options.getBackgroundOpacity(0.25F) * 255F) << 24, 0);
       submitNodeCollector.submitText(poseStack, x, y, text, false, Font.DisplayMode.NORMAL, LightCoordsUtil.lightCoordsWithEmission(state.lightCoords, 2), state.isDiscrete ? -2130706433 : -1, 0, 0);
@@ -221,9 +239,9 @@ public class FancyPlayerRenderer extends AvatarRenderer<@NotNull AbstractClientP
     }
     state.nameTag = state.showPlayerName && !state.isInvisibleToPlayer ? Component.literal(state.name) : null;
     if (state.pose == Pose.SLEEPING) {
-      state.nameTagAttachment = new Vec3(Avatar.POSES.get(state.pose).eyeHeight() * state.scale - state.boundingBoxHeight / 1.35F, 0, 0);
+      state.nameTagAttachment = new Vec3((state.isBaby ? FancyPlayerWidget.BABY_PLAYER_EYE_HEIGHT : Avatar.DEFAULT_EYE_HEIGHT) * state.scale, 0, 0);
     } else {
-      state.nameTagAttachment = new Vec3(0, 0.25F * state.scale, 0);
+      state.nameTagAttachment = new Vec3(0, 0.275 * state.scale, 0);
     }
     if (!state.rightHandItemStack.isEmpty()) {
       itemModelResolver.updateForTopItem(state.rightHandItemState, state.rightHandItemStack, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, null, null, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND.ordinal());

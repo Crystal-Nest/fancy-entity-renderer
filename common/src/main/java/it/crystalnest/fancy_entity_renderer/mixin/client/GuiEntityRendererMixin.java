@@ -55,7 +55,7 @@ public abstract class GuiEntityRendererMixin extends PictureInPictureRenderer<Gu
       FeatureRenderDispatcher dispatcher = Minecraft.getInstance().gameRenderer.getFeatureRenderDispatcher();
       CameraRenderState camera = new CameraRenderState();
       if (entityState.overrideCameraAngle() != null) {
-        camera.orientation = entityState.overrideCameraAngle();//.conjugate(new Quaternionf()).rotateY((float) Math.PI);
+        camera.orientation = entityState.overrideCameraAngle();
       }
       entityRenderDispatcher.submit(renderState, camera, 0, 0, 0, poseStack, dispatcher.getSubmitNodeStorage());
       dispatcher.renderAllFeatures();
