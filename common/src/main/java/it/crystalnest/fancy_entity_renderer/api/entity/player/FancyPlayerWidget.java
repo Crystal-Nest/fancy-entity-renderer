@@ -72,7 +72,8 @@ public class FancyPlayerWidget extends AbstractWidget {
   /**
    * Baby player render height.
    */
-  public static final float BABY_PLAYER_RENDER_HEIGHT = 0.99F + (PLAYER_RENDER_HEIGHT - Avatar.DEFAULT_BB_HEIGHT); // 0.99F taken from humanoid mobs baby height.
+  // 0.99F taken from humanoid mobs baby height.
+  public static final float BABY_PLAYER_RENDER_HEIGHT = 0.99F + (PLAYER_RENDER_HEIGHT - Entity.DEFAULT_BB_HEIGHT);
 
   /**
    * Player eye height when crouching.
@@ -88,6 +89,11 @@ public class FancyPlayerWidget extends AbstractWidget {
    * Ratio of a player's height to its width.
    */
   public static final float PLAYER_SIZE_RATIO = Entity.DEFAULT_BB_HEIGHT / Entity.DEFAULT_BB_WIDTH;
+
+  /**
+   * Deadmau5's player name, which makes ears appear on top of the head.
+   */
+  public static final String DEADMAU5_NAME = "deadmau5";
 
   static {
     // Trigger static initialization exactly once to bind GUI-safe item components.
@@ -496,7 +502,7 @@ public class FancyPlayerWidget extends AbstractWidget {
     properties.name = name;
     if (!renderState.copyingPlayer) {
       renderState.name = name;
-      renderState.showExtraEars = "deadmau5".equalsIgnoreCase(name);
+      renderState.showExtraEars = DEADMAU5_NAME.equalsIgnoreCase(name);
     }
     return this;
   }
@@ -1389,7 +1395,7 @@ public class FancyPlayerWidget extends AbstractWidget {
     renderState.copyingPlayer = false;
     updateSkin(properties.skin);
     renderState.name = properties.name;
-    renderState.showExtraEars = "deadmau5".equalsIgnoreCase(renderState.name);
+    renderState.showExtraEars = DEADMAU5_NAME.equalsIgnoreCase(renderState.name);
     return this;
   }
 
@@ -1425,7 +1431,7 @@ public class FancyPlayerWidget extends AbstractWidget {
       renderState.copyingPlayer = true;
       properties.name = renderState.name;
       renderState.name = profile.name();
-      renderState.showExtraEars = "deadmau5".equalsIgnoreCase(renderState.name);
+      renderState.showExtraEars = DEADMAU5_NAME.equalsIgnoreCase(renderState.name);
       skin.ifPresentOrElse(this::updateSkin, () -> handlePlayerCopyError(renderState.name));
     });
     return this;

@@ -26,18 +26,30 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 /**
  * Small in-dev showcase screen for FER player widgets.
  */
 public final class DevTestScreen extends OptionsSubScreen {
+  /**
+   * @param parent parent screen.
+   * @param options game options.
+   */
   public DevTestScreen(Screen parent, Options options) {
     super(parent, options, Component.literal("FER Dev Test"));
   }
 
-  private static FancyPlayerWidget buildWidget(int columnWidth, int columnHeight, Function<FancyPlayerWidget, FancyPlayerWidget> configuration) {
-    return configuration.apply(new FancyPlayerWidget(0, 0, columnWidth, columnHeight));
+  /**
+   * Builds a {@link FancyPlayerWidget} with the provided configuration.
+   *
+   * @param columnWidth widget width.
+   * @param columnHeight widget height.
+   * @param configuration configuration function.
+   * @return new {@link FancyPlayerWidget}.
+   */
+  private static FancyPlayerWidget buildWidget(int columnWidth, int columnHeight, UnaryOperator<FancyPlayerWidget> configuration) {
+    return configuration.apply(new FancyPlayerWidget(0, 0, columnWidth, columnHeight).setShowName(true).setSlim(true));
   }
 
   @Override
@@ -50,23 +62,19 @@ public final class DevTestScreen extends OptionsSubScreen {
     List<FancyPlayerWidget> widgets = List.of(
       buildWidget(columnWidth, columnHeight, widget -> widget
         .setName("Suffering Follower")
-        .setShowName(true)
         .setPinName(true)
         .setBodyFollowsMouse(true)
         .setHeadFollowsMouse(true)
-        .setSlim(true)
         .setArrowCount(10)
         .setStingerCount(10)
       ),
       buildWidget(columnWidth, columnHeight, widget -> widget
         .setName("Burning Man")
-        .setShowName(true)
         .setOnFire(true)
         .setSlim(false)
       ),
       buildWidget(columnWidth, columnHeight, widget -> widget
         .setName("Wacky")
-        .setShowName(true)
         .setHeadRotation(15, 0, 0)
         .setBodyRotation(0, 15, 0)
         .setRightArmRotation(0, 0, 15)
@@ -76,7 +84,6 @@ public final class DevTestScreen extends OptionsSubScreen {
       ),
       buildWidget(columnWidth, columnHeight, widget -> widget
         .setName("Armored Wacky")
-        .setShowName(true)
         .setHeadRotation(0, 15, 0)
         .setBodyRotation(0, 0, 15)
         .setRightArmRotation(0, 15, 0)
@@ -92,7 +99,6 @@ public final class DevTestScreen extends OptionsSubScreen {
       ),
       buildWidget(columnWidth, columnHeight, widget -> widget
         .setName("Missing")
-        .setShowName(true)
         .setShowHead(false)
         .setShowBody(false)
         .setShowLeftArm(false)
@@ -102,7 +108,6 @@ public final class DevTestScreen extends OptionsSubScreen {
       ),
       buildWidget(columnWidth, columnHeight, widget -> widget
         .setName("Armored Follower")
-        .setShowName(true)
         .setSlim(false)
         .setHeadFollowsMouse(true)
         .setHeadWearable(Items.CHAINMAIL_HELMET)
@@ -114,17 +119,14 @@ public final class DevTestScreen extends OptionsSubScreen {
       ),
       buildWidget(columnWidth, columnHeight, widget -> widget
         .setName("Spectator")
-        .setShowName(true)
         .setRenderMode(RenderMode.SPECTATOR)
       ),
       buildWidget(columnWidth, columnHeight, widget -> widget
         .setName("Ghost")
-        .setShowName(true)
         .setRenderMode(RenderMode.GHOST)
       ),
       buildWidget(columnWidth, columnHeight, widget -> widget
         .setName("Head Over Heels 4 U")
-        .setShowName(true)
         .setUpsideDown(true)
         .setBodyFollowsMouse(true)
         .setHeadFollowsMouse(true)
@@ -132,41 +134,32 @@ public final class DevTestScreen extends OptionsSubScreen {
       ),
       buildWidget(columnWidth, columnHeight, widget -> widget
         .setName("Copycat")
-        .setShowName(true)
         .copyLocalPlayer()
       ),
       buildWidget(columnWidth, columnHeight, widget -> widget
-        .setShowName(true)
         .copyPlayer("Crystal_Spider_")
         .setMovementSpeed(1)
         .setMoving(true)
       ),
       buildWidget(columnWidth, columnHeight, widget -> widget
         .setName("Catfish")
-        .setShowName(true)
         .copyPlayer("Deadmau5")
         .setMovementSpeed(1)
         .setWalkingSpeed(1)
       ),
       buildWidget(columnWidth, columnHeight, widget -> widget
         .setName("Sleepy")
-        .setShowName(true)
-        .setSlim(true)
         .setLeftParrot(Parrot.Variant.YELLOW_BLUE)
         .setPose(Pose.SLEEPING)
       ),
       buildWidget(columnWidth, columnHeight, widget -> widget
         .setName("Baby Sleepy")
-        .setShowName(true)
-        .setSlim(true)
         .setBaby(true)
         .setLeftParrot(Parrot.Variant.YELLOW_BLUE)
         .setPose(Pose.SLEEPING)
       ),
       buildWidget(columnWidth, columnHeight, widget -> widget
         .setName("Swim Swim")
-        .setShowName(true)
-        .setSlim(true)
         .setRightHandItem(Items.NAUTILUS_SHELL)
         .setPose(Pose.SWIMMING)
         .setMovementSpeed(1)
@@ -175,8 +168,6 @@ public final class DevTestScreen extends OptionsSubScreen {
       ),
       buildWidget(columnWidth, columnHeight, widget -> widget
         .setName("Baby Swim Swim")
-        .setShowName(true)
-        .setSlim(true)
         .setBaby(true)
         .setRightHandItem(Items.NAUTILUS_SHELL)
         .setPose(Pose.SWIMMING)
@@ -186,8 +177,6 @@ public final class DevTestScreen extends OptionsSubScreen {
       ),
       buildWidget(columnWidth, columnHeight, widget -> widget
         .setName("Vortex")
-        .setShowName(true)
-        .setSlim(true)
         .setRightHandItem(Items.TRIDENT)
         .setRightArmPose(HumanoidModel.ArmPose.THROW_TRIDENT)
         .setPose(Pose.SPIN_ATTACK)
@@ -196,8 +185,6 @@ public final class DevTestScreen extends OptionsSubScreen {
       ),
       buildWidget(columnWidth, columnHeight, widget -> widget
         .setName("Baby Vortex")
-        .setShowName(true)
-        .setSlim(true)
         .setBaby(true)
         .setRightHandItem(Items.TRIDENT)
         .setRightArmPose(HumanoidModel.ArmPose.THROW_TRIDENT)
@@ -207,16 +194,13 @@ public final class DevTestScreen extends OptionsSubScreen {
       ),
       buildWidget(columnWidth, columnHeight, widget -> widget
         .setName("Croucher")
-        .setShowName(true)
-        .setSlim(true)
         .setHeadWearable(Items.GOLDEN_HELMET)
         .setParrots(Parrot.Variant.DEFAULT, Parrot.Variant.GRAY)
         .setPose(Pose.CROUCHING)
+        .setSlim(false)
       ),
       buildWidget(columnWidth, columnHeight, widget -> widget
         .setName("Baby Croucher")
-        .setShowName(true)
-        .setSlim(true)
         .setBaby(true)
         .setHeadWearable(Items.GOLDEN_HELMET)
         .setChestWearable(Items.GOLDEN_CHESTPLATE)
@@ -227,17 +211,14 @@ public final class DevTestScreen extends OptionsSubScreen {
       ),
       buildWidget(columnWidth, columnHeight, widget -> widget
         .setName("Done For")
-        .setShowName(true)
-        .setSlim(true)
         .setChestWearable(Items.ELYTRA)
         .setParrots(Parrot.Variant.DEFAULT, Parrot.Variant.GRAY)
         .setPose(Pose.DYING)
       ),
       buildWidget(columnWidth, columnHeight, widget -> widget
         .setName("Baby Done For")
-        .setShowName(true)
-        .setSlim(true)
         .setBaby(true)
+        .setSlim(false)
         .copyPlayer("Crystal_Spider_")
         .setChestWearable(Items.ELYTRA)
         .setParrots(Parrot.Variant.DEFAULT, Parrot.Variant.GRAY)
@@ -261,8 +242,6 @@ public final class DevTestScreen extends OptionsSubScreen {
         enchanted.enchant(FancyPlayerWidget.getGuiProvider().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.SHARPNESS), 5);
         return widget
           .setName("Fancy")
-          .setShowName(true)
-          .setSlim(true)
           .setHeadWearable(dyed)
           .setChestWearable(trimmed)
           .setLegsWearable("diamond_leggings[trim={material:\"minecraft:gold\",pattern:\"minecraft:silence\"}] 1")
@@ -272,7 +251,7 @@ public final class DevTestScreen extends OptionsSubScreen {
       })
     );
     for (int i = 0; i < widgets.size(); i += 2) {
-      MyEntry entry = MyEntry.create(widgets.get(i), i < widgets.size() - 1 ? widgets.get(i + 1) : null, this);
+      FancyWidgetEntry entry = FancyWidgetEntry.create(widgets.get(i), i < widgets.size() - 1 ? widgets.get(i + 1) : null, this);
       entry.setX(list.getX() + list.getWidth() / 2 - columnWidth / 2);
       entry.setWidth(columnWidth);
       entry.setY(list.getNextY());
@@ -281,13 +260,28 @@ public final class DevTestScreen extends OptionsSubScreen {
     }
   }
 
-  public static class MyEntry extends OptionsList.Entry {
-    public MyEntry(List<OptionsList.OptionInstanceWidget> widgets, Screen screen) {
+  /**
+   * Custom {@link OptionsList.Entry} implementation for displaying one or two {@link FancyPlayerWidget}s in a single entry, centered inside the respective vanilla column.
+   */
+  public static class FancyWidgetEntry extends OptionsList.Entry {
+    /**
+     * @param widgets list of widgets for this entry.
+     * @param screen screen this entry lives in.
+     */
+    public FancyWidgetEntry(List<OptionsList.OptionInstanceWidget> widgets, Screen screen) {
       super(widgets, screen);
     }
 
-    public static MyEntry create(AbstractWidget leftWidget, @Nullable AbstractWidget rightWidget, Screen screen) {
-      return rightWidget == null ? new MyEntry(List.of(new OptionsList.OptionInstanceWidget(leftWidget)), screen) : new MyEntry(List.of(new OptionsList.OptionInstanceWidget(leftWidget), new OptionsList.OptionInstanceWidget(rightWidget)), screen);
+    /**
+     * Returns a new {@link FancyWidgetEntry} containing the provided widgets. If the right widget is null, only the left one will be added to the entry.
+     *
+     * @param leftWidget left widget.
+     * @param rightWidget right widget.
+     * @param screen screen reference.
+     * @return new {@link FancyWidgetEntry} containing the provided widgets.
+     */
+    public static FancyWidgetEntry create(AbstractWidget leftWidget, @Nullable AbstractWidget rightWidget, Screen screen) {
+      return rightWidget == null ? new FancyWidgetEntry(List.of(new OptionsList.OptionInstanceWidget(leftWidget)), screen) : new FancyWidgetEntry(List.of(new OptionsList.OptionInstanceWidget(leftWidget), new OptionsList.OptionInstanceWidget(rightWidget)), screen);
     }
 
     @Override
