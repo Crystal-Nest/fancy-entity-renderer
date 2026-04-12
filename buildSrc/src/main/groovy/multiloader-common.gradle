@@ -6,6 +6,23 @@ plugins {
 
 def minecraft_target = minecraft_version + minecraft_patch_version
 
+def game_versions = [minecraft_version]
+if (minecraft_version != minecraft_target) {
+  def minParts = minecraft_version.tokenize('.')
+  def maxParts = minecraft_target.tokenize('.')
+  if (minParts.size() >= 2 && maxParts.size() >= 2) {
+    def base = "${minParts[0]}.${minParts[1]}"
+    int minPatch = minParts.size() > 2 ? minParts[2].toInteger() : 0
+    int maxPatch = maxParts.size() > 2 ? maxParts[2].toInteger() : 0
+    for (int i = minPatch + 1; i <= maxPatch; i++) {
+      game_versions << "${base}.${i}"
+    }
+  } else {
+    game_versions << minecraft_target
+  }
+}
+game_versions = game_versions.unique()
+
 base {
   archivesName = "$mod_id_kebab-$name"
   version = "$minecraft_version-$mod_version"
@@ -181,7 +198,7 @@ publisher {
   if (!noPublish) {
     setLoaders(loader)
   }
-  setGameVersions(minecraft_version, minecraft_target)
+  setGameVersions(game_versions.toArray(new String[0]))
   setDisplayName("[$loader - $minecraft_version] $mod_title v$mod_version")
   setJavaVersions([JavaVersion.VERSION_25]) // Remember to update this to match java_version gradle property.
   setCurseEnvironment("client") // "server", "client" or "both".
