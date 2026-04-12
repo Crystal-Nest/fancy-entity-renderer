@@ -31,7 +31,7 @@ public abstract class ScreensMixin extends Screen {
   private void onInit(CallbackInfo ci) {
     if (Services.PLATFORM.isDevEnv()) {
       addRenderableWidget(
-        Button.builder(Component.literal("FER Test"), button -> minecraft.setScreen(new DevTestScreen(this, minecraft.options)))
+        Button.builder(Component.literal("FER Test"), button -> minecraft.setScreenAndShow(new DevTestScreen(this, minecraft.options)))
           .bounds(width - 108, 20, 88, 20)
           .build()
       );

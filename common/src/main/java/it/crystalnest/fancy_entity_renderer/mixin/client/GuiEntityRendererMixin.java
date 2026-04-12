@@ -5,12 +5,11 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import it.crystalnest.fancy_entity_renderer.api.entity.player.state.FancyPlayerRenderState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.render.pip.GuiEntityRenderer;
-import net.minecraft.client.gui.render.pip.PictureInPictureRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.feature.FeatureRenderDispatcher;
 import net.minecraft.client.renderer.state.gui.pip.GuiEntityRenderState;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
+import org.joml.Quaternionf;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -22,20 +21,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * Injects into {@link GuiEntityRenderer} to handle Fancy Entity Widgets.
  */
 @Mixin(GuiEntityRenderer.class)
-public abstract class GuiEntityRendererMixin extends PictureInPictureRenderer<GuiEntityRenderState> {
+public abstract class GuiEntityRendererMixin {
   /**
    * Shadowed {@link GuiEntityRenderer#entityRenderDispatcher}.
    */
   @Final
   @Shadow
   private EntityRenderDispatcher entityRenderDispatcher;
-
-  /**
-   * Useless constructor to make the compiler happy.
-   */
-  private GuiEntityRendererMixin(MultiBufferSource.BufferSource bufferSource) {
-    super(bufferSource);
-  }
 
   /**
    * Injects at the start of the method {@link GuiEntityRenderer#renderToTexture(GuiEntityRenderState, PoseStack)}.<br>
@@ -49,13 +41,13 @@ public abstract class GuiEntityRendererMixin extends PictureInPictureRenderer<Gu
   private void onRenderToTexture(GuiEntityRenderState entityState, PoseStack poseStack, CallbackInfo ci) {
     if (entityState.renderState() instanceof FancyPlayerRenderState renderState) {
       Minecraft.getInstance().gameRenderer.getLighting().setupFor(Lighting.Entry.ENTITY_IN_UI);
-      poseStack.translate(entityState.translation().x, entityState.translation().y, entityState.translation().z);
+      poseStack.translate(entityState.translation().x(), entityState.translation().y(), entityState.translation().z());
       poseStack.scale(1, -1, -1);
       poseStack.mulPose(entityState.rotation());
       FeatureRenderDispatcher dispatcher = Minecraft.getInstance().gameRenderer.getFeatureRenderDispatcher();
       CameraRenderState camera = new CameraRenderState();
       if (entityState.overrideCameraAngle() != null) {
-        camera.orientation = entityState.overrideCameraAngle();
+        camera.orientation = entityState.overrideCameraAngle().get(new Quaternionf());
       }
       entityRenderDispatcher.submit(renderState, camera, 0, 0, 0, poseStack, dispatcher.getSubmitNodeStorage());
       dispatcher.renderAllFeatures();
