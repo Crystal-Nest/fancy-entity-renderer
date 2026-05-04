@@ -15,7 +15,7 @@ dependencies {
   implementation(jarJar("io.github.llamalad7:mixinextras-forge:$mixin_extras_version")) {
     jarJar.ranged(it, "[$mixin_extras_version,)")
   }
-  compileOnly(fg.deobf("it.crystalnest:soul-fire-d-$name:$minecraft_version-$soul_fire_d_version")) {
+  compileOnly("it.crystalnest:soul-fire-d-common:$minecraft_version-$soul_fire_d_version") {
     transitive = false
   }
 }
@@ -30,7 +30,7 @@ minecraft {
   mappings channel: "official", version: minecraft_version
   copyIdeResources = true
 
-  def at = project(":common").file("src/main/resources/META-INF/accesstransformer.cfg")
+  def at = file("src/main/resources/META-INF/accesstransformer.cfg")
   if (at.exists()) {
     accessTransformer = at
   }
