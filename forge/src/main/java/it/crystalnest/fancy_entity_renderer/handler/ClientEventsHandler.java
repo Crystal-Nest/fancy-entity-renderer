@@ -2,10 +2,10 @@ package it.crystalnest.fancy_entity_renderer.handler;
 
 import it.crystalnest.fancy_entity_renderer.Constants;
 import it.crystalnest.fancy_entity_renderer.api.entity.player.FancyProfileFetcher;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
 /**
  * Handles client events.
@@ -20,7 +20,7 @@ public final class ClientEventsHandler {
    * @param event {@link FMLClientSetupEvent}.
    */
   @SubscribeEvent
-  private static void handle(FMLClientSetupEvent event) {
+  public static void handle(FMLClientSetupEvent event) {
     FancyProfileFetcher.setup();
   }
 }

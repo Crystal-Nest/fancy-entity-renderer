@@ -9,11 +9,11 @@
     "client.CapeLayerMixin",
     "client.EntityMixin",
     "client.EntityRenderDispatcherMixin",
-    "client.LivingEntityRendererMixin"
+    "client.LivingEntityRendererMixin",
+    "client.TitleScreenMixin"
   ],
   "server": [],
   "injectors": {
     "defaultRequire": 1
   }
 }
-

@@ -6,7 +6,6 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderOwner;
 import net.minecraft.core.HolderSet;
-import net.minecraft.core.RegistrationInfo;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -112,18 +111,13 @@ public abstract class FancyRegistryMock<T> implements Registry<T> {
   }
 
   @Override
-  public @NotNull Optional<RegistrationInfo> registrationInfo(@NotNull ResourceKey<T> resourceKey) {
-    return Optional.empty();
+  public @NotNull Lifecycle lifecycle(@NotNull T key) {
+    return Lifecycle.stable();
   }
 
   @Override
   public @NotNull Lifecycle registryLifecycle() {
     return Lifecycle.stable();
-  }
-
-  @Override
-  public @NotNull Optional<Holder.Reference<T>> getAny() {
-    return Optional.empty();
   }
 
   @Override
@@ -168,11 +162,6 @@ public abstract class FancyRegistryMock<T> implements Registry<T> {
 
   @Override
   public @NotNull Optional<Holder.Reference<T>> getHolder(int i) {
-    return Optional.empty();
-  }
-
-  @Override
-  public @NotNull Optional<Holder.Reference<T>> getHolder(@NotNull ResourceLocation resourceLocation) {
     return Optional.empty();
   }
 

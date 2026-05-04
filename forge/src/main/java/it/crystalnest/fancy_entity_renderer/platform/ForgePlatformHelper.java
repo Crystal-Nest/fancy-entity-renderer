@@ -2,16 +2,16 @@ package it.crystalnest.fancy_entity_renderer.platform;
 
 import it.crystalnest.fancy_entity_renderer.platform.model.Platform;
 import it.crystalnest.fancy_entity_renderer.platform.services.PlatformHelper;
-import net.neoforged.fml.ModList;
-import net.neoforged.fml.loading.FMLLoader;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.loading.FMLLoader;
 
 /**
- * NeoForge platform helper.
+ * Forge platform helper.
  */
-public final class NeoForgePlatformHelper implements PlatformHelper {
+public final class ForgePlatformHelper implements PlatformHelper {
   @Override
   public Platform getPlatformName() {
-    return Platform.NEOFORGE;
+    return Platform.FORGE;
   }
 
   @Override

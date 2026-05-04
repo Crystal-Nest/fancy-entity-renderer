@@ -59,15 +59,19 @@ public class FancyPlayerRenderer extends PlayerRenderer {
     entityRenderDispatcher.setRenderShadow(false);
     entityRenderDispatcher.setRenderHitBoxes(false);
     model = new FancyPlayerModel(RENDER_CONTEXT.getModelSet(), isSlim);
-    layers.replaceAll(layer -> switch (layer) {
-      case HumanoidArmorLayer<?, ?, ?> l -> new HumanoidArmorLayer<>(
+    layers.replaceAll(layer -> {
+      if (layer instanceof HumanoidArmorLayer<?, ?, ?>) {
+        return new HumanoidArmorLayer<>(
         this,
         new HumanoidArmorModel<>(RENDER_CONTEXT.bakeLayer(isSlim ? ModelLayers.PLAYER_SLIM_INNER_ARMOR : ModelLayers.PLAYER_INNER_ARMOR)),
         new HumanoidArmorModel<>(RENDER_CONTEXT.bakeLayer(isSlim ? ModelLayers.PLAYER_SLIM_OUTER_ARMOR : ModelLayers.PLAYER_OUTER_ARMOR)),
         RENDER_CONTEXT.getModelManager()
-      );
-      case ParrotOnShoulderLayer<AbstractClientPlayer> l -> new FancyParrotOnShoulderLayer(this, RENDER_CONTEXT.getModelSet());
-      default -> layer;
+        );
+      }
+      if (layer instanceof ParrotOnShoulderLayer<?>) {
+        return new FancyParrotOnShoulderLayer(this, RENDER_CONTEXT.getModelSet());
+      }
+      return layer;
     });
   }
 
@@ -96,10 +100,9 @@ public class FancyPlayerRenderer extends PlayerRenderer {
    * @param poseStack pose stack.
    * @param bufferSource buffer source.
    * @param packedLight packed light.
-   * @param partialTick partial tick.
    */
   @Override
-  protected void renderNameTag(@NotNull AbstractClientPlayer entity, @NotNull Component nameTag, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight, float partialTick) {
+  protected void renderNameTag(@NotNull AbstractClientPlayer entity, @NotNull Component nameTag, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight) {
     FancyPlayerMock player = (FancyPlayerMock) entity;
     if (player.showPlayerName && !player.isInvisibleToPlayer) {
       float scale = player.scale * NAMETAG_SCALE;
@@ -107,11 +110,11 @@ public class FancyPlayerRenderer extends PlayerRenderer {
       poseStack.pushPose();
       Vec3 nameTagAttachment;
       if (player.getPose() == Pose.SLEEPING) {
-        nameTagAttachment = new Vec3(Player.POSES.get(player.getPose()).eyeHeight() * player.scale - player.boundingBoxHeight / 1.35F, 0, 0);
+        nameTagAttachment = new Vec3(player.getEyeHeight(player.getPose()) * player.scale - player.boundingBoxHeight / 1.35F, 0, 0);
       } else {
         nameTagAttachment = new Vec3(0, 0.25F * player.scale, 0);
       }
-      float height = player.isBaby && player.getPose() != Pose.SPIN_ATTACK ? player.boundingBoxHeight * Player.DEFAULT_BABY_SCALE : player.boundingBoxHeight;
+      float height = player.isBaby && player.getPose() != Pose.SPIN_ATTACK ? player.boundingBoxHeight * FancyPlayerWidget.PLAYER_BABY_SCALE : player.boundingBoxHeight;
       float offsetY = (player.getPose() == Pose.SLEEPING || player.getPose() == Pose.SWIMMING ? player.boundingBoxWidth : height) / scale + (float) nameTagAttachment.y;
       float offsetX = player.getPose() == Pose.SLEEPING ? -(float) nameTagAttachment.x : font.width(nameTag) / 2F;
       poseStack.scale(scale, -scale, scale);
@@ -139,15 +142,15 @@ public class FancyPlayerRenderer extends PlayerRenderer {
    * @param bob bob.
    * @param yBodyRot body rotation around the Y axis.
    * @param partialTick partial tick.
-   * @param scale render scale.
    */
   @Override
-  protected void setupRotations(@NotNull AbstractClientPlayer entity, @NotNull PoseStack poseStack, float bob, float yBodyRot, float partialTick, float scale) {
+  protected void setupRotations(@NotNull AbstractClientPlayer entity, @NotNull PoseStack poseStack, float bob, float yBodyRot, float partialTick) {
     FancyPlayerMock player = (FancyPlayerMock) entity;
+    float scale = player.scale == 0 ? 1 : player.scale;
     if (player.getPose() == Pose.SPIN_ATTACK) {
       poseStack.mulPose(Axis.XN.rotationDegrees(90));
     }
-    super.setupRotations(entity, poseStack, bob, yBodyRot, partialTick, scale);
+    super.setupRotations(entity, poseStack, bob, yBodyRot, partialTick);
     if (player.isUpsideDown) {
       if (player.getPose() == Pose.DYING || player.getPose() == Pose.SPIN_ATTACK) {
         poseStack.translate(0.0F, (player.boundingBoxHeight + 0.1F) / scale, 0.0F);
@@ -156,6 +159,12 @@ public class FancyPlayerRenderer extends PlayerRenderer {
         poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
       }
     }
+  }
+
+  @Override
+  protected void scale(@NotNull AbstractClientPlayer entity, @NotNull PoseStack poseStack, float partialTick) {
+    FancyPlayerMock player = (FancyPlayerMock) entity;
+    poseStack.scale(player.scale, player.scale, player.scale);
   }
 
   /**
