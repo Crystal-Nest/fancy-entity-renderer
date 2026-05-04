@@ -10,7 +10,7 @@
     "client.EntityMixin",
     "client.EntityRenderDispatcherMixin",
     "client.LivingEntityRendererMixin",
-    "client.TitleScreenMixin"
+    "client.ScreensMixin"
   ],
   "server": [],
   "injectors": {

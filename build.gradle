@@ -1,8 +1,18 @@
+buildscript {
+  configurations.configureEach {
+    resolutionStrategy {
+      force 'commons-io:commons-io:2.16.1'
+      force 'org.apache.commons:commons-compress:1.26.2'
+    }
+  }
+}
+
 plugins {
-  id "org.sonarqube" version "4.4.1.3373"
-  id "com.hypherionmc.modutils.modpublisher" version "2.1.4" apply false
+  id "org.sonarqube" version "7.2.3.7755"
+  id "com.hypherionmc.modutils.modpublisher" version "2.2.1" apply false
   // https://github.com/MinecraftForge/ForgeGradle
-  id "net.minecraftforge.gradle" version "6.0.42" apply false
+  id "net.minecraftforge.gradle" version "6.0.53" apply false
+  // https://github.com/spongepowered/Mixin#version-history
   id "org.spongepowered.mixin" version "0.7-SNAPSHOT" apply false
   // https://fabricmc.net/develop/
   id "fabric-loom" version "1.9-SNAPSHOT" apply false

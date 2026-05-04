@@ -9,7 +9,7 @@ import it.crystalnest.fancy_entity_renderer.Constants;
 import it.crystalnest.fancy_entity_renderer.api.Rotation;
 import it.crystalnest.fancy_entity_renderer.api.entity.RenderMode;
 import it.crystalnest.fancy_entity_renderer.api.entity.player.mock.FancyPlayerMock;
-import it.crystalnest.fancy_entity_renderer.compat.SoulFireD;
+import it.crystalnest.fancy_entity_renderer.compat.SoulFired;
 import it.crystalnest.fancy_entity_renderer.platform.Services;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -741,7 +741,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    */
   public FancyPlayerWidget setOnFire(boolean onFire, ResourceLocation fireType) {
     if (Services.PLATFORM.isModLoaded("soul_fire_d")) {
-      SoulFireD.setOnFire(player, fireType);
+      SoulFired.setOnFire(player, fireType);
     }
     return setOnFire(onFire);
   }
@@ -834,8 +834,7 @@ public class FancyPlayerWidget extends AbstractWidget {
       properties.parrotOnLeftShoulder = player.parrotOnLeftShoulder;
       properties.parrotOnRightShoulder = player.parrotOnRightShoulder;
     } else {
-      player.parrotOnLeftShoulder = properties.parrotOnLeftShoulder;
-      player.parrotOnRightShoulder = properties.parrotOnRightShoulder;
+      setParrots(properties.parrotOnLeftShoulder, properties.parrotOnRightShoulder);
     }
     return this;
   }
@@ -853,14 +852,14 @@ public class FancyPlayerWidget extends AbstractWidget {
       player.isVisuallySwimming = pose == Pose.SWIMMING;
       player.deathTime = pose == Pose.DYING ? 5 : 0;
       if (pose == Pose.STANDING || pose == Pose.CROUCHING) {
-        player.displayFireAnimation = properties.displayFireAnimation;
+        setOnFire(properties.displayFireAnimation);
       } else {
         properties.displayFireAnimation = player.displayFireAnimation;
         player.displayFireAnimation = false;
       }
       if (pose == Pose.STANDING || pose == Pose.CROUCHING || pose == Pose.SPIN_ATTACK) {
-        player.headFollowsMouse = properties.headFollowsMouse;
-        player.bodyFollowsMouse = properties.bodyFollowsMouse;
+        setHeadFollowsMouse(properties.headFollowsMouse);
+        setBodyFollowsMouse(properties.bodyFollowsMouse);
       } else {
         properties.headFollowsMouse = player.headFollowsMouse;
         properties.bodyFollowsMouse = player.bodyFollowsMouse;
@@ -873,8 +872,7 @@ public class FancyPlayerWidget extends AbstractWidget {
         player.parrotOnLeftShoulder = null;
         player.parrotOnRightShoulder = null;
       } else {
-        player.parrotOnLeftShoulder = properties.parrotOnLeftShoulder;
-        player.parrotOnRightShoulder = properties.parrotOnRightShoulder;
+        setParrots(properties.parrotOnLeftShoulder, properties.parrotOnRightShoulder);
       }
     } else {
       Constants.LOGGER.warn("Pose {} is not supported for Player entity!", pose);
@@ -1136,7 +1134,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @param <T> type of the item data.
    * @return {@link ItemStack} to use as wearable.
    */
-  private <T> ItemStack getNullableItem(T item, Function<T, ItemStack> getter) {
+  private <T> ItemStack getNullableItem(@Nullable T item, Function<@NotNull T, ItemStack> getter) {
     return item == null ? ItemStack.EMPTY : getter.apply(item);
   }
 
@@ -1308,24 +1306,20 @@ public class FancyPlayerWidget extends AbstractWidget {
       float renderHeight = player.getPose() == Pose.CROUCHING ? Player.CROUCH_BB_HEIGHT : PLAYER_RENDER_HEIGHT;
       float eyeHeight = player.getPose() == Pose.CROUCHING ? PLAYER_CROUCHING_EYE_HEIGHT : Player.DEFAULT_EYE_HEIGHT;
       float adultEyeY = (renderHeight - eyeHeight) * height / renderHeight;
-      float eyeY = y + (player.isBaby ? (height + adultEyeY) * PLAYER_BABY_SCALE : adultEyeY);
-      float eyeX = (x + width / 2F);
-      double mouseXRelative = mouseX - eyeX;
-      double mouseYRelative = mouseY - eyeY;
+      float eyeY = (player.isBaby ? (height + adultEyeY) * PLAYER_BABY_SCALE : adultEyeY);
+      float eyeX = width / 2F;
+      double mouseXRelative = mouseX - (eyeX + x);
+      double mouseYRelative = mouseY - ((player.isUpsideDown ? height - eyeY : eyeY) + y);
       double xRot = Math.atan(mouseYRelative / 40F) * 20;
       double yRot = -Math.atan(mouseXRelative / 40F) * 20;
-      if (player.isUpsideDown) {
-        xRot = -xRot;
-        yRot = -yRot;
-      }
       if (player.bodyFollowsMouse) {
         player.modelRot.setXDeg(xRot);
         player.modelRot.setYDeg(yRot);
         player.modelRot.setZ(0);
       }
       if (player.headFollowsMouse) {
-        player.headRot.setXDeg(xRot);
-        player.headRot.setYDeg(yRot);
+        player.headRot.setXDeg(player.isUpsideDown ? -xRot : xRot);
+        player.headRot.setYDeg(player.isUpsideDown ? -yRot : yRot);
         player.headRot.setZ(0);
       }
     }

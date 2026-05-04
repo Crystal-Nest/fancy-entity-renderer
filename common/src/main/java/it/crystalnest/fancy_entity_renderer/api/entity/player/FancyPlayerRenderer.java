@@ -18,7 +18,6 @@ import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Pose;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
@@ -68,7 +67,7 @@ public class FancyPlayerRenderer extends PlayerRenderer {
         RENDER_CONTEXT.getModelManager()
         );
       }
-      if (layer instanceof ParrotOnShoulderLayer<?>) {
+      if (layer instanceof ParrotOnShoulderLayer<AbstractClientPlayer>) {
         return new FancyParrotOnShoulderLayer(this, RENDER_CONTEXT.getModelSet());
       }
       return layer;
@@ -112,24 +111,25 @@ public class FancyPlayerRenderer extends PlayerRenderer {
       if (player.getPose() == Pose.SLEEPING) {
         nameTagAttachment = new Vec3(player.getEyeHeight(player.getPose()) * player.scale - player.boundingBoxHeight / 1.35F, 0, 0);
       } else {
-        nameTagAttachment = new Vec3(0, 0.25F * player.scale, 0);
+        nameTagAttachment = new Vec3(0, 0.33F * player.scale, 0);
       }
       float height = player.isBaby && player.getPose() != Pose.SPIN_ATTACK ? player.boundingBoxHeight * FancyPlayerWidget.PLAYER_BABY_SCALE : player.boundingBoxHeight;
       float offsetY = (player.getPose() == Pose.SLEEPING || player.getPose() == Pose.SWIMMING ? player.boundingBoxWidth : height) / scale + (float) nameTagAttachment.y;
-      float offsetX = player.getPose() == Pose.SLEEPING ? -(float) nameTagAttachment.x : font.width(nameTag) / 2F;
       poseStack.scale(scale, -scale, scale);
       if (player.pinName) {
         poseStack.rotateAround(new Quaternionf().rotateY(player.modelRot.getY()), 0, 0, 0);
       }
-      poseStack.translate(-offsetX, -offsetY, 0);
+      poseStack.translate(0, -offsetY, 0);
       if (player.isUpsideDown) {
         poseStack.scale(1, -1, 1);
       }
       if (player.deathTime > 1) {
-        poseStack.rotateAround(Axis.ZP.rotationDegrees(Math.min(Mth.sqrt((player.deathTime - 1) / 20F * 1.6F), 1) * getFlipDegrees(player)), offsetX, offsetY, 0);
+        poseStack.rotateAround(Axis.ZP.rotationDegrees(Math.min(Mth.sqrt((player.deathTime - 1) / 20F * 1.6F), 1) * getFlipDegrees(player)), 0, offsetY, 0);
       }
-      font.drawInBatch(nameTag, 0, 0, 553648127, false, poseStack.last().pose(), bufferSource, Font.DisplayMode.SEE_THROUGH, (int) (Minecraft.getInstance().options.getBackgroundOpacity(0.25F) * 255) << 24, packedLight);
-      font.drawInBatch(nameTag, 0, 0, player.isCrouching() || player.isInvisible() ? 553648127 : -1, false, poseStack.last().pose(), bufferSource, Font.DisplayMode.NORMAL, 0, packedLight);
+      float x = -font.width(nameTag) / 2F + (player.getPose() == Pose.SLEEPING ? (float) nameTagAttachment.x : 0);
+      float y = "deadmau5".equals(nameTag.getString()) ? -10 : 0;
+      font.drawInBatch(nameTag, x, y, 553648127, false, poseStack.last().pose(), bufferSource, Font.DisplayMode.SEE_THROUGH, (int) (Minecraft.getInstance().options.getBackgroundOpacity(0.25F) * 255) << 24, packedLight);
+      font.drawInBatch(nameTag, x, y, player.isCrouching() || player.isInvisible() ? 553648127 : -1, false, poseStack.last().pose(), bufferSource, Font.DisplayMode.NORMAL, 0, packedLight);
       poseStack.popPose();
     }
   }
@@ -175,6 +175,7 @@ public class FancyPlayerRenderer extends PlayerRenderer {
    * @param packedLight packed light.
    */
   public void render(@NotNull FancyPlayerMock entity, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight) {
+    // noinspection ConstantValue: the camera can actually be null.
     if (entityRenderDispatcher.camera == null) {
       entityRenderDispatcher.camera = Minecraft.getInstance().gameRenderer.getMainCamera();
     }

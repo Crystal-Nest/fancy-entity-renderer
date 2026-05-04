@@ -59,6 +59,10 @@ repositories {
       includeGroup "it.crystalnest"
     }
   }
+  maven {
+    name = "Fuzs Mod Resources"
+    url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/"
+  }
 }
 
 ["apiElements", "runtimeElements", "sourcesElements", "javadocElements"].each { variant ->

@@ -317,7 +317,7 @@ public class FancyPlayerMock extends AbstractClientPlayer {
   }
 
   @Override
-  public String getModelName() {
+  public @NotNull String getModelName() {
     return isSlim ? "slim" : "default";
   }
 

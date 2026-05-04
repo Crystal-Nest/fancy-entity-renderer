@@ -9,13 +9,11 @@ dependencies {
     officialMojangMappings()
     parchment("org.parchmentmc.data:parchment-$parchment_minecraft:$parchment_version@zip")
   }
-  compileOnly group: "org.spongepowered", name: "mixin", version: "0.8.5"
+  compileOnly "org.spongepowered:mixin:0.8.5"
   compileOnly "net.fabricmc:fabric-loader:$fabric_loader_version"
-  compileOnly group: "io.github.llamalad7", name: "mixinextras-common", version: "$mixin_extras_version"
-  annotationProcessor group: "io.github.llamalad7", name: "mixinextras-common", version: "$mixin_extras_version"
-  compileOnly("it.crystalnest:soul-fire-d-$name:$minecraft_version-$soul_fire_d_version") {
-    transitive = false
-  }
+  compileOnly "io.github.llamalad7:mixinextras-common:$mixin_extras_version"
+  annotationProcessor "io.github.llamalad7:mixinextras-common:$mixin_extras_version"
+  compileOnly("it.crystalnest:soul-fire-d-$name:$minecraft_version-$soul_fire_d_version")
 }
 
 loom {

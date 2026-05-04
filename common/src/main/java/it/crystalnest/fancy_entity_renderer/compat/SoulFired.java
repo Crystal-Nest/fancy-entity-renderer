@@ -8,8 +8,8 @@ import net.minecraft.world.entity.Entity;
 /**
  * Soul Fire'd compatibility.
  */
-public final class SoulFireD {
-  private SoulFireD() {}
+public final class SoulFired {
+  private SoulFired() {}
 
   /**
    * Updates the given state with the given fire type.

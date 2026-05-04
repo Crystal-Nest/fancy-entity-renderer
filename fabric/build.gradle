@@ -11,9 +11,7 @@ dependencies {
   }
   modImplementation "net.fabricmc:fabric-loader:$fabric_loader_version"
   modImplementation "net.fabricmc.fabric-api:fabric-api:$fabric_version"
-  modCompileOnly("it.crystalnest:soul-fire-d-$name:$minecraft_version-$soul_fire_d_version") {
-    transitive = false
-  }
+  modCompileOnly("it.crystalnest:soul-fire-d-$name:$minecraft_version-$soul_fire_d_version")
 }
 
 loom {

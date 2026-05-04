@@ -3,8 +3,8 @@ package it.crystalnest.fancy_entity_renderer.api.entity.player.mock;
 import com.mojang.authlib.GameProfile;
 import com.mojang.serialization.Lifecycle;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientRegistryLayer;
 import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.client.multiplayer.ClientRegistryLayer;
 import net.minecraft.core.Holder;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
@@ -26,6 +26,7 @@ import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.level.dimension.DimensionType;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.OptionalLong;
@@ -33,7 +34,6 @@ import java.util.OptionalLong;
 /**
  * Mock for client packet listener.
  */
-@SuppressWarnings("DataFlowIssue")
 public class FancyPacketListenerMock extends ClientPacketListener {
   /**
    * Minimal dynamic registries expected by {@link net.minecraft.world.level.Level}.
@@ -55,7 +55,7 @@ public class FancyPacketListenerMock extends ClientPacketListener {
   }
 
   @Override
-  public RegistryAccess registryAccess() {
+  public @NotNull RegistryAccess registryAccess() {
     return REGISTRY_ACCESS;
   }
 
