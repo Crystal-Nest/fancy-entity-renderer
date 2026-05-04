@@ -1,5 +1,5 @@
 buildscript {
-  configurations.all {
+  configurations.configureEach {
     resolutionStrategy {
       force 'commons-io:commons-io:2.16.1'
       force 'org.apache.commons:commons-compress:1.26.2'

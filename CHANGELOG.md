@@ -9,6 +9,11 @@ and this project adheres to [Crystal Nest Semantic Versioning](https://crystalne
 
 - Nothing new.
 
+## [v0.4.6] - 2026/05/04
+
+- Backported to 1.20.1, solving [#1](https://github.com/Crystal-Nest/fancy-entity-renderer/issues/1).
+- This version will only receive critical bug fixes.
+
 ## [v0.6.0] - 2026/04/12
 
 - Ported to 26.1.2.
@@ -186,6 +191,7 @@ and this project adheres to [Crystal Nest Semantic Versioning](https://crystalne
 [v0.5.2]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.5.2
 [v0.5.1]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.5.1
 [v0.5.0]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.5.0
+[v0.4.6]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.4.6
 [v0.4.5]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.4.5
 [v0.4.4]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.4.4
 [v0.4.3]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.4.3
