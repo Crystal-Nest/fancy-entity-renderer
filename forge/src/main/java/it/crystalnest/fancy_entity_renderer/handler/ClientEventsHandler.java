@@ -20,7 +20,7 @@ public final class ClientEventsHandler {
    * @param event {@link FMLClientSetupEvent}.
    */
   @SubscribeEvent
-  private static void handle(FMLClientSetupEvent event) {
+  public static void handle(FMLClientSetupEvent event) {
     FancyProfileFetcher.setup();
   }
 }
