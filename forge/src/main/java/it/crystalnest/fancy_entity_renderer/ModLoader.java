@@ -1,7 +1,6 @@
 package it.crystalnest.fancy_entity_renderer;
 
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.common.Mod;
+import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.ApiStatus;
 
 /**
@@ -13,7 +12,6 @@ public final class ModLoader {
   /**
    * Mod initialization.
    *
-   * @param bus Event bus.
    */
-  public ModLoader(IEventBus bus) {}
+  public ModLoader() {}
 }

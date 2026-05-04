@@ -11,11 +11,7 @@ public enum Platform {
   /**
    * Forge loader identifier.
    */
-  FORGE,
-  /**
-   * NeoForge loader identifier.
-   */
-  NEOFORGE;
+  FORGE;
 
   @Override
   public String toString() {

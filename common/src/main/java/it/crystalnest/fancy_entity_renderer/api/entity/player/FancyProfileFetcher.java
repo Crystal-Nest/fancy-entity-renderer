@@ -4,11 +4,9 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.yggdrasil.ProfileResult;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.Services;
-import net.minecraft.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -63,7 +61,7 @@ public class FancyProfileFetcher {
    * @return game profile.
    */
   static CompletableFuture<Optional<GameProfile>> fetchProfile(String name, Services services) {
-    return services.profileCache().getAsync(name).thenCompose(cached -> {
+    return CompletableFuture.supplyAsync(() -> services.profileCache().get(name), Util.backgroundExecutor()).thenCompose(cached -> {
       LoadingCache<UUID, CompletableFuture<Optional<GameProfile>>> loadingcache = profileCacheById;
       return loadingcache != null && cached.isPresent() ? loadingcache.getUnchecked(cached.get().getId()).thenApply(profile -> profile.or(() -> cached)) : CompletableFuture.completedFuture(Optional.empty());
     });
@@ -78,7 +76,17 @@ public class FancyProfileFetcher {
    * @return game profile.
    */
   static CompletableFuture<Optional<GameProfile>> fetchProfile(UUID id, Services services, BooleanSupplier cacheUninitialized) {
-    return CompletableFuture.supplyAsync(() -> cacheUninitialized.getAsBoolean() ? Optional.empty() : Optional.ofNullable(services.sessionService().fetchProfile(id, true)).map(ProfileResult::profile), Util.backgroundExecutor());
+    return CompletableFuture.supplyAsync(() -> {
+      if (cacheUninitialized.getAsBoolean()) {
+        return Optional.empty();
+      }
+      GameProfile profile = services.profileCache().get(id).orElse(new GameProfile(id, null));
+      return Optional.ofNullable(services.sessionService().fillProfileProperties(profile, true));
+    }, Util.backgroundExecutor());
+  }
+
+  private static boolean isValidPlayerName(String name) {
+    return name.length() <= 16 && name.chars().filter(character -> character <= 32 || character >= 127).findAny().isEmpty();
   }
 
   /**
@@ -89,7 +97,7 @@ public class FancyProfileFetcher {
    */
   public static CompletableFuture<Optional<GameProfile>> fetchProfile(String profileName) {
     LoadingCache<String, CompletableFuture<Optional<GameProfile>>> loadingcache = profileCacheByName;
-    return loadingcache != null && StringUtil.isValidPlayerName(profileName) ? loadingcache.getUnchecked(profileName) : CompletableFuture.completedFuture(Optional.empty());
+    return loadingcache != null && isValidPlayerName(profileName) ? loadingcache.getUnchecked(profileName) : CompletableFuture.completedFuture(Optional.empty());
   }
 
 

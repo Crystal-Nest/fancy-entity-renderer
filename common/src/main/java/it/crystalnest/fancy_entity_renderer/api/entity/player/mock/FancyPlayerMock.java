@@ -6,8 +6,8 @@ import it.crystalnest.fancy_entity_renderer.api.entity.player.FancyPlayerWidget;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.resources.DefaultPlayerSkin;
-import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.Parrot;
 import net.minecraft.world.entity.player.Player;
@@ -179,7 +179,19 @@ public class FancyPlayerMock extends AbstractClientPlayer {
   /**
    * Player skin.
    */
-  public PlayerSkin skin = DefaultPlayerSkin.get(getUUID());
+  public ResourceLocation skin = DefaultPlayerSkin.getDefaultSkin(getUUID());
+
+  /**
+   * Player cape texture.
+   */
+  @Nullable
+  public ResourceLocation cape;
+
+  /**
+   * Player elytra texture.
+   */
+  @Nullable
+  public ResourceLocation elytra;
 
   /**
    * Whether to show the player's cape.
@@ -273,8 +285,40 @@ public class FancyPlayerMock extends AbstractClientPlayer {
 
   @NotNull
   @Override
-  public PlayerSkin getSkin() {
+  public ResourceLocation getSkinTextureLocation() {
     return skin;
+  }
+
+  @Override
+  public boolean isSkinLoaded() {
+    return true;
+  }
+
+  @Override
+  public boolean isCapeLoaded() {
+    return cape != null;
+  }
+
+  @Nullable
+  @Override
+  public ResourceLocation getCloakTextureLocation() {
+    return cape;
+  }
+
+  @Override
+  public boolean isElytraLoaded() {
+    return elytra != null;
+  }
+
+  @Nullable
+  @Override
+  public ResourceLocation getElytraTextureLocation() {
+    return elytra;
+  }
+
+  @Override
+  public String getModelName() {
+    return isSlim ? "slim" : "default";
   }
 
   @Override

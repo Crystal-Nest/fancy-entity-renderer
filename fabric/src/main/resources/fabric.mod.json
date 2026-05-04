@@ -35,6 +35,6 @@
     "java": ">=${java_version}"
   },
   "suggests": {
-    "prometheus": "^${prometheus_version}"
+    "soul_fire_d": "^${soul_fire_d_version}"
   }
 }

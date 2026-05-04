@@ -1,0 +1,75 @@
+plugins {
+  id "multiloader-loader"
+  id "idea"
+  id "net.minecraftforge.gradle"
+  id "org.spongepowered.mixin"
+}
+
+jarJar.enable()
+
+dependencies {
+  minecraft "net.minecraftforge:forge:$minecraft_version-$forge_version"
+  annotationProcessor "org.spongepowered:mixin:0.8.5:processor"
+  compileOnly group: "io.github.llamalad7", name: "mixinextras-common", version: "$mixin_extras_version"
+  annotationProcessor group: "io.github.llamalad7", name: "mixinextras-common", version: "$mixin_extras_version"
+  implementation(jarJar("io.github.llamalad7:mixinextras-forge:$mixin_extras_version")) {
+    jarJar.ranged(it, "[$mixin_extras_version,)")
+  }
+  compileOnly(fg.deobf("it.crystalnest:soul-fire-d-$name:$minecraft_version-$soul_fire_d_version")) {
+    transitive = false
+  }
+}
+
+mixin {
+  add(sourceSets.main, "${mod_id}.refmap.json")
+  config("${mod_id}.mixins.json")
+  config("${mod_id}.forge.mixins.json")
+}
+
+minecraft {
+  mappings channel: "official", version: minecraft_version
+  copyIdeResources = true
+
+  def at = project(":common").file("src/main/resources/META-INF/accesstransformer.cfg")
+  if (at.exists()) {
+    accessTransformer = at
+  }
+
+  runs {
+    configureEach {
+      workingDirectory project.file("run/${it.name}")
+      ideaModule "${rootProject.name}.${project.name}.main"
+      property "mixin.env.remapRefMap", "true"
+      property "mixin.env.refMapRemappingFile", "${projectDir}/build/createSrgToMcp/output.srg"
+      mods {
+        "${mod_id}" {
+          source sourceSets.main
+        }
+      }
+    }
+    client {
+      taskName "ForgeClient"
+    }
+    data {
+      taskName "ForgeData"
+    }
+    server {
+      taskName "ForgeServer"
+    }
+  }
+}
+
+sourceSets.main.resources { srcDir "src/generated/resources" }
+
+jar {
+  manifest {
+    attributes([
+      "MixinConfigs": "${mod_id}.mixins.json,${mod_id}.forge.mixins.json"
+    ])
+  }
+  finalizedBy("reobfJar")
+}
+
+tasks.named("jarJar").configure {
+  finalizedBy("reobfJarJar")
+}

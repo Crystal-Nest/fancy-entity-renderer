@@ -22,6 +22,10 @@ tasks.withType(JavaCompile).configureEach {
 
 repositories {
   mavenCentral()
+  maven {
+    name = "Mojang"
+    url = "https://libraries.minecraft.net"
+  }
   exclusiveContent {
     forRepository {
       maven {
@@ -36,13 +40,13 @@ repositories {
       maven {
         name = "ParchmentMC"
         url = "https://maven.parchmentmc.org/"
-      },
-      maven {
-        name = "NeoForge"
-        url = "https://maven.neoforged.net/releases"
       }
     )
     filter { includeGroup("org.parchmentmc.data") }
+  }
+  maven {
+    name = "Forge"
+    url = "https://maven.minecraftforge.net"
   }
   exclusiveContent {
     forRepository {
@@ -111,13 +115,14 @@ processResources {
     "github_user"                  : github_user,
     "curseforge_id"                : curseforge_id,
     "minecraft_version"            : minecraft_version,
+    "pack_format"                  : pack_format,
     "fabric_version"               : fabric_version,
     "fabric_loader_version"        : fabric_loader_version,
-    "neoforge_version"             : neoforge_version,
-    "neoforge_loader_version_range": neoforge_loader_version_range,
-    "prometheus_version"          : prometheus_version
+    "forge_version"                : forge_version,
+    "forge_loader_version_range"   : forge_loader_version_range,
+    "soul_fire_d_version"          : soul_fire_d_version
   ]
-  filesMatching(["pack.mcmeta", "fabric.mod.json", "META-INF/neoforge.mods.toml", "META-INF/mods.toml", "*.mixins.json"]) {
+  filesMatching(["pack.mcmeta", "fabric.mod.json", "META-INF/mods.toml", "*.mixins.json"]) {
     expand expandProps
   }
   inputs.properties(expandProps)
@@ -131,8 +136,8 @@ switch (name) {
   case "fabric":
     loader = "Fabric"
     break
-  case "neoforge":
-    loader = "NeoForge"
+  case "forge":
+    loader = "Forge"
     break
 }
 
@@ -198,9 +203,9 @@ publisher {
   if (!noPublish) {
     setLoaders(loader)
   }
-  setGameVersions(minecraft_version, "1.21.1")
+  setGameVersions(minecraft_version)
   setDisplayName("[$loader - $minecraft_version] $mod_title v$mod_version")
-  setJavaVersions([JavaVersion.VERSION_21]) // Remember to update this to match java_version gradle property.
+  setJavaVersions([JavaVersion.VERSION_17]) // Remember to update this to match java_version gradle property.
   setCurseEnvironment("client") // "server", "client" or "both".
   github {
     repo = "$github_user/$mod_id_kebab"
@@ -213,22 +218,22 @@ publisher {
     draft = false
   }
   modrinthDepends {
-    optional "prometheus"
+    optional "soul-fire-d"
     switch (loader) {
       case "Fabric":
         required "fabric-api"
         break
-      case "NeoForge":
+      case "Forge":
         break
     }
   }
   curseDepends {
-    optional "prometheus"
+    optional "soul-fire-d"
     switch (loader) {
       case "Fabric":
         required "fabric-api"
         break
-      case "NeoForge":
+      case "Forge":
         break
     }
   }

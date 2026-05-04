@@ -1,15 +1,15 @@
 package it.crystalnest.fancy_entity_renderer.api.entity.player;
 
 import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.math.Axis;
 import it.crystalnest.fancy_entity_renderer.Constants;
 import it.crystalnest.fancy_entity_renderer.api.Rotation;
 import it.crystalnest.fancy_entity_renderer.api.entity.RenderMode;
 import it.crystalnest.fancy_entity_renderer.api.entity.player.mock.FancyPlayerMock;
-import it.crystalnest.fancy_entity_renderer.compat.Prometheus;
+import it.crystalnest.fancy_entity_renderer.compat.SoulFireD;
 import it.crystalnest.fancy_entity_renderer.platform.Services;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -18,11 +18,11 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.resources.DefaultPlayerSkin;
-import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.commands.arguments.item.ItemInput;
 import net.minecraft.commands.arguments.item.ItemParser;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
@@ -51,6 +51,11 @@ import java.util.function.Function;
  */
 public class FancyPlayerWidget extends AbstractWidget {
   /**
+   * Skin model name used by Minecraft for slim player models.
+   */
+  private static final String SLIM_MODEL = "slim";
+
+  /**
    * Player render height.
    */
   public static final float PLAYER_RENDER_HEIGHT = 1.875F;
@@ -58,7 +63,12 @@ public class FancyPlayerWidget extends AbstractWidget {
   /**
    * Player eye height when crouching.
    */
-  public static final float PLAYER_CROUCHING_EYE_HEIGHT = Player.POSES.get(Pose.CROUCHING).eyeHeight();
+  public static final float PLAYER_CROUCHING_EYE_HEIGHT = Player.CROUCH_BB_HEIGHT * 0.85F;
+
+  /**
+   * Player baby scale.
+   */
+  public static final float PLAYER_BABY_SCALE = 0.5F;
 
   /**
    * Ratio of a player's height to its width.
@@ -147,7 +157,7 @@ public class FancyPlayerWidget extends AbstractWidget {
     gfx.pose().translate(getX() + getWidth() / 2F + offsetX, getY() + getHeight() + offsetY, 100);
     gfx.flush();
     gfx.pose().scale(1, -1, 1);
-    Lighting.setupForEntityInInventory(Axis.XP.rotationDegrees(player.modelRot.getX()));
+    Lighting.setupForEntityInInventory();
     gfx.pose().rotateAround(new Quaternionf().rotateXYZ(player.modelRot.getX(), -player.modelRot.getY(), player.modelRot.getZ()), 0, 0, 0);
     renderer.render(player, gfx.pose(), gfx.bufferSource(), LightTexture.FULL_BRIGHT);
     gfx.bufferSource().endBatch();
@@ -396,15 +406,28 @@ public class FancyPlayerWidget extends AbstractWidget {
 
   /**
    * Sets a custom skin for the player.<br>
-   * Overrides the slim property if a valid skin. If {@code null}, restores the previous value for the slim property.
+   * Uses the current slim property. If {@code null}, restores the previous default skin.
    *
-   * @param skin {@link PlayerSkin}.
+   * @param skin skin texture.
    * @return {@code this}.
    */
-  public FancyPlayerWidget setSkin(@Nullable PlayerSkin skin) {
+  public FancyPlayerWidget setSkin(@Nullable ResourceLocation skin) {
+    return setSkin(skin, properties.isSlim);
+  }
+
+  /**
+   * Sets a custom skin for the player.<br>
+   * If {@code null}, restores the previous default skin.
+   *
+   * @param skin skin texture.
+   * @param isSlim whether the skin should use the slim model.
+   * @return {@code this}.
+   */
+  public FancyPlayerWidget setSkin(@Nullable ResourceLocation skin, boolean isSlim) {
     properties.skin = skin;
+    properties.isSlim = isSlim;
     if (!player.copyingPlayer) {
-      updateSkin(skin);
+      updateSkin(skin, isSlim);
     }
     return this;
   }
@@ -418,7 +441,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    */
   public FancyPlayerWidget copyLocalPlayer() {
     player.copyingPlayer = true;
-    copyPlayer(Minecraft.getInstance().getGameProfile());
+    copyPlayer(Minecraft.getInstance().getUser().getGameProfile());
     return this;
   }
 
@@ -694,7 +717,7 @@ public class FancyPlayerWidget extends AbstractWidget {
 
   /**
    * Sets whether the player is on fire.<br>
-   * If Prometheus is installed, you can use {@link #setOnFire(boolean, ResourceLocation)} to specify the kind of fire.
+   * If Soul Fire'd is installed, you can use {@link #setOnFire(boolean, ResourceLocation)} to specify the kind of fire.
    *
    * @param onFire whether the player is on fire.
    * @return {@code this}.
@@ -710,15 +733,15 @@ public class FancyPlayerWidget extends AbstractWidget {
 
   /**
    * Sets whether the player is on fire and what kind of fire it is.<br>
-   * Effective only when Prometheus is installed too.
+   * Effective only when Soul Fire'd is installed too.
    *
    * @param onFire whether the player is on fire.
-   * @param fireType Prometheus fire type.
+   * @param fireType Soul Fire'd fire type.
    * @return {@code this}.
    */
   public FancyPlayerWidget setOnFire(boolean onFire, ResourceLocation fireType) {
-    if (Services.PLATFORM.isModLoaded("prometheus")) {
-      Prometheus.setOnFire(player, fireType);
+    if (Services.PLATFORM.isModLoaded("soul_fire_d")) {
+      SoulFireD.setOnFire(player, fireType);
     }
     return setOnFire(onFire);
   }
@@ -1126,8 +1149,8 @@ public class FancyPlayerWidget extends AbstractWidget {
    */
   private ItemStack parseItem(String item, HolderLookup.Provider provider) {
     try {
-      ItemParser.ItemResult result = new ItemParser(provider).parse(new StringReader(item));
-      return new ItemInput(result.item(), result.components()).createItemStack(1, false);
+      ItemParser.ItemResult result = ItemParser.parseForItem(provider.lookupOrThrow(Registries.ITEM), new StringReader(item));
+      return new ItemInput(result.item(), result.nbt()).createItemStack(1, false);
     } catch (CommandSyntaxException e) {
       Constants.LOGGER.error("Error parsing {}", item, e);
       return ItemStack.EMPTY;
@@ -1163,7 +1186,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    */
   public FancyPlayerWidget uncopyPlayer() {
     player.copyingPlayer = false;
-    updateSkin(properties.skin);
+    updateSkin(properties.skin, properties.isSlim);
     player.name = properties.name;
     return this;
   }
@@ -1196,16 +1219,20 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   private FancyPlayerWidget copyPlayer(GameProfile profile) {
-    Minecraft.getInstance().getSkinManager().getOrLoad(profile).exceptionally(throwable -> (PlayerSkin) FancyPlayerWidget.handlePlayerCopyError(throwable).orElse(null)).thenAccept(skin -> {
-      player.copyingPlayer = true;
-      properties.name = player.name;
-      player.name = profile.getName();
-      if (skin != null) {
-        updateSkin(skin);
-      } else {
-        handlePlayerCopyError(player.name);
+    player.copyingPlayer = true;
+    properties.name = player.name;
+    UUID id = profile.getId() == null ? Util.NIL_UUID : profile.getId();
+    player.name = profile.getName() == null ? id.toString() : profile.getName();
+    updateSkin(DefaultPlayerSkin.getDefaultSkin(id), isSlimModel(DefaultPlayerSkin.getSkinModelName(id)));
+    Minecraft.getInstance().getSkinManager().registerSkins(profile, (type, location, texture) -> {
+      if (type == MinecraftProfileTexture.Type.SKIN) {
+        updateSkin(location, isSlimModel(texture.getMetadata("model")));
+      } else if (type == MinecraftProfileTexture.Type.CAPE) {
+        player.cape = location;
+      } else if (type == MinecraftProfileTexture.Type.ELYTRA) {
+        player.elytra = location;
       }
-    });
+    }, true);
     return this;
   }
 
@@ -1214,10 +1241,12 @@ public class FancyPlayerWidget extends AbstractWidget {
    *
    * @param skin Player's skin.
    */
-  private void updateSkin(@Nullable PlayerSkin skin) {
+  private void updateSkin(@Nullable ResourceLocation skin, boolean isSlim) {
     if (skin != null) {
-      player.isSlim = skin.model() == PlayerSkin.Model.SLIM;
+      player.isSlim = isSlim;
       player.skin = skin;
+      player.cape = null;
+      player.elytra = null;
     } else {
       updateIsSlim(properties.isSlim);
     }
@@ -1231,7 +1260,33 @@ public class FancyPlayerWidget extends AbstractWidget {
    */
   private void updateIsSlim(boolean isSlim) {
     player.isSlim = isSlim;
-    player.skin = DefaultPlayerSkin.DEFAULT_SKINS[random.nextInt(9) + (isSlim ? 0 : 9)];
+    player.skin = getRandomDefaultSkin(isSlim);
+    player.cape = null;
+    player.elytra = null;
+  }
+
+  /**
+   * Returns a random default skin matching the selected model type.
+   *
+   * @param isSlim whether the skin should be slim.
+   * @return skin texture.
+   */
+  private ResourceLocation getRandomDefaultSkin(boolean isSlim) {
+    UUID id;
+    do {
+      id = new UUID(random.nextLong(), random.nextLong());
+    } while (isSlimModel(DefaultPlayerSkin.getSkinModelName(id)) != isSlim);
+    return DefaultPlayerSkin.getDefaultSkin(id);
+  }
+
+  /**
+   * Checks whether a model name is the slim player model.
+   *
+   * @param modelName model name.
+   * @return whether the model is slim.
+   */
+  private static boolean isSlimModel(@Nullable String modelName) {
+    return SLIM_MODEL.equals(modelName);
   }
 
   /**
@@ -1253,7 +1308,7 @@ public class FancyPlayerWidget extends AbstractWidget {
       float renderHeight = player.getPose() == Pose.CROUCHING ? Player.CROUCH_BB_HEIGHT : PLAYER_RENDER_HEIGHT;
       float eyeHeight = player.getPose() == Pose.CROUCHING ? PLAYER_CROUCHING_EYE_HEIGHT : Player.DEFAULT_EYE_HEIGHT;
       float adultEyeY = (renderHeight - eyeHeight) * height / renderHeight;
-      float eyeY = y + (player.isBaby ? (height + adultEyeY) * Player.DEFAULT_BABY_SCALE : adultEyeY);
+      float eyeY = y + (player.isBaby ? (height + adultEyeY) * PLAYER_BABY_SCALE : adultEyeY);
       float eyeX = (x + width / 2F);
       double mouseXRelative = mouseX - eyeX;
       double mouseYRelative = mouseY - eyeY;
@@ -1322,7 +1377,7 @@ public class FancyPlayerWidget extends AbstractWidget {
      * Overridable by copying a player.
      */
     @Nullable
-    PlayerSkin skin;
+    ResourceLocation skin;
 
     /**
      * Parrot variant on the left shoulder.<br>

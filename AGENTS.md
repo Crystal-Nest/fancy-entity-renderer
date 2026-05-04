@@ -1,7 +1,7 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-- "Fancy Entity Renderer" is a Minecraft Java 1.20.1 mod that uses the MultiLoader layout with shared logic under `common` and loader-specific wrappers under `fabric` and `neoforge`.
+- "Fancy Entity Renderer" is a Minecraft Java 1.20.1 mod that uses the MultiLoader layout with shared logic under `common` and loader-specific wrappers under `fabric` and `forge`.
 
 ## Environment
 - You are running inside WSL on a Windows machine.
@@ -28,8 +28,8 @@
 - Do NOT directly run or compile the project via Gradle, except the user explicitly tells you to do so. Using IntelliJ run configurations are an exception here.
 
 ## Testing
-- To check if the project compiles and to look for errors/issues in general, use the `get_run_configurations` and `execute_run_configuration` tools to get and execute the Fabric and NeoForge client run configurations inside the open IntelliJ IDE.
-- Never try to run the `common` module directly, because it is only the base for the `fabric` and `neoforge` ones.
+- To check if the project compiles and to look for errors/issues in general, use the `get_run_configurations` and `execute_run_configuration` tools to get and execute the Fabric and Forge client run configurations inside the open IntelliJ IDE.
+- Never try to run the `common` module directly, because it is only the base for the `fabric` and `forge` ones.
 - When running a "run configuration", always set a timeout of 80 seconds by default, and only if that's not enough after trying the first time, add 30 more seconds and so on.
 - Do not treat "the game is not crashing" as "everything works". When the client successfully launched in testing, check its log files for remaining errors and other problems/issues.
 - You are allowed to add temporary testing code and classes to the project, to be able to better analyze and test specific parts. This can be simple debug logging (always use the INFO level), but it can also be code for you to automatically open menus, launch things, or whatever you need for testing. Just make sure to remove the testing code after.
