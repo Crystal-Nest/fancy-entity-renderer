@@ -17,3 +17,5 @@ accessible field net/minecraft/client/gui/components/AbstractSelectionList child
 accessible method net/minecraft/client/gui/components/OptionsList$Entry <init> (Ljava/util/List;Lnet/minecraft/client/gui/screens/Screen;)V
 accessible field net/minecraft/client/gui/components/OptionsList$Entry children Ljava/util/List;
 accessible field net/minecraft/client/gui/components/OptionsList$Entry screen Lnet/minecraft/client/gui/screens/Screen;
+accessible class net/minecraft/core/component/DataComponentInitializers$InitializerEntry
+accessible class net/minecraft/core/component/DataComponentInitializers$PendingComponentBuilders

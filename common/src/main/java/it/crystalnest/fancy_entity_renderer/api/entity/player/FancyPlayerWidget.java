@@ -8,6 +8,7 @@ import it.crystalnest.fancy_entity_renderer.api.Rotation;
 import it.crystalnest.fancy_entity_renderer.api.entity.RenderMode;
 import it.crystalnest.fancy_entity_renderer.api.entity.player.state.FancyPlayerRenderState;
 import it.crystalnest.fancy_entity_renderer.compat.Prometheus;
+import it.crystalnest.fancy_entity_renderer.imixin.DCIVanilla;
 import it.crystalnest.fancy_entity_renderer.platform.Services;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -183,7 +184,7 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return lookup provider.
    */
   public static HolderLookup.Provider getGuiProvider() {
-    return GuiItemContext.PROVIDER;
+    return Minecraft.getInstance().level instanceof Level level ? level.registryAccess() : GuiItemContext.PROVIDER;
   }
 
   /**
@@ -964,7 +965,10 @@ public class FancyPlayerWidget extends AbstractWidget {
    * Sets the item the player is holding in its right hand.<br>
    * Pass a valid item to set it, pass {@code null} to empty the hand.
    * <p>
-   * <strong>Use the {@link #setRightHandItem(String, HolderLookup.Provider)} overload passing the Level provider if within a menu with a loaded Level.</strong>
+   * <strong>
+   *   This method automatically uses the current loaded level provider, if any, or a Vanilla-only fallback otherwise.
+   *   Use the {@link #setRightHandItem(String, HolderLookup.Provider)} overload to supply a custom provider.
+   * </strong>
    *
    * @param item item string, in the same format as for the command {@code /give}.
    * @return {@code this}.
@@ -978,7 +982,10 @@ public class FancyPlayerWidget extends AbstractWidget {
    * Sets the item the player is holding in its left hand.<br>
    * Pass a valid item to set it, pass {@code null} to empty the hand.
    * <p>
-   * <strong>Use the {@link #setLeftHandItem(String, HolderLookup.Provider)} overload passing the Level provider if within a menu with a loaded Level.</strong>
+   * <strong>
+   *   This method automatically uses the current loaded level provider, if any, or a Vanilla-only fallback otherwise.
+   *   Use the {@link #setLeftHandItem(String, HolderLookup.Provider)} overload to supply a custom provider.
+   * </strong>
    *
    * @param item item string, in the same format as for the command {@code /give}.
    * @return {@code this}.
@@ -1092,7 +1099,10 @@ public class FancyPlayerWidget extends AbstractWidget {
    * Sets the item the player is wearing on its head.<br>
    * Pass a valid item string to set it, pass {@code null} to remove it.
    * <p>
-   * <strong>Use the {@link #setHeadWearable(String, HolderLookup.Provider)} overload passing the Level provider if within a menu with a loaded Level.</strong>
+   * <strong>
+   *   This method automatically uses the current loaded level provider, if any, or a Vanilla-only fallback otherwise.
+   *   Use the {@link #setHeadWearable(String, HolderLookup.Provider)} overload to supply a custom provider.
+   * </strong>
    *
    * @param item item string, in the same format as for the command {@code /give}.
    * @return {@code this}.
@@ -1106,7 +1116,10 @@ public class FancyPlayerWidget extends AbstractWidget {
    * Sets the item the player is wearing on its chest.<br>
    * Pass a valid item to set it, pass {@code null} to remove it.
    * <p>
-   * <strong>Use the {@link #setChestWearable(String, HolderLookup.Provider)} overload passing the Level provider if within a menu with a loaded Level.</strong>
+   * <strong>
+   *   This method automatically uses the current loaded level provider, if any, or a Vanilla-only fallback otherwise.
+   *   Use the {@link #setChestWearable(String, HolderLookup.Provider)} overload to supply a custom provider.
+   * </strong>
    *
    * @param item item string, in the same format as for the command {@code /give}.
    * @return {@code this}.
@@ -1120,7 +1133,10 @@ public class FancyPlayerWidget extends AbstractWidget {
    * Sets the item the player is wearing on its legs.<br>
    * Pass a valid item to set it, pass {@code null} to remove it.
    * <p>
-   * <strong>Use the {@link #setLegsWearable(String, HolderLookup.Provider)} overload passing the Level provider if within a menu with a loaded Level.</strong>
+   * <strong>
+   *   This method automatically uses the current loaded level provider, if any, or a Vanilla-only fallback otherwise.
+   *   Use the {@link #setLegsWearable(String, HolderLookup.Provider)} overload to supply a custom provider.
+   * </strong>
    *
    * @param item item string, in the same format as for the command {@code /give}.
    * @return {@code this}.
@@ -1134,7 +1150,10 @@ public class FancyPlayerWidget extends AbstractWidget {
    * Sets the item the player is wearing on its feet.<br>
    * Pass a valid item to set it, pass {@code null} to remove it.
    * <p>
-   * <strong>Use the {@link #setFeetWearable(String, HolderLookup.Provider)} overload passing the Level provider if within a menu with a loaded Level.</strong>
+   * <strong>
+   *   This method automatically uses the current loaded level provider, if any, or a Vanilla-only fallback otherwise.
+   *   Use the {@link #setFeetWearable(String, HolderLookup.Provider)} overload to supply a custom provider.
+   * </strong>
    *
    * @param item item string, in the same format as for the command {@code /give}.
    * @return {@code this}.
@@ -1602,7 +1621,7 @@ public class FancyPlayerWidget extends AbstractWidget {
       try (MultiPackResourceManager dataResources = new MultiPackResourceManager(PackType.SERVER_DATA, Minecraft.getInstance().getResourcePackRepository().openAllSelected())) {
         provider = HolderLookup.Provider.create(baseProvider.listRegistries().map(lookup -> withLoadedTags(dataResources, lookup)));
       }
-      BuiltInRegistries.DATA_COMPONENT_INITIALIZERS.build(provider).forEach(DataComponentInitializers.PendingComponents::apply);
+      ((DCIVanilla) BuiltInRegistries.DATA_COMPONENT_INITIALIZERS).buildVanilla(provider).forEach(DataComponentInitializers.PendingComponents::apply);
       return provider;
     }
 
