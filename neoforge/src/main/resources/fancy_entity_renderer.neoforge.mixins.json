@@ -4,7 +4,9 @@
   "package": "${group}.${mod_id}.mixin",
   "compatibilityLevel": "JAVA_${java_version}",
   "mixins": [],
-  "client": [],
+  "client": [
+    "client.ClientLevelMixin"
+  ],
   "server": [],
   "injectors": {
     "defaultRequire": 1

@@ -3,6 +3,8 @@ package it.crystalnest.fancy_entity_renderer.api.entity.player.mock;
 import com.mojang.authlib.GameProfile;
 import it.crystalnest.fancy_entity_renderer.api.Rotation;
 import it.crystalnest.fancy_entity_renderer.api.entity.player.FancyPlayerWidget;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.resources.DefaultPlayerSkin;
@@ -250,7 +252,7 @@ public class FancyPlayerMock extends AbstractClientPlayer {
    * @param gameProfile mock game profile.
    */
   public FancyPlayerMock(GameProfile gameProfile) {
-    super(new FancyLevelMock(gameProfile), gameProfile);
+    super(level(gameProfile), gameProfile);
     xo = 0;
     yo = 0;
     zo = 0;
@@ -258,6 +260,15 @@ public class FancyPlayerMock extends AbstractClientPlayer {
     elytraRotY = 0;
     elytraRotZ = (float) (Math.PI / 10);
     yHeadRot = 0;
+  }
+
+  /**
+   * @param gameProfile mock game profile.
+   * @return current client level, or a mock level when no world is loaded.
+   */
+  private static ClientLevel level(GameProfile gameProfile) {
+    ClientLevel level = Minecraft.getInstance().level;
+    return level == null ? new FancyLevelMock(gameProfile) : level;
   }
 
   @Override
