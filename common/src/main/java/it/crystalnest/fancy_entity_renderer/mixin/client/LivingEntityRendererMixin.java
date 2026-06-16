@@ -48,7 +48,7 @@ public abstract class LivingEntityRendererMixin {
    * @param packedLight packed light.
    */
   @WrapOperation(method = "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;scale(FFF)V", ordinal = 0))
-  private void test(PoseStack instance, float x, float y, float z, Operation<Void> original, LivingEntity entity, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
+  private void wrapScale(PoseStack instance, float x, float y, float z, Operation<Void> original, LivingEntity entity, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
     if (entity instanceof FancyPlayerMock playerMock) {
       float scale = playerMock.getScale();
       instance.scale(scale, scale, scale);
