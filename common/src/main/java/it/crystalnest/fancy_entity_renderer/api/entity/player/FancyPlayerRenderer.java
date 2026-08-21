@@ -56,8 +56,6 @@ public class FancyPlayerRenderer extends PlayerRenderer {
   public FancyPlayerRenderer(boolean isSlim) {
     super(RENDER_CONTEXT, isSlim);
     entityRenderDispatcher.overrideCameraOrientation(new Quaternionf());
-    entityRenderDispatcher.setRenderShadow(false);
-    entityRenderDispatcher.setRenderHitBoxes(false);
     model = new FancyPlayerModel(RENDER_CONTEXT.getModelSet(), isSlim);
     layers.replaceAll(layer -> switch (layer) {
       case HumanoidArmorLayer<?, ?, ?> l -> new HumanoidArmorLayer<>(

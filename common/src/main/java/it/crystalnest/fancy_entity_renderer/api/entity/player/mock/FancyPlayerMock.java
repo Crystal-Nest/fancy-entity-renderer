@@ -306,7 +306,7 @@ public class FancyPlayerMock extends AbstractClientPlayer {
   @NotNull
   @Override
   public Component getName() {
-    return Component.literal(name);
+    return Component.literal(name == null ? "FancyMock" : name);
   }
 
   @Override
