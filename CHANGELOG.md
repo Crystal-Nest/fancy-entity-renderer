@@ -9,6 +9,11 @@ and this project adheres to [Crystal Nest Semantic Versioning](https://crystalne
 
 - Nothing new.
 
+## [v0.4.9] - 2026/08/21
+
+- 1.21/1.21.1 only.
+- Fix crash [FM#1769](https://github.com/Keksuccino/FancyMenu/issues/1769),
+
 ## [v0.4.8] - 2026/06/16
 
 - 1.21/1.21.1 only.
@@ -207,6 +212,7 @@ and this project adheres to [Crystal Nest Semantic Versioning](https://crystalne
 [v0.5.2]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.5.2
 [v0.5.1]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.5.1
 [v0.5.0]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.5.0
+[v0.4.9]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.4.9
 [v0.4.8]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.4.8
 [v0.4.7]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.4.7
 [v0.4.6]: https://github.com/crystal-nest/fancy-entity-renderer/releases?q=0.4.6
