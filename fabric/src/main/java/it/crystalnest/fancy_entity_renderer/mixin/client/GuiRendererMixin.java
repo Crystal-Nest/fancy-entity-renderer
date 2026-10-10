@@ -3,7 +3,6 @@ package it.crystalnest.fancy_entity_renderer.mixin.client;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
-import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
@@ -12,8 +11,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.render.GuiRenderer;
 import net.minecraft.client.gui.render.pip.GuiEntityRenderer;
 import net.minecraft.client.gui.render.pip.PictureInPictureRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.feature.FeatureRenderDispatcher;
 import net.minecraft.client.renderer.state.gui.GuiRenderState;
 import net.minecraft.client.renderer.state.gui.pip.GuiEntityRenderState;
@@ -58,6 +55,13 @@ public abstract class GuiRendererMixin {
   private GuiRenderState renderState;
 
   /**
+   * Shadowed dispatcher for rendering prepared entity submissions.
+   */
+  @Final
+  @Shadow
+  private FeatureRenderDispatcher featureRenderDispatcher;
+
+  /**
    * {@code GuiEntityRenderer}s used in the last frame which could be reused in the current frame.
    */
   @Unique
@@ -95,30 +99,28 @@ public abstract class GuiRendererMixin {
   /**
    * Shadowed {@link GuiRenderer#preparePictureInPictureState(PictureInPictureRenderState, int)}.
    *
-   * @param state PiP state.
+   * @param picturesInPictureState PiP state.
    * @param guiScale GUI scale.
    * @param <T> state type.
    */
   @Shadow
-  protected abstract <T extends PictureInPictureRenderState> void preparePictureInPictureState(T state, int guiScale);
+  protected abstract <T extends PictureInPictureRenderState> void preparePictureInPictureState(T picturesInPictureState, int guiScale);
 
   /**
    * Injects at the end of the constructor to save the reference to the main {@link GuiEntityRenderer}.
    *
    * @param renderState {@link GuiRenderState}.
-   * @param bufferSource buffer source.
-   * @param submitNodeCollector submit node collector.
    * @param featureRenderDispatcher render dispatcher.
    * @param renderers list of PiP renderers.
    * @param ci {@link CallbackInfo}.
    */
   @Inject(method = "<init>", at = @At(value = "TAIL"))
-  private void onInit(GuiRenderState renderState, MultiBufferSource.BufferSource bufferSource, SubmitNodeCollector submitNodeCollector, FeatureRenderDispatcher featureRenderDispatcher, List<PictureInPictureRenderer<?>> renderers, CallbackInfo ci) {
+  private void onInit(GuiRenderState renderState, FeatureRenderDispatcher featureRenderDispatcher, List<PictureInPictureRenderer<?>> renderers, CallbackInfo ci) {
     guiEntityRenderer = (GuiEntityRenderer) pictureInPictureRenderers.get(GuiEntityRenderState.class);
   }
 
   /**
-   * Injects at the end of the method {@link GuiRenderer#render(GpuBufferSlice)}.<br>
+   * Injects at the end of the method {@link GuiRenderer#render()}.<br>
    * Clears the renderers from last frame and then swaps the per-frame renderer lists.
    *
    * @param ci {@link CallbackInfo}.
@@ -177,7 +179,7 @@ public abstract class GuiRendererMixin {
   private boolean prepareGuiEntityRenderState(GuiEntityRenderState state, int guiScale, boolean first) {
     GuiEntityRenderer renderer = getGuiEntityRenderer(state, guiScale, first);
     if (renderer != null) {
-      renderer.prepare(state, renderState, guiScale);
+      renderer.prepare(state, renderState, featureRenderDispatcher, guiScale);
       return true;
     }
     return false;
@@ -229,7 +231,7 @@ public abstract class GuiRendererMixin {
       }
     }
     // No suitable renderer was found -> create a new one.
-    GuiEntityRenderer renderer = new GuiEntityRenderer(guiEntityRenderer.bufferSource, Minecraft.getInstance().getEntityRenderDispatcher());
+    GuiEntityRenderer renderer = new GuiEntityRenderer(Minecraft.getInstance().getEntityRenderDispatcher());
     renderersThisFrame.put(state, renderer);
     return renderer;
   }
