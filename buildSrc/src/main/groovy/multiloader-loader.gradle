@@ -3,16 +3,17 @@ plugins {
 }
 
 configurations {
-  commonJava{
+  commonJava {
     canBeResolved = true
   }
-  commonResources{
+  commonResources {
     canBeResolved = true
   }
 }
 
 dependencies {
   compileOnly(project(":common")) {
+    transitive = false
     def loaderAttribute = Attribute.of("io.github.mcgradleconventions.loader", String)
     attributes {
       attribute(loaderAttribute, "common")
