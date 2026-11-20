@@ -151,15 +151,15 @@ public class FancyPlayerRenderer extends AvatarRenderer<@NotNull AbstractClientP
   @Override
   protected void setupRotations(@NotNull AvatarRenderState state, @NotNull PoseStack poseStack, float bodyRot, float scale) {
     if (state.pose == Pose.SPIN_ATTACK) {
-      poseStack.mulPose(Axis.XN.rotationDegrees(90));
+      poseStack.rotate(Axis.XN.rotationDegrees(90));
     }
     super.setupRotations(state, poseStack, bodyRot, scale);
     if (state.isUpsideDown) {
       if (state.pose == Pose.DYING || state.pose == Pose.SPIN_ATTACK) {
         poseStack.translate(0.0F, (state.boundingBoxHeight + 0.1F) / scale, 0.0F);
-        poseStack.mulPose(Axis.ZP.rotationDegrees(180.0F));
+        poseStack.rotate(Axis.ZP.rotationDegrees(180.0F));
       } else if (state.pose == Pose.SLEEPING) {
-        poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
+        poseStack.rotate(Axis.YP.rotationDegrees(180.0F));
       }
     }
   }

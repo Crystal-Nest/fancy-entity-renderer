@@ -36,6 +36,7 @@ import net.minecraft.tags.TagLoader;
 import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.world.entity.Avatar;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
@@ -44,6 +45,7 @@ import net.minecraft.world.entity.player.PlayerModelType;
 import net.minecraft.world.entity.player.PlayerSkin;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.SwingAnimation;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -1268,7 +1270,10 @@ public class FancyPlayerWidget extends AbstractWidget {
    */
   public FancyPlayerWidget setAttackTime(float attackTime) {
     if (attackTime >= 0) {
-      renderState.attackTime = attackTime % 1;
+      renderState.swingAnimation = attackTime % 1;
+      if (renderState.currentSwing == null) {
+        renderState.currentSwing = new LivingEntity.SwingDescription(InteractionHand.MAIN_HAND, SwingAnimation.DEFAULT, SwingAnimation.DEFAULT.duration());
+      }
     }
     return this;
   }
@@ -1280,7 +1285,8 @@ public class FancyPlayerWidget extends AbstractWidget {
    * @return {@code this}.
    */
   public FancyPlayerWidget setAttackArm(HumanoidArm attackArm) {
-    renderState.attackArm = attackArm;
+    SwingAnimation animation = renderState.currentSwing == null ? SwingAnimation.DEFAULT : renderState.currentSwing.animation();
+    renderState.currentSwing = new LivingEntity.SwingDescription(attackArm == renderState.mainArm ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND, animation, animation.duration());
     return this;
   }
 
@@ -1616,7 +1622,7 @@ public class FancyPlayerWidget extends AbstractWidget {
      * @return provider instance.
      */
     private static HolderLookup.Provider createProvider() {
-      HolderLookup.Provider baseProvider = VanillaRegistries.createLookup();
+      HolderLookup.Provider baseProvider = VanillaRegistries.createWorldLookup();
       HolderLookup.Provider provider;
       try (MultiPackResourceManager dataResources = new MultiPackResourceManager(PackType.SERVER_DATA, Minecraft.getInstance().getResourcePackRepository().openAllSelected())) {
         provider = HolderLookup.Provider.create(baseProvider.listRegistries().map(lookup -> withLoadedTags(dataResources, lookup)));

@@ -44,7 +44,7 @@ public abstract class GuiEntityRendererMixin {
       Minecraft.getInstance().gameRenderer.lighting().setupFor(Lighting.Entry.ENTITY_IN_UI);
       poseStack.translate(entityState.translation().x(), entityState.translation().y(), entityState.translation().z());
       poseStack.scale(1, -1, -1);
-      poseStack.mulPose(entityState.rotation());
+      poseStack.rotate(entityState.rotation());
       CameraRenderState camera = new CameraRenderState();
       if (entityState.overrideCameraAngle() != null) {
         camera.orientation = entityState.overrideCameraAngle().get(new Quaternionf());

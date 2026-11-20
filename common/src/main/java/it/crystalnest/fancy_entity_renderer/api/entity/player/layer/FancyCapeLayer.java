@@ -81,7 +81,7 @@ public class FancyCapeLayer extends RenderLayer<@NotNull AvatarRenderState, @Not
         }
         HumanoidModel<@NotNull AvatarRenderState> model = renderState.isBaby ? babyModel : adultModel;
         model.setupAnim(renderState);
-        submitNodeCollector.submitModel(model, renderState, poseStack, RenderTypes.entitySolid(capeTexture.texturePath()), i, OverlayTexture.NO_OVERLAY, renderState.outlineColor, null);
+        submitNodeCollector.submitModel(model, renderState, poseStack, RenderTypes.entitySolid(capeTexture.texturePath()), i, OverlayTexture.NO_OVERLAY, renderState.outlineColor);
         poseStack.popPose();
       }
     }
